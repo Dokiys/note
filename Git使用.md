@@ -1,0 +1,397 @@
+# Git使用
+
+Git 仓库中的提交记录保存的是你的目录下所有文件的快照，就像是把整个目录复制，然后再粘贴一样，但比复制粘贴优雅许多！
+
+Git 希望提交记录尽可能地轻量，因此在你每次进行提交时，它并不会盲目地复制整个目录。条件允许的情况下，它会将当前版本与仓库中的上一个版本进行对比，并把所有的差异打包到一起作为一个提交记录。
+
+Git 保存了提交的历史记录。
+
+
+
+## Git分支
+
+### git commit
+
+通过`git commit`命令可以将修改保存成了一个新的提交记录 `C2`。`C2` 的父节点是 `C1`，父节点是当前提交中变更的基础。
+
+```
+git commit <filename> -m"提交说明"
+```
+
+
+
+### git branch
+
+Git 的分支也非常轻量。它们只是简单地指向某个提交纪录。即使创建再多分的支也不会造成储存或内存上的开销，并且按逻辑分解工作到不同的分支要比维护那些特别臃肿的分支简单多了。
+
+创建分支：
+
+> `git branch [分支名]`
+
+切换分支：
+
+> `git checkout [分支名]`
+
+切换同时创建分支；
+
+> `git checkout -b [分支名]`
+
+
+
+### git merge
+
+新建一个分支，在其上开发某个新功能后，开发完成后再合并回主线上可以通过`git merge`命令。
+
+> `git merge [分支名]`
+
+`merge`命令只会将选择的分支合并到当前分支，当前分支中的修改不会保存到`merge`到分支中。
+
+> `git merge [分支1] [分支2]`
+
+该命令会将分支2合并到分支1之后。
+
+
+
+### git rebase
+
+`rebase`会将当前分支移动到指定的分支上。
+
+> `git rebase [分支名]`
+
+如果当前分支和制定的`rebase`分支来自同一继承，那么会将当前分支的引用直接指向制定分支。
+
+
+
+### HEAD
+
+HEAD 是一个对当前检出记录的符号引用 —— 也就是指向你正在其基础上进行工作的提交记录。
+
+HEAD 总是指向当前分支上最近一次提交记录。
+
+HEAD 通常情况下是指向分支名的
+
+分离的 HEAD 就是让其指向了某个具体的提交记录而不是分支名。
+
+可以利用`checkout`命令并指定提交记录的hash码让HEAD指向具体的提交
+
+> `git checkout [提交记录hash码]`
+
+
+
+### 相对引用
+
+git的hash值基于 SHA-1，共 40 位。例如： `fed2da64c0efc5293610bdd892f82a58e8cbc5d8`
+
+哈希值指定提交记录很不方便，所以 Git 引入了相对引用。可以从一个分支使用鲜菇蒂引用切换到具体的提交记录
+
+- 使用 `^` 向上移动 1 个提交记录
+- 使用 `~<num>` 向上移动多个提交记录，如 `~3`
+
+> `git checkout [分支名]^`
+>
+> `git checkout [分支名]~3`
+
+
+
+### 强制修改分支位置
+
+> `git branch -f [分支名] [提交号]`
+>
+> 例如：`git branch -f master HEAD~3`,将master分支强制指向当前分支的第前三个提交
+
+
+
+### 撤销变更
+
+主要有两种方法用来撤销变更 —— `git reset` & `git revert`。
+
+**`git reset`**
+
+`git reset` 通过把分支记录回退几个提交记录来实现撤销改动。你可以将这想象成“改写历史”。`git reset` 向上移动分支，原来指向的提交记录就跟从来没有提交过一样。
+
+> `git reset [提交号]`
+>
+> 例如：`git reset HEAD^1`
+
+**git revert**
+
+`git revert` 会将指定的提交记录的**上一个提交记录**作为一个新的提交，`revert`之后可以将更新推送到远程仓库与别人分享。
+
+> `git revert [提交号]`
+>
+> 例如：`git revert HEAD`
+
+
+
+### 整理提交
+
+实现“我想要把这个提交放到这里, 那个提交放到刚才那个提交的后面”
+
+> `git cherry-pick <提交号>...`
+>
+> 例如：`git cherry-pick C1 C4`
+
+相较于`rebase`，`git cherry-pick`可以指定提交的记录，
+
+
+
+### 交互式的 rebase
+
+在整理提交时，如果你不清楚你想要的提交记录的哈希值，以利用交互式的 rebase。
+
+交互式 rebase 指的是使用带参数 `--interactive` 的 rebase 命令, 简写为 `-i`
+
+增加了这个选项后, Git 会打开一个 UI 界面并列出将要被复制到目标分支的备选提交记录，它还会显示每个提交记录的哈希值和提交说明，提交说明有助于你理解这个提交进行了哪些更改。
+
+> `git rebase -i HEAD~4`
+
+
+
+### Git Tags
+
+`tag`可以用于永远指向某个提交记录的标识呢，比如软件发布新的大版本，或者是修正一些重要的 Bug 或是增加了某些新特性。
+
+> `git tag [标签名] [提交号]`
+>
+> 例如：`git tag V1 C1`
+
+
+
+### Git Describe
+
+`git describe`用来描述离你最近的锚点（也就是标签tag）
+
+> `git describe <ref>`
+
+`<ref>` 可以是任何能被 Git 识别成提交记录的引用，如果你没有指定的话，Git 会以你目前所检出的位置（`HEAD`）。
+
+它输出的结果是这样的：
+
+>  <tag>\_<numCommits>\_g<hash>
+
+`tag` 表示的是离 `ref` 最近的标签， `numCommits` 是表示这个 `ref` 与 `tag` 相差有多少个提交记录， `hash` 表示的是你所给定的 `ref` 所表示的提交记录哈希值的前几位。
+
+当 `ref` 提交记录上有某个标签时，则只输出标签名称
+
+
+
+## Git文件
+
+### git 撤销，放弃本地修改
+
+1. 未使用 git add 缓存代码时
+
+   ```
+   git checkout -- filepathname 
+   ```
+
+2. 已经使用了 git add 缓存了代码
+
+   ```
+   git reset HEAD filepathname //放弃文件的缓存
+   git reset HEAD //放弃所有缓存
+   ```
+
+3. 已经用 git commit 提交了代码
+
+   ```
+   git reset --hard HEAD^
+   ```
+
+   * 对单个已提交文件撤回
+
+   首先查询这个文件的log
+
+   ```
+   $ git log <fileName>
+   ```
+
+   其次查找到这个文件的上次commit id xxx，并对其进行reset操作
+
+   ```
+   $ git reset <commit-id> <fileName>
+   ```
+
+   再撤销对此文件的修改
+
+   ```
+   $ git checkout <fileName>
+   ```
+
+   最后amend一下，再push上去
+
+   ```
+   //对上一次的提交进行修改，可以使用该命令。也可以修改提交说明。
+   $ git commit --amend 
+   $ git push origin <remoteBranch>
+   ```
+
+
+
+### 比较文件
+
+```
+git diff <版本号码1> <版本号码2>
+```
+
+
+
+## Git远程
+
+远程仓库只是你的仓库在另个一台计算机上的拷贝。你可以通过因特网与这台计算机通信 —— 也就是增加或是获取提交记录。
+
+- 远程仓库是一个强大的备份。本地仓库也有恢复文件到指定版本的能力, 但所有的信息都是保存在本地的。有了远程仓库以后，即使丢失了本地所有数据, 你仍可以通过远程仓库拿回你丢失的数据。
+- 远程让代码社交化了! 既然你的项目被托管到别的地方了, 你的朋友可以更容易地为你的项目做贡献(或者拉取最新的变更)
+
+Git 远程仓库相当的操作实际可以归纳为两点：
+
+* 向远程仓库传输数据
+
+* 从远程仓库获取数据。
+
+  
+
+### git clone
+
+`git clone` 命令在真实的环境下的作用是在**本地**创建一个远程仓库的拷贝（比如从 github.com）
+
+> `git clone [ssh地址]`
+
+
+
+### 远程分支
+
+远程分支反映了远程仓库(在你上次和它通信时)的**状态**。这会有助于你理解本地的工作与公共工作的差别。
+
+在你检出时自动进入分离 HEAD 状态。Git 这么做是出于不能直接在这些分支上进行操作的原因, 你必须在别的地方完成你的工作, （更新了远程分支之后）再用远程分享你的工作成果。
+
+
+
+### git fetch
+
+从远程仓库获取数据, 使远程分支更新以反映最新的远程仓库。
+
+`git fetch` 完成了仅有的但是很重要的两步:
+
+- 从远程仓库下载本地仓库中缺失的提交记录
+- 更新远程分支指针(如 `o/master`)
+
+`git fetch` 实际上将本地仓库中的远程分支更新成了远程仓库相应分支最新的状态。
+
+`git fetch` 通常通过互联网（使用 `http://` 或 `git://` 协议) 与远程仓库通信。
+
+`git fetch` 并不会改变你本地仓库的状态。它不会更新你的 `master` 分支，也不会修改你磁盘上的文件。
+
+`git fetch` 的参数和 `git push` 极其相似。他们的概念是相同的，只是方向相反罢了（因为现在你是下载，而非上传）
+
+```
+git fetch origin <source>:<destination>
+例如：
+git fetch origin foo^:master
+//会将远程仓库中的foo分支的上一个提交，fetch到本地的master
+//如果destination不存在的话，会在本地新建一个分支保存提交记录
+```
+
+如果不指定 <source>的话即将本地的分支删除
+
+```
+git fetch origin :bar
+//即从远程仓库fetch空到分支bar，即删除bar分支。
+```
+
+
+
+### git pull
+
+当远程分支中有新的提交时，你可以像合并本地分支那样来合并远程分支。也就是说就是你可以执行以下命令:
+
+- `git cherry-pick o/master`
+- `git rebase o/master`
+- `git merge o/master`
+
+Git 提供了一个专门的命令 `git pull`来完成这两个操作。
+
+`git pull` 就是  `git fetch` 和 `git merge` 的缩写
+
+所以以下命令是等价的：
+
+```
+git pull origin foo 相当于：
+git fetch origin foo; git merge o/foo
+```
+
+```
+git pull origin bar~1:bugFix 相当于：
+git fetch origin bar~1:bugFix; git merge bugFix
+```
+
+`git pull`还可以和`rebase`一起使用，即
+
+> `git pull --rebase` 
+
+该命令会从远程仓库获取到最新的提交并将当前分支合并到该提交上。
+
+
+
+### git push
+
+负责将变更上传到指定的远程仓库，并在远程仓库上合并你的新提交记录。
+
+`push`之前必须要保证当前分支获取了最新的`original/master`
+
+否则需要先通过`pull`命令获取到最新的远程提交，然后在`push`
+
+同时可以为 push 指定参数，语法是：
+
+```
+git push <remote> <place>
+例如：
+git push origin master
+//切到本地仓库中的“master”分支，获取所有的提交，再到远程仓库“origin”中找到“master”分支，将远程仓库中没有的提交记录都添加上去
+```
+
+同时为源和目的地指定 `<place>` 的话，只需要用冒号 `:` 将二者连起来就可以了：
+
+```
+git push origin <source>:<destination>
+例如：
+git push origin foo^:master
+//会将foo分支的上一个提交push到远程仓库的master分支
+//如果destination不存在的话，会在远程仓库新建一个分支保存提交记录
+```
+
+**注：**这个参数实际的值是个 refspec，“refspec” 是一个自造的词，意思是 Git 能识别的位置（比如分支 `foo` 或者 `HEAD~1`）
+
+如果不指定`<source>的话会将远程仓库的分支删除
+
+```
+git push origin :foo
+//提交空到远程分支foo，即删除远程仓库的foo分支
+```
+
+
+
+
+
+### 远程跟踪
+
+`master` 和 `o/master` 的关联关系就是由分支的“remote tracking”属性决定的。`master` 被设定为跟踪 `o/master`
+
+当你克隆时, Git 会为远程仓库中的每个分支在本地仓库中创建一个远程分支（比如 `o/master`）。然后再创建一个跟踪远程仓库中活动分支的本地分支，默认情况下这个本地分支会被命名为 `master`。
+
+可以让任意分支跟踪 `o/master`, 然后该分支会像 `master` 分支一样得到隐含的 push 目的地以及 merge 的目标。
+
+> 例如：以下命令就可以创建一个名为 `totallyNotMaster` 的分支，它跟踪远程分支 `o/master`。
+>
+> ```
+> git checkout -b totallyNotMaster o/master
+> ```
+>
+> 另一种设置远程追踪分支的方法就是使用：`git branch -u` 命令，
+>
+> ```
+> git branch -u o/master foo
+> //如果当前就在 foo 分支上, 还可以省略 foo：
+> git branch -u o/master
+> ```
+
