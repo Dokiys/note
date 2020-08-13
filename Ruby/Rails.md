@@ -452,9 +452,9 @@ class Article < ApplicationRecord
 end
 ```
 
+# Active Record
 
-
-## Active Record
+***
 
 Active Record 是 [MVC](http://en.wikipedia.org/wiki/Model–view–controller) 中的 M（模型），负责处理数据和业务逻辑。Active Record 负责创建和使用需要持久存入数据库中的数据。Active Record 实现了 Active Record 模式。
 
@@ -468,7 +468,7 @@ Active Record提供的功能如下：
 - 持久存入数据库之前，验证模型；
 - 以面向对象的方式处理数据库操作。
 
-### Active Record 约定
+## Active Record 约定
 
 * **命名**
 
@@ -489,7 +489,7 @@ Active Record提供的功能如下：
 
 
 
-### 创建 Active Record 
+## 创建 Active Record 
 
 继承 `ApplicationRecord` 类即可：
 
@@ -518,7 +518,7 @@ puts p.name # "Some Book"
 
 
 
-### 覆盖命名约定
+## 覆盖命名约定
 
 `ApplicationRecord` 继承自 `ActiveRecord::Base`，后者定义了一系列方法。使用 `ActiveRecord::Base.table_name=` 方法可以指定要使用的表名：
 
@@ -548,9 +548,9 @@ end
 
 
 
-### CRUD
+## CRUD
 
-#### Create
+### Create
 
 Active Record对象可以通过`new`方法创建对象，`create`方法创建对象并保存到数据库中。
 
@@ -574,7 +574,7 @@ myUser2 = MyUser.create do |u|
 end
 ```
 
-#### Read
+### Read
 
 ```ruby
 # 返回所有用户组成的集合
@@ -587,7 +587,7 @@ david = User.find_by(name: 'David')
 users = User.where(name: 'David', occupation: 'Code Artist').order(created_at: :desc)
 ```
 
-#### Update
+### Update
 
 ```ruby
 user = User.find_by(name: 'David') # 获取到数据
@@ -605,16 +605,16 @@ user.update(name: 'Dave') # 直接通过对象更新
 User.update_all "max_login_attempts = 3, must_change_password = 'true'"
 ```
 
-#### Delete
+### Delete
 
 ```ruby
 user = User.find_by(name: 'David') # 获取
 user.destroy # 删除
 ```
 
+# Active Record迁移
 
-
-## Active Record迁移
+***
 
 迁移时按时间顺序修改数据库模式的一种方法。它使用 Ruby DSL ，实现与数据库无关的数据库模式的操作，同时不必手动编写SQL。
 
@@ -670,7 +670,7 @@ end
 
 
 
-### 创建迁移
+## 创建迁移
 
 迁移文件储存在 `db/migrate` 文件夹中，一个迁移文件包含一个迁移类。文件名采用 `YYYYMMDDHHMMSS_create_products.rb` 形式，即 UTC 时间戳加上下划线再加上迁移的名称。迁移内容对应一个类（驼峰式命名）。
 
@@ -693,7 +693,7 @@ end
 
 
 
-#### AddXXX
+### AddXXX
 
 如果迁移名称是 `AddXXXToYYY` 或 `RemoveXXXFromYYY` 的形式，并且后面跟着字段名和类型列表，那么会生成包含合适的 `add_column` 或 `remove_column` 语句的迁移。
 
@@ -755,7 +755,7 @@ end
 
 
 
-#### CreateXXX
+### CreateXXX
 
 如果迁移名称是 `CreateXXX` 的形式，并且后面跟着字段名和类型列表，那么会生成用于创建包含指定字段的 `XXX` 数据表的迁移。
 
@@ -801,7 +801,7 @@ end
 
 
 
-#### 模型生成器
+### 模型生成器
 
 模型和脚手架生成器也会自动生成新模型的迁移文件：
 
@@ -826,7 +826,7 @@ end
 
 
 
-#### 传递修饰符
+### 传递修饰符
 
 可以直接在命令行中传递常用的<a id="BModifier" href="#Modifier">字段修饰符</a>。如下：
 
@@ -847,9 +847,9 @@ end
 
 
 
-### 编写迁移
+## 编写迁移
 
-#### 创建数据表
+### 创建数据表
 
 `create_table` 方法是最基础、最常用的方法。用法如下：
 
@@ -903,7 +903,7 @@ end
 
 
 
-#### 修改数据库
+### 修改数据库
 
 `change_table`用于修改数据表。和 `create_table` 类似，但传入块的对象拥有更多方法来修改数据库：
 
@@ -918,7 +918,7 @@ end
 
 
 
-#### 修改字段
+### 修改字段
 
 Rails 提供了与 `remove_column` 和 `add_column` 类似的 `change_column` 迁移方法。
 
@@ -942,7 +942,7 @@ change_column_default :products, :approved, from: true, to: false
 
 
 
-### 字段修饰符
+## 字段修饰符
 
 字段修饰符可以在创建或修改字段时使用<a id="Modifier" href="#BModifier">↵</a>：
 
@@ -959,7 +959,7 @@ change_column_default :products, :approved, from: true, to: false
 
 
 
-### 外键
+## 外键
 
 尽管不是必需的，但有时我们需要使用外键约束以保证引用完整性<a id="Foreign" href="#BForeign">↵</a>。
 
@@ -988,7 +988,7 @@ remove_foreign_key :accounts, name: :special_fk_name
 
 
 
-### SQL语句
+## SQL语句
 
 如果 Active Record 提供的辅助方法不够用，可以使用 `excute` 方法执行任意 SQL 语句：
 
@@ -1004,9 +1004,9 @@ Product.connection.execute("UPDATE products SET price = 'free' WHERE 1=1")
 
 
 
-### 迁移方法
+## 迁移方法
 
-#### change
+### change
 
 > - `add_column`
 > - `add_foreign_key`
@@ -1039,7 +1039,7 @@ remove_column :posts, :slug, :string, null: false, default: '', index: true
 
 
 
-#### reversible
+### reversible
 
 撤销复杂迁移所需的操作有一些是 Rails 无法自动完成的，这时可以使用 `reversible` 方法指定运行和撤销迁移所需的操作。例如：
 
@@ -1079,7 +1079,7 @@ end
 
 
 
-#### up & down
+### up & down
 
 `up` 方法用于描述对数据库模式所做的改变，`down` 方法用于撤销 `up` 方法所做的改变。一下例子和上面的代码完全相同：
 
@@ -1119,7 +1119,7 @@ end
 
 
 
-### 撤销迁移
+## 撤销迁移
 
 Active Record 提供了 `revert` 方法用于回滚迁移：
 
@@ -1173,7 +1173,7 @@ end
 
 
 
-### 运行迁移
+## 运行迁移
 
 Rails 提供了一套用于运行迁移的 `bin/rails` 任务。其中最常用的是 `rails db:migrate` 任务，用于调用所有**未运行**的迁移中的 `chagne` 或 `up` 方法。
 
@@ -1191,7 +1191,7 @@ $ bin/rails db:migrate VERSION=20080906120000
 
 
 
-#### 回滚
+### 回滚
 
 另一个常用任务是回滚最后一个迁移。例如，当发现最后一个迁移中有错误需要修正时，就可以执行回滚任务。回滚最后一个迁移不需要指定这个迁移的版本，直接执行下面的命令即可：
 
@@ -1213,7 +1213,7 @@ $ bin/rails db:migrate:redo STEP=3
 
 
 
-#### 数据库
+### 数据库
 
 `rails db:setup` 任务用于创建数据库，加载数据库模式，并使用种子数据初始化数据库。
 
@@ -1223,7 +1223,7 @@ $ bin/rails db:migrate:redo STEP=3
 
 
 
-#### 运行指定迁移
+### 运行指定迁移
 
 要想运行或撤销指定迁移，指定版本即可。例如：
 
@@ -1234,7 +1234,7 @@ $ bin/rails db:migrate:up VERSION=20080906120000
 
 
 
-####  迁移环境
+### 迁移环境
 
 `bin/rails db:migrate` 任务默认在开发环境中运行迁移。 `RAILS_ENV` 环境变量说明所需环境：
 
@@ -1244,7 +1244,7 @@ $ bin/rails db:migrate RAILS_ENV=test
 
 
 
-#### 运行迁移输出
+### 运行迁移输出
 
 运行迁移时，默认会输出正在进行的操作，以及操作所花费的时间。
 
@@ -1281,7 +1281,7 @@ end
 
 
 
-### 修改迁移
+## 修改迁移
 
 如果编写迁移时出现错误，在重新运行迁移是无效的，Rails 已经运行过这个迁移类。必须回滚这个迁移（例如通过执行 `bin/rails db:rollback` 任务），再修改迁移中的错误，然后执行 `rails db:migrate` 任务来运行这个迁移。
 
@@ -1291,11 +1291,13 @@ end
 
 
 
-### 数据库模式转储
+## 数据库模式转储
 
 迁移尽管很强大，但并非数据库模式的可信来源。Active Record的可信来源只有通过检查数据库生成的 db/schema.rb` 或 `db/structure.sql，这两个文件用来表示数据库的当前状态。
 
-#### 转储的类型
+
+
+### 转储的类型
 
 可以通过 `config/application.rb` 文件的 `config.active_record.schema_format` 选项来设置想要采用的方式，即 `:sql` 获得`SQL`文件或 `:ruby` 获得`rb`文件。
 
@@ -1331,7 +1333,7 @@ end
 
 
 
-### 引用完整性
+## 引用完整性
 
 Active Record 在**模型**而不是数据库中声明关联。因此，像触发器、约束这些依赖数据库的特性没有被大量使用。
 
@@ -1341,7 +1343,7 @@ Active Record 在**模型**而不是数据库中声明关联。因此，像触�
 
 
 
-### 种子数据
+## 种子数据
 
 Rails 内置的“种子”特性可以快速简便地完成创建数据库后添加初始数据的任务。
 
@@ -1357,7 +1359,9 @@ end
 
 
 
-## 数据校验
+# 数据校验
+
+***
 
 Active Record 开业在存入数据库之前校验模型。调用`save` 或者`update`方法时会进行校验。
 
@@ -1375,7 +1379,7 @@ user.save! # => ActiveRecord::RecordInvalid: Validation failed: Name can't be bl
 
 
 
-## Active Record 关联
+# Active Record 关联
 
 关联可以将两个业务上有联系的两个模块联系起来，以简化其中的数据操作。
 
@@ -1390,9 +1394,9 @@ Rails 支持六种关联：
 
 
 
-### belongs_to
+## belongs_to
 
-#### 基本使用
+### 基本使用
 
 建立两个模型之间一对一的关系，表示所在模型属于另一个模型实例。
 
@@ -1421,7 +1425,7 @@ class CreateBooks < ActiveRecord::Migration[5.0]
 end
 ```
 
-#### 关联方法
+### 关联方法
 
 声明 `belongs_to` 关联后，所在的类自动获得了五个和关联相关的方法：
 
@@ -1449,7 +1453,7 @@ create_association!(attributes = {})
                                    author_name: "John Doe")
 ```
 
-#### 方法选项
+### 方法选项
 
 `belongs_to` 关联支持下列选项：
 
@@ -1535,7 +1539,9 @@ end
 
 如果把 `:validate` 选项设为 `true`，保存对象时，会同时验证关联的对象。该选项的默认值是 `false`，保存对象时不验证关联的对象。
 
-#### 作用域
+
+
+### 作用域
 
 可以通过一些方法指定查询关联时的作用域：
 
@@ -1597,9 +1603,11 @@ end
 
 **注：**把对象赋值给 `belongs_to` 关联不会自动保存对象，也不会保存关联的对象。
 
-### has_one
 
-#### 基本使用
+
+## has_one
+
+### 基本使用
 
 也建立一对一关系，但语义不一样。表示所在模型拥有另一个模型实例。
 
@@ -1641,9 +1649,9 @@ end
 
 
 
-### has_many
+## has_many
 
-#### 基本使用
+### 基本使用
 
 用于建立模型间的一对多关系，通常用于 belongs_to 的另一端，表示所在模型包含零个或多个另一个模型的实例。
 
@@ -1672,7 +1680,9 @@ class CreateAuthors < ActiveRecord::Migration[5.0]
 end
 ```
 
-#### 关联方法
+
+
+### 关联方法
 
 声明 `has_many` 关联后声明所在类获取了如下方法：
 
@@ -1765,7 +1775,9 @@ collection.create!(attributes = {})
 books.create!(attributes = {})
 ```
 
-#### 方法选项
+
+
+### 方法选项
 
 和`belong_to`基本相似，这里介绍部分不相似的选项。
 
@@ -1777,7 +1789,9 @@ books.create!(attributes = {})
 
 指定通过多态关联处理 `has_many :through` 关联的源关联类型。
 
-#### 作用域
+
+
+### 作用域
 
 在作用域代码块中可以使用任何一个标准的查询方法。下面介绍其中几个：
 
@@ -1843,7 +1857,7 @@ end
 
   
 
-### has_many :through
+## has_many :through
 
 用于建立模型间的多对多关系，表示所在模型可以借由第三个模型，包含零个或多个另一模型的实例，常作用于有中间表的关联关系数据。
 
@@ -1915,7 +1929,7 @@ end
 
 
 
-### has_one :through
+## has_one :through
 
 用于建立两个模型间的一对一关系，表示通过第三个模型与另一个模型关联。即一对一对一建立管理，方便所在模型对需要关联模型的操作。
 
@@ -1962,7 +1976,7 @@ end
 
 
 
-### has_and_belongs_to_many
+## has_and_belongs_to_many
 
 用于两个模型间的多对多关系，不借用中间关联对象。
 
@@ -1980,7 +1994,7 @@ end
 
 
 
-### 自联结
+## 自联结
 
 对自己建立关系。
 
@@ -2008,7 +2022,7 @@ end
 
 
 
-### 关联的作用域
+## 关联的作用域
 
 默认情况下关联只会查找当前模块作用域中的对象，要想让处在不同命名空间中的模型正常建立关联，声明关联时要指定完整的类名：
 
@@ -2032,7 +2046,7 @@ end
 
 
 
-### 关联回调
+## 关联回调
 
 普通回调会介入 Active Record 对象的生命周期，在多个时刻处理对象。例如，可以使用 `:before_save` 回调在保存对象之前处理对象。和普通回调类似，关联回调由集合中的生命周期触发，有如下四种；
 
@@ -2076,11 +2090,13 @@ end
 
 
 
-## Active Record 回调
+# Active Record 回调
+
+***
 
 回调是在对象生命周期的某些时刻被调用的方法。通过回调，可以在创建、保存、更新、删除、验证或从数据库中加载 Active Record 对象时执行指定的代码。
 
-### 注册回调
+## 注册回调
 
 回调在使用之前需要注册。我们可以先把回调定义为普通方法，然后使用宏式类方法把这些普通方法注册为回调：
 
@@ -2117,9 +2133,9 @@ after_validation :set_location, on: [ :create, :update ]
 
 
 
-### 可用的回调
+## 可用的回调
 
-#### 创建对象
+### 创建对象
 
 - `before_validation`
 - `after_validation`
@@ -2131,7 +2147,7 @@ after_validation :set_location, on: [ :create, :update ]
 - `after_save`
 - `after_commit/after_rollback`
 
-#### 更新对象
+### 更新对象
 
 - `before_validation`
 - `after_validation`
@@ -2143,20 +2159,24 @@ after_validation :set_location, on: [ :create, :update ]
 - `after_save`
 - `after_commit/after_rollback`
 
-#### 删除对象
+### 删除对象
 
 - `before_destroy`
 - `around_destroy`
 - `after_destroy`
 - `after_commit/after_rollback`
 
-#### `after_initialize` & `after_find` 
+
+
+### `after_initialize` & `after_find` 
 
 只要 Active Record 对象被实例化，不管是通过直接使用 `new` 方法还是从数据库加载记录，都会调用 `after_initialize` 回调。使用这个回调可以避免直接覆盖 Active Record 的 `initialize` 方法。
 
 当 Active Record 从数据库中加载记录时，会调用 `after_find` 回调。`after_find` 会先于`after_initialize`回调。
 
-#### `after_touch`
+
+
+### `after_touch`
 
 `after_touch` 回调可以和 `belongs_to` 一起使用：
 
@@ -2191,7 +2211,7 @@ An Employee was touched # true
 
 
 
-### 调用回调
+## 调用回调
 
 以下方法可以触发回调：
 
@@ -2226,7 +2246,7 @@ An Employee was touched # true
 
 
 
-### 跳过回调
+## 跳过回调
 
 使用下面这些方法可以跳过回调：
 
@@ -2243,13 +2263,13 @@ An Employee was touched # true
 - `update_all`
 - `update_counters`
 
-### 停止执行
+## 停止执行
 
 回调链被包装在一个事物中，如果想要停止回调可以使用`throw :abort`，Rails会抛出除了 `ActiveRecord::Rollback` 和 `ActiveRecord::RecordInvalid` 之外的其他异常。这可能导致那些预期 `save` 和 `update_attributes` 等方法（通常返回 `true` 或 `false` ）不会引发异常的代码出错。
 
 
 
-### 关联回调
+## 关联回调
 
 在关联中也会触发回调：
 
@@ -2276,7 +2296,7 @@ Article destroyed   #<User id: 1>
 
 
 
-### 条件回调
+## 条件回调
 
 可使用`:if`和`:unlese`方法，设置回调条件
 
@@ -2292,7 +2312,7 @@ end
 
 
 
-### 回调类
+## 回调类
 
 Active Record 允许我们用类来封装回调方法。如下：
 
@@ -2334,7 +2354,7 @@ end
 
 
 
-### 事务回调
+## 事务回调
 
 `after_commit` 和 `after_rollback` 这两个回调会在数据库事务完成时触发。
 
@@ -2360,4 +2380,27 @@ end
 
 **注：**如果其中有一个回调引发异常，异常会向上冒泡，后续 `after_commit` 和 `after_rollback` 回调不再执行。如果回调代码可能引发异常，需要在回调中救援并进行适当处理，以便让其他回调继续运行。
 
+
+
+# Action Controller
+
+***
+
+Action Controller 是 MVC 中的 C（控制器）。路由器决定使用哪个控制器处理请求后，控制器负责解析请求，生成相应的输出。
+
+
+
+## 命名约定
+
+Rails 控制器的命名约定是，最后一个单词使用复数形式。
+
+`ApplicationController`属于例外。
+
+例如：用 `ClientsController`，而不是 `ClientController`；用 `SiteAdminsController`，而不是 `SiteAdminController` 或 `SitesAdminsController`。
+
+**注：**模型的名字习惯使用单数形式。
+
+
+
+## 方法和动作
 
