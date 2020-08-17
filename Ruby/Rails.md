@@ -2965,7 +2965,7 @@ Rails 路由还可以生成 URL 地址：
 get '/patients/:id', to: 'patients#show', as: 'patient'
 ```
 
-这样在`patient_path()`中传入`@patient`参数即可设置对应的请求。
+这样在`patient_path()`中传入`@patient`参数即可设置对应的请求地址。
 
 **注：**在`patient_path()`中不需要指定`@patient`的ID。
 
@@ -2977,7 +2977,7 @@ get '/patients/:id', to: 'patients#show', as: 'patient'
 
 
 
-### 路由映射
+### 资源映射
 
 Rails 资源路由把 HTTP 方法和 URL 地址映射到控制器动作上。每个控制器动作也会映射到对应的数据库 CRUD 操作上。路由文件中的单行声明，例如；
 
@@ -3177,7 +3177,7 @@ end
 
 ### 命名空间
 
-为把同一类相关控制器放入同一个命名空间，可以利用`namespace`。例如和管理相关的控制器放入 `Admin::` 命名空间中，可以吧同一类控制器文件放入 `app/controllers/admin` 文件夹，文件中的控制器定义如下;
+为把同一类相关控制器放入同一个命名空间，可以利用`namespace`。例如和管理相关的控制器放入 `Admin::` 命名空间中，可以吧同一类控制器文件放入 `app/controllers/admin` 文件夹，文件中的控制器定义如下：
 
 ```ruby
 class Admin::ArticlesController < ApplicationController
@@ -3205,7 +3205,7 @@ end
 | `PATCH`/`PUT` | `/admin/articles/:id`      | `admin/articles#update`  | `admin_article_path(:id)`      |
 | `DELETE`      | `/admin/articles/:id`      | `admin/articles#destroy` | `admin_article_path(:id)`      |
 
-可以不再命名空间中使用`scope`去掉`admin_` 前缀：
+可以不在命名空间中，然后使用`scope`去掉`admin_` 前缀：
 
 ```ruby
 # 设置默认模块
@@ -3440,9 +3440,38 @@ get 'photos/:id', to: 'photos#show', id: /[A-Z]\d{5}/ # 简写
 
 #### 请求约束
 
+可以在请求的对象上创建一个方法并返回一个字符串来约束路由。
+
+```ruby
+get 'photos', to: 'photos#index', constraints: { subdomain: 'admin' }
+```
+
+如上，请求对象上调用和约束条件中散列的键同名的方法，然后比较返回值和散列的值。即在`Photoes`中存在一个`subdomain`方法，用以返回字符串并和 `'admin'`比较，以验证路由。
+
 
 
 #### 自定义约束
+
+如果需要复杂约束，可以使用能够响应 `matches?` 方法的对象作为约束，即对象中实现`matches?`方法。
+
+```ruby
+class BlacklistConstraint
+  def initialize
+    @ips = Blacklist.retrieve_ips # 假设为获取黑名单用户对列表
+  end
+ 
+  def matches?(request)
+    @ips.include?(request.remote_ip)
+  end
+end
+ 
+Rails.application.routes.draw do
+  get '*path', to: 'blacklist#index',
+    constraints: BlacklistConstraint.new
+end
+```
+
+
 
 
 
