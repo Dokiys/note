@@ -1,2 +1,146 @@
-# Ruby的文件加载与继承
+# irb
+
+`irb`启动时加载指定文件
+
+```ruby
+irb -r <文件名>
+```
+
+# include & extend
+
+* `include`添加一个模块的方法到实例中
+* `extend`添加一个模块的方法到类中
+
+```ruby
+module Log 
+  def class_type
+    "This class is of type: #{self.class}"
+  end
+end
+
+```
+
+```ruby
+class TestClass 
+  include Log 
+end
+
+tc = TestClass.new.class_type
+puts tc #This class is of type: TestClass
+```
+
+
+```ruby
+class TestClass
+  extend Log
+  # ...
+end
+
+tc = TestClass.class_type
+puts tc  # This class is of type: TestClass
+```
+
+
+
+# &. 
+
+假设有一个 account 对象，它有一个关联的 owner 对象，现在想要获取 owner 的 address 属性。稳妥的不引发 nil 异常的写法如下：
+
+```ruby
+if account && account.owner && account.owner.address
+...
+end
+```
+
+我们可以使用安全调用运算符重写前面的例子：
+
+```ruby
+account&.owner&.address
+```
+
+
+
+# attr
+
+类似 Java 中的`@Data`，为属性提供`get` & `set`方法。类似方法有如下四个：
+
+```ruby
+class A
+  # 给 name 提供 getter 方法
+  attr :name
+  # 给 name 提供 getter 和 setter 方法（不推荐）
+  attr :name, true
+  
+  # 给 name 提供 getter 方法
+  attr_reader :name
+  
+  # 给 name 提供 setter 方法
+  attr_writer :name
+  
+   # 给 name 提供 getter 和 setter 方法
+  attr_accessor :name
+end
+```
+
+```ruby
+class A
+    attr_accessor :name
+end
+a1 = A.new
+a1.name = "zhangsan" # setter
+puts a1.name # getter
+```
+
+ruby中没有属性，实际上`attr`为我们提供的是一个名为`.name`（如果属性名为`:count`即提供的是`.count`方法）和`=`的方法。
+
+由于`ruby`中没有属性，我们使用的都是实例变量（或类变量）。
+
+需要时直接在方法中使用`@`加上变量名即可，或者在`initialize`中定义。类似于下面的 2 。
+
+```ruby
+### 注意！！下面的# 1和# 2是不一样的变量
+
+class B
+  # 在类中定义的实例变量
+  # Ruby 在方法中是无法访问到类中作用域的，也就是说这里的@count无法被方法访问到
+  @count = 0 # 1
+
+  def initialize
+    # 实例变量，且不能在类里面声明或调用
+    # 但可以在任何实例方法里面去使用
+    # attr等方法声明的也是实例变量
+    @count = 0 # 2
+  end
+end
+```
+
+
+
+# <<
+
+as an ordinary method
+
+```ruby
+"a" << "b" # 连接字符串
+io << "A line of text\n" # io输入输出
+```
+
+Singleton class definition
+
+```ruby
+class A
+  class << self
+    puts self # self is the singleton class of A
+  end
+end
+
+a = A.new
+class << a
+  puts self # now it's the singleton class of object a
+end
+```
+
+
+
+
 
