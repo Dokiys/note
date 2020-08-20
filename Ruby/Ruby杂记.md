@@ -58,6 +58,13 @@ end
 account&.owner&.address
 ```
 
+# &:
+
+```ruby
+[1,2,3].map{ |x| x.to_s } # ['1','2','3']
+[1,2,3].map(&:to_s) # 与上面等价
+```
+
 
 
 # attr
@@ -142,5 +149,28 @@ end
 
 
 
+# gets & chomp
 
+`gets`获取下一次输入的字符串，以换行结束，且会包括换行。（输入可以是文件，和用户输入等）
+
+`chomp`用来删除最后一行。所以`tmp.gets.chomp`通常用于获取第一行。
+
+
+
+# \_\_send\_\_
+
+和`send`一样使用，在`send`被重写时使用。
+
+用来调用指定方法
+
+# .call
+
+调用一个`Proc`或者方法实例。
+
+```ruby
+my_lambda = ->(name, phone){ puts "Hi #{name} your phone-number is #{phone}" }
+my_lambda.call('Tomas', '555-012-123')
+
+# Hi Tomas your phone-number is 555-012-123
+```
 
