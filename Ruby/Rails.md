@@ -1747,13 +1747,13 @@ collection.create!(attributes = {})
 
 # 根据条件查找是否存在
 @author.books.exists？(available: true) 
-  @author.books.exists?(5) # 查找id为5
-  @author.books.exists?('5') # 查找id为5
-  @author.books.exists?(['name LIKE ?', "%#{query}%"]) # 条件查找数组
-  @author.books.exists?(id: [1, 4, 8]) # 查找id在数组中的
-  @author.books.exists?(name: 'David') # 查找指定name
-  @author.books.exists?(false) # 返回false
-  @author.books.exists? # 如果table为空返回false否则返回true
+@author.books.exists?(5) # 查找id为5
+@author.books.exists?('5') # 查找id为5
+@author.books.exists?(['name LIKE ?', "%#{query}%"]) # 条件查找数组
+@author.books.exists?(id: [1, 4, 8]) # 查找id在数组中的
+@author.books.exists?(name: 'David') # 查找指定name
+@author.books.exists?(false) # 返回false
+@author.books.exists? # 如果table为空返回false否则返回true
 
 # 返回一个或多个此种关联类型的新对象。这些对象会使用传入的属性初始化，还会创建对应的外键，但不会保存关联的对象。
 @book = @author.books.build(published_at: Time.now,
