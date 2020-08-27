@@ -174,3 +174,17 @@ my_lambda.call('Tomas', '555-012-123')
 # Hi Tomas your phone-number is 555-012-123
 ```
 
+
+
+
+
+# debug
+
+安装相应`gem`包之后报错：
+
+```bash
+Cannot start debugger. Gem 'Ruby-debug-ide' isn't installed or its executable script 'rdebug-ide' doesn't exist.
+```
+
+可能是因为`RubyMine`版本和`bash`中的`ruby`版本不一致，在`RubyMine`的偏好中设置相同版本即可。
+
