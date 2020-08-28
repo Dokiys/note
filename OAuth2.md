@@ -77,7 +77,7 @@ https://yunprint.com/callback?
 	code=AUTHORIZATION_CODE				## code即为认证服务器返回的授权码
 ```
 
-**Step3：**这时“云冲印”即可通过授权码、client_id、client_secret以及 Google 重定向的地址（即第一步传入的地址）在后端向 Google 请求`token`。（涉及到了在 Google 注册的 clien_secret ，为保证安全，所以在后端请求 token）示例请求如下：
+**Step3：**这时“云冲印”即可通过授权码、client_id、client_secret以及验证通过后让 Google 重定向的地址在后端向 Google 请求`token`。（涉及到了在 Google 注册的 clien_secret ，为保证安全，所以在后端请求 token）示例请求如下：
 
 ```url
 https://google.com/oauth/token?
@@ -196,7 +196,187 @@ https://b.com/oauth/token?
 
 
 
-## 示例教程
+# doorkeeper
 
-参考[GitHub OAuth 第三方登录示例教程](http://www.ruanyifeng.com/blog/2019/04/github-oauth.html)。
+在`Rails`中利用`doorkeeper`模拟实现第三方登录。
+
+
+
+## 搭建doorkeeper
+
+### 安装
+
+可以参考[doorkeeper官网](https://doorkeeper.gitbook.io/guides/ruby-on-rails/getting-started)
+
+
+
+### 路由
+
+在`config/routes.rb`中添加
+
+```ruby
+Rails.application.routes.draw do
+  use_doorkeeper
+  # your routes below
+end
+```
+
+运行路由后得到：
+
+| 具名辅助方法                       | method | uri                                          | action                                     |
+| ---------------------------------- | ------ | -------------------------------------------- | ------------------------------------------ |
+|                                    | GET    | /oauth/authorize/:code(.:format)             | doorkeeper/authorizations#show             |
+| oauth_authorization_path           | GET    | /oauth/authorize(.:format)                   | doorkeeper/authorizations#new              |
+|                                    | DELETE | /oauth/authorize(.:format)                   | doorkeeper/authorizations#destroy          |
+|                                    | POST   | /oauth/authorize(.:format)                   | doorkeeper/authorizations#create           |
+| oauth_token_path                   | POST   | /oauth/token(.:format)                       | doorkeeper/tokens#create                   |
+| oauth_revoke_path                  | POST   | /oauth/revoke(.:format)                      | doorkeeper/tokens#revoke                   |
+| oauth_applications_path            | GET    | /oauth/applications(.:format)                | doorkeeper/applications#index              |
+|                                    | POST   | /oauth/applications(.:format)                | doorkeeper/applications#create             |
+| new_oauth_application_path         | GET    | /oauth/applications/new(.:format)            | doorkeeper/applications#new                |
+| edit_oauth_application_path        | GET    | /oauth/applications/:id/edit(.:format)       | doorkeeper/applications#edit               |
+| oauth_application_path             | GET    | /oauth/applications/:id(.:format)            | doorkeeper/applications#show               |
+|                                    | PATCH  | /oauth/applications/:id(.:format)            | doorkeeper/applications#update             |
+|                                    | PUT    | /oauth/applications/:id(.:format)            | doorkeeper/applications#update             |
+|                                    | DELETE | /oauth/applications/:id(.:format)            | doorkeeper/applications#destroy            |
+| oauth_authorized_applications_path | GET    | /oauth/authorized_applications(.:format)     | doorkeeper/authorized_applications#index   |
+| oauth_authorized_application_path  | DELETE | /oauth/authorized_applications/:id(.:format) | doorkeeper/authorized_applications#destroy |
+| oauth_token_info_path              | GET    | /oauth/token/info(.:format)                  | doorkeeper/token_info#show                 |
+|                                    | POST   | /oauth/token(.:format)                       | doorkeeper/tokens#create                   |
+|                                    | POST   | /oauth/revoke(.:format)                      | doorkeeper/tokens#revoke                   |
+|                                    | GET    | /oauth/token/info(.:format)                  | doorkeeper/token_info#showoauth_token_path |
+
+其中：
+
+* 路径带有`application`的请求与在`doorkeeper`注册相关
+* 路径带有`authorized`的请求与用户认证相关
+* 路径带有`token`的请求与获取`token`相关
+
+
+
+### 配置
+
+doorkeeper.rb为其配置文件，其中有详细说明。在本案例中会对用到的配置进行详细说明。
+
+
+
+## Getting Started
+
+### 注册登记
+
+第三方应用想通过doorkeeper获取访问权限必须现在`application`中注册登记，以获得`client_id`和`secret`。
+
+可以通过访问路径`http://localhost:4000/oauth/applications/new`进入注册`application`的页面，进行注册。填写应用名和跳转地址（应该将该地址设置为后端的某个接口）等信息后，点击提交即可获得注册登记的`client_id`和`secret`等信息。
+
+也可以通过访问路径`http://localhost:4000/oauth/applications`进入管理注册的`application`页面。
+
+当然我们不希望任何人都可以访问管理页面，这时我们需要在`doorkeeper`的配置文件`doorkeeper.rb`中进行配置：
+
+```ruby
+Doorkeeper.configure do
+
+  admin_authenticator do
+    # 此处写验证允许访问通过对逻辑
+    # 例如我们需要对用户进行验证，只有admin用户才可以登录
+    user = User.find_by_username("admin")
+  end
+  
+end
+
+```
+
+但此时会报错，因为`User`为`ActiveRecord`我们必须先引入`ActiveRecord`。
+
+`doorkeeper`对`ActiveRecord`默认支持，所以我们只需要通过`orm`引入即可：
+
+```ruby
+Doorkeeper.configure do
+  orm :active_record
+  
+  admin_authenticator do
+    # doorkeeper在验证的时候会调用到该返回对象的id
+    user = User.find_by_username(params[:username])
+    # 此处返回的对象必须带有id
+    user.try('is_admin?') ? user || redirect_to(login_url)
+  end
+
+end
+
+```
+
+这样就只有admin用户可以登录管理注册应用页面了。
+
+
+
+### 请求code
+
+现在我们需要让用户去`doorkeeper`认证，并拿到`doorkeeper`返回的`code`
+
+获取`code`的请求路径为`http://0.0.0.0:8008/oauth/authorize`同时附上注册登记获得的`client_id`注册时填写的`redirect_uri`以及`response_type`（值为code）:
+
+```ruby
+http://0.0.0.0:8008/oauth/authorize?client_id=2642d4c1ebed62755b352d2b6a42c9096372450370b387c56f158423e6612552
+&response_type=code
+&redirect_uri=http://localhost:3000
+```
+
+这时访问的时候会直接跳转到`doorkeeper`到认证页面，我们并没有验证用户的身份信息。
+
+所以还需要在`doorkeeper.rb`中添加验证用户身份的逻辑：
+
+```ruby
+  resource_owner_authenticator do
+    # 官方给出的例子
+    # 也可以通过其他方式获取，如在Redis中获取用户的登录信息等
+    User.find_by_id(session[:user_id]) || redirect_to(new_user_session_url)
+  end
+```
+
+在通过以上验证以后，就跳转到`doorkeeper`的认证页面，用户可以选择是否同意认证。
+
+在同意之后，`doorkeeper`会重定向到应用登记注册时填写的返回地址。
+
+```uri
+http://localhost:3000?code=7eab38fb47564354d4ebbc979574e4a9c84a3b8a0f02d6e3bef34f2cc2cb6ec2
+```
+
+应该将该地址设为后端用来获取`token`的接口。此处为了简单演示地址是随便填写的。
+
+
+
+### 请求token
+
+有了`code`之后就可以通过`POST`请求来请求`token`了：
+
+```uri
+http://0.0.0.0:8008/oauth/token?
+# 参数
+client_id => # 注册登记时的client_id
+code => # 用户认证后获取到的code
+redirect_uri => # 注册时填写的返回地址
+grant_type => authorization_code
+```
+
+但此时请求仍然会报错，提示`invalid_client`
+
+这是因为请求`token`时需要`secret`来验证第三方的应用信息，我们需要在请求的头里添加`Authorization`信息，这里是在 postman 中通过`Basic Auth`添加`client_id`和`secret`添加后再次请求得到`doorkeeper`返回的JSON字符串：
+
+```json
+{
+    "access_token": "62ab068b3239e2ff4347999843aeb3ad91f0ae87ec0e10b59fb12e941d3947ed",
+    "token_type": "bearer",
+    "expires_in": 7200,
+    "created_at": 1598606307
+}
+```
+
+
+
+
+
+## 
+
+
+
+
 
