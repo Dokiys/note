@@ -183,6 +183,7 @@ git的hash值基于 SHA-1，共 40 位。例如： `fed2da64c0efc5293610bdd892f8
 
    ```
    git checkout -- filepathname 
+   git checkout head . //撤销所有文件
    ```
 
 2. 已经使用了 git add 缓存了代码
@@ -230,8 +231,10 @@ git的hash值基于 SHA-1，共 40 位。例如： `fed2da64c0efc5293610bdd892f8
 
 ### 比较文件
 
-```
+```bash
 git diff <版本号码1> <版本号码2>
+git diff 	# 比较所有文件
+git diff <文件路径> #比较指定文件
 ```
 
 
