@@ -346,7 +346,7 @@ git fetch origin bar~1:bugFix; git merge bugFix
 
 同时可以为 push 指定参数，语法是：
 
-```
+```bash
 git push <remote> <place>
 例如：
 git push origin master
@@ -355,13 +355,30 @@ git push origin master
 
 同时为源和目的地指定 `<place>` 的话，只需要用冒号 `:` 将二者连起来就可以了：
 
-```
+```bash
 git push origin <source>:<destination>
 例如：
 git push origin foo^:master
 //会将foo分支的上一个提交push到远程仓库的master分支
 //如果destination不存在的话，会在远程仓库新建一个分支保存提交记录
 ```
+
+在远程创建一个与当前分支同名的分支并将当前分支的修改提交可以使用`gpsup`命令：
+
+```bash
+➜  [/Users/atyun/works/boko] git:(feature/zhangzongqi-pm33816-20200828) gpsup
+
+➜  [/Users/atyun/works/boko] git:(feature/zhangzongqi-pm33816-20200828) alias gpsup
+gpsup='git push --set-upstream origin $(git_current_branch)'
+
+➜  [/Users/atyun/works/boko] git:(feature/zhangzongqi-pm33816-20200828) git branch -vv
+  feature/zhangzognqi-debug-20200824   797e3dd Merge branch 'hotfix/wanglu-20200817-fix' into 'dit'
+* feature/zhangzongqi-pm33816-20200828 db1f4fc [origin/feature/zhangzongqi-pm33816-20200828] 添加学生端状态
+```
+
+执行后当前分支会跟踪远程的新建的同名分支。
+
+
 
 **注：**这个参数实际的值是个 refspec，“refspec” 是一个自造的词，意思是 Git 能识别的位置（比如分支 `foo` 或者 `HEAD~1`）
 
