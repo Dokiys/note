@@ -181,21 +181,21 @@ git的hash值基于 SHA-1，共 40 位。例如： `fed2da64c0efc5293610bdd892f8
 
 1. 未使用 git add 缓存代码时
 
-   ```
+   ```bash
    git checkout -- filepathname 
    git checkout head . //撤销所有文件
    ```
 
 2. 已经使用了 git add 缓存了代码
 
-   ```
+   ```bash
    git reset HEAD filepathname //放弃文件的缓存
    git reset HEAD //放弃所有缓存
    ```
 
 3. 已经用 git commit 提交了代码
 
-   ```
+   ```bash
    git reset --hard HEAD^
    ```
 
@@ -203,25 +203,25 @@ git的hash值基于 SHA-1，共 40 位。例如： `fed2da64c0efc5293610bdd892f8
 
    首先查询这个文件的log
 
-   ```
+   ```bash
    $ git log <fileName>
    ```
 
    其次查找到这个文件的上次commit id xxx，并对其进行reset操作
 
-   ```
+   ```bash
    $ git reset <commit-id> <fileName>
    ```
 
    再撤销对此文件的修改
 
-   ```
+   ```bash
    $ git checkout <fileName>
    ```
 
    最后amend一下，再push上去
 
-   ```
+   ```bash
    //对上一次的提交进行修改，可以使用该命令。也可以修改提交说明。
    $ git commit --amend 
    $ git push origin <remoteBranch>
@@ -236,6 +236,7 @@ git diff <版本号码1(old)> <版本号码2(new)>
 git diff 	# 比较所有文件
 git diff <文件路径> #比较指定文件
 git diff <版本号码1(old)> <版本号码2(new)> # 比较指定文件指定版本的不同
+git diff <版本号码1(old)> <版本号码2(new)> --stat # 比较指定版本有哪些文件修改
 ```
 
 
@@ -404,13 +405,13 @@ git push origin :foo
 
 > 例如：以下命令就可以创建一个名为 `totallyNotMaster` 的分支，它跟踪远程分支 `o/master`。
 >
-> ```
+> ```bash
 > git checkout -b totallyNotMaster o/master
 > ```
 >
 > 另一种设置远程追踪分支的方法就是使用：`git branch -u` 命令，
 >
-> ```
+> ```bash
 > git branch -u o/master foo
 > //如果当前就在 foo 分支上, 还可以省略 foo：
 > git branch -u o/master
