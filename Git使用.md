@@ -32,15 +32,19 @@ Git 的分支也非常轻量。它们只是简单地指向某个提交纪录。�
 
 > `git checkout [分支名]`
 
-切换同时创建分支；
+切换同时创建分支：
 
 > `git checkout -b [分支名]`
+
+重命名：
+
+> git branch -m [分支名old] [分支名new]
 
 
 
 ### git merge
 
-新建一个分支，在其上开发某个新功能后，开发完成后再合并回主线上可以通过`git merge`命令。
+将指定分支合并到当前分支之后。
 
 > `git merge [分支名]`
 
@@ -407,6 +411,7 @@ git push origin :foo
 >
 > ```bash
 > git checkout -b totallyNotMaster o/master
+> git checkout -b totallyNotMaster -t o/master
 > ```
 >
 > 另一种设置远程追踪分支的方法就是使用：`git branch -u` 命令，
