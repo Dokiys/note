@@ -50,9 +50,13 @@ Git 的分支也非常轻量。它们只是简单地指向某个提交纪录。�
 
 `merge`命令只会将选择的分支合并到当前分支，当前分支中的修改不会保存到`merge`到分支中。
 
+以下命令会将分支2合并到分支1之后：
+
 > `git merge [分支1] [分支2]`
 
-该命令会将分支2合并到分支1之后。
+`merge`产生冲突时放弃`merge`
+
+> git merge --abort
 
 
 
@@ -329,8 +333,9 @@ git pull origin foo 相当于：
 git fetch origin foo; git merge o/foo
 ```
 
-```
-git pull origin bar~1:bugFix 相当于：
+```bash
+git pull origin bar~1:bugFix 			# 从远程的bar分支的上一个提交 pull到本地的bugFix分支
+# 相当于：
 git fetch origin bar~1:bugFix; git merge bugFix
 ```
 
@@ -373,11 +378,10 @@ git push origin foo^:master
 
 ```bash
 ➜  [/Users/atyun/works/boko] git:(feature/zhangzongqi-pm33816-20200828) gpsup
-
 ➜  [/Users/atyun/works/boko] git:(feature/zhangzongqi-pm33816-20200828) alias gpsup
 gpsup='git push --set-upstream origin $(git_current_branch)'
 
-➜  [/Users/atyun/works/boko] git:(feature/zhangzongqi-pm33816-20200828) git branch -vv
+➜  [/Users/atyun/works/boko] git:(feature/zhangzongqi-pm33q816-20200828) git branch -vv
   feature/zhangzognqi-debug-20200824   797e3dd Merge branch 'hotfix/wanglu-20200817-fix' into 'dit'
 * feature/zhangzongqi-pm33816-20200828 db1f4fc [origin/feature/zhangzongqi-pm33816-20200828] 添加学生端状态
 ```
