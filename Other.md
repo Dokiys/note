@@ -6,9 +6,13 @@
 
 #### 端口占用
 
-```
+```bash
 $ lsof -i:[端口]
 $ ps -ef | grep [查找的字符串]
+
+[root@guest ~]# ls -a			# 查看所以文件（.开头的文件为隐藏文件 ls 命令不会显示）
+
+[root@guest ~] man ascii  # 查看 ascii 编码表
 ```
 
 #### 历史命令
@@ -67,35 +71,16 @@ lrwxr-xr-x  1 postgres  admin    38B Aug 14  2017 redis-server -> ../Cellar/redi
 
 
 
+### 操作
 
-
-### 项目
-
-启动
-
-```bush
-rails server -p 4000
-```
-
-查找gem包
+#### 文件：
 
 ```bash
-bundle show <查找文件名>
-```
+➜  [/Users/atyun] cp ai.json /Users/atyun/works/ai.json 		# 复制文件到指定路径
+➜  [/Users/atyun] mv ai.json /Users/atyun/works/ai.json 		# 移动文件到指定路径
 
-前端项目启动时报错：
-
-```bash
-Module build failed (from ./node_modules/sass-loader/lib/loader.js):
-# 运行
-npm rebuild node-sass
-```
-
-切换环境
-
-```bash
- ➜  [/Users/atyun] ./lnfs_files.sh dit.boko.liuyangbao.com
- ➜  [/Users/atyun] ./lnfs_files.sh sit.boko.liuyangbao.com
+[root@guest ~]# source .tcshrc 			# 使.tcshrc文件立即生效
+[root@guest ~]# . .tcshrc  					# 可以用'.'代替‘source'
 ```
 
 
