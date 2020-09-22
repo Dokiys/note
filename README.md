@@ -15,13 +15,14 @@ Java网络编程：[尚硅谷_Java网络编程](https://www.bilibili.com/video/B
 
 Rails：[Ruby on Rails 指南 (v5.1.1)](https://ruby-china.github.io/rails-guides/index.html)
 
-ruby元编程：([Ruby中的元编程](https://deathking.github.io/metaprogramming-in-ruby/))
+ruby元编程：[Ruby中的元编程](https://deathking.github.io/metaprogramming-in-ruby/)
 
 
 
 ## OAuth2.0
 
-OAuth2.0：[《OAuth 2.0 教程》](http://www.ruanyifeng.com/blog/2019/04/oauth_design.html)，
+OAuth2.0：[《OAuth 2.0 教程》](http://www.ruanyifeng.com/blog/2019/04/oauth_design.html)
+
 doorkeeper： [Ruby on Rails使用doorkeeper实现oauth2保护api接口](https://www.embbnux.com/2016/01/26/ruby_on_rails_use_doorkeeper_for_auth2-0_to_protect_api/) 
 
 ​					   [OAuth 2.0 教程: Grape API 整合 Doorkeeper](https://ruby-china.org/topics/14656)
