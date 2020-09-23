@@ -132,6 +132,23 @@ enable -n echo
 
 
 
+### 命令的帮助
+
+对于一个不熟悉的命令，需要查看其帮助文档，可以通过以下一系列方式：
+
+```bash
+[root@guest ~]# type nano
+nano is /usr/bin/nano								# => 外部命令，一般会提供 -h/-H 或 --help 的选项来查看帮助文档
+
+[root@guest ~]# type history
+history is a shell builtin					# => 内部命令
+[root@guest ~]# help history				# => 内部命令可以通过 内部命令 help 来查看
+```
+
+
+
+
+
 ### Hash
 
 外部命令的执行需要到磁盘找到命令的路径，由于每次执行都会从`$PATH`路径下寻找该命令
@@ -294,8 +311,6 @@ fileH fileG fileF fileE fileD fileC fileB fileA
 ![String] => # 查找最近一条执行过的且以 [String] 开头的命令
 !?[String]:p => # 查找最近一条执行过的且包含 [String] 的命令，并以字符串打印
 
-
-
 ➜  [/Users/atyun] !-2$				# $表示最后一个参数
 ➜  [/Users/atyun] .rvm
 
@@ -303,7 +318,28 @@ fileH fileG fileF fileE fileD fileC fileB fileA
 ➜  [/Users/atyun] Sites bundler
 
 ➜  [/Users/atyun] !-1:2				# 获取上一条命令的第二个参数
-
-
 ```
+
+**环境变量**
+
+>HISTSIZE: 命令历史记录条数
+>
+>HISTFILE: 指定历史文件
+>
+>HISTFILESIZE: 命令历史文件记录条数
+>
+>HISTTIMEFORMAT=" %F %T" 显示时间
+>
+>HISTIGNORE= "str1:str2" 忽略str1命令
+>
+>HISTCONTROL = [ ignoredups | ignorespace | ignoreboth | erasedups]
+>
+>* ignoredups : 默认，忽略连续重复命令
+>* ignorespace : 忽略空白开头命令
+>* ignoreboth : = ignoredups + ignorespace
+>* erasedups : 删除重复命令
+
+环境变量的修改只是针对内存的，如本文开始的Linux思想一样，需要长期修改必须添加到配置文件
+
+`/etc/profile`下的配置文件会影响当前主机的所有用户，一般修改`~/.bash_profile`
 

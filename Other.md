@@ -17,8 +17,11 @@ $ ps -ef | grep [查找的字符串]
 
 #### 历史命令
 
-~~~
+~~~bash
 history | grep [查找内容]
+# 查找内容过多时可以键入'/'然后输入需要查找的内容进行搜索
+# 键入'?'然后输入需要查找的内容是自下往上搜索
+# 搜索时 'n' => 下一项，'N' => 上一项
 ~~~
 
 #### 路径
@@ -110,6 +113,10 @@ lrwxr-xr-x  1 postgres  admin    38B Aug 14  2017 redis-server -> ../Cellar/redi
 * 切换标签页： Command +  <-
 * 清屏：Ctrl + L
 * 复制字符串：双击添加到粘贴板 or 选中 + Command + 鼠标拖动到指定位置
+* 光标跳转行首：Ctrl + a
+* 光标跳转行尾：Ctrl + e
+* 从光标删除到命令行尾：Ctrl + k
+* 光标处和命令行首切换：Ctrl + x x
 
 
 
