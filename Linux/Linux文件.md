@@ -66,3 +66,378 @@ graph TB
 * 文件名最多255个字节
 * 包括路径最长4095个字节
 
+
+
+## 文件目录命令
+
+### 查看
+
+通过`alias`命令可以看到，bash 为我们自动设置了别名，`ll`其实是对`ls -lh`的调用
+
+```bash
+➜  [/Users/atyun/railsPractice] alias
+l='ls -lah'
+la='ls -lAh'
+ll='ls -lh'
+ls='ls -G'
+lsa='ls -lah'
+```
+
+通过`ll`命令可以查看当前文件夹下的文件详细信息：
+
+```bash
+➜  [/Users/atyun/railsPractice] ll
+total 8
+#							所有者						大小		文件时间
+drwxr-xr-x  28 atyun  staff   896B Sep 21 14:22 blog
+drwxr-xr-x   3 atyun  staff    96B Aug 10 09:45 gitPractice
+drwxr-xr-x   4 atyun  staff   128B Sep 17 21:40 iterm2
+drwxr-xr-x  13 atyun  staff   416B Sep 24 19:51 test
+-rw-r--r--   1 atyun  staff   374B Aug 17 18:26 test.rb
+drwxr-xr-x   2 atyun  staff    64B Sep 15 16:42 uaejson
+```
+
+其中显示出的第一个字母表示的是文件类型，Linux下的文件类型如下；
+
+* \- ：普通文件
+* d：目录文件
+* b：块设备
+* c：字符设备
+*  l：符号连接文件
+* p：管道文件
+* s：套接字文件
+
+在查看当前文件目录内容的时候添加`-a`选项会列出两个特殊的文件：
+
+```bash
+➜  [/Users/atyun/railsPractice/test] ll -a
+total 80
+drwxr-xr-x  13 atyun  staff   416B Sep 24 19:51 .				# => 表示当前目录
+drwxr-xr-x   9 atyun  staff   288B Sep 17 21:40 ..			# => 表示上一级目录
+```
+
+文件目录分为基名和目录名，基名为文件目录最后的一部分，前面的即路径即为目录名
+
+`basename`和`dirname`可以分别用来获取基名和目录名：
+
+```bash
+# 以路径/Users/atyun/railsPractice/test为例
+
+➜  [/Users/atyun/railsPractice/test] basename `pwd`		# => 获取当前路径基名
+test	# => 基名
+➜  [/Users/atyun/railsPractice/test] dirname !-1:1		# => 获取上一条命令的第一个参数
+➜  [/Users/atyun/railsPractice/test] dirname `pwd`		# => 获取当前路径目录名
+/Users/atyun/railsPractice	# => 目录名
+```
+
+
+
+### cd
+
+常用的文件目录命令还有`cd`(chang directory)，用于进入到某目录
+
+`cd`的参数可以接相对路径也可以接绝对路径
+
+```bash
+➜  [/Users/atyun/railsPractice/test] cd ../		# `.`代表当前目录，`..`代表上一级目录。
+➜  [/Users/atyun/railsPractice] cd /Users/atyun/railsPractice/test	# 绝对路径
+➜  [/Users/atyun/railsPractice/test] cd ~			# 不接参数或接'~'，会进入到当前用户的家目录
+➜  [/Users/atyun]
+➜  [/Users/atyun] cd -		# '-'表示进入到以 $OLDPWD 变量表示的上一次所在的目录
+~/railsPractice
+➜  [/Users/atyun/railsPractice]
+```
+
+正如上面所述。
+
+如果`cd`不接参数，会进入到当前用户的家目录，当然也可以用`~`表示当前家目录。
+
+
+
+### 通配符
+
+ 在查询文件时可以通过通配符来筛选需要查询的文件：
+
+```bash
+➜  [/Users/atyun/test] ls aA*				# 匹配以 aA 开头的任意文件
+➜  [/Users/atyun/test] ls a?9*			# 以 a 开头后面接任意字符 在接 9 再跟任意字符的文件
+➜  [/Users/atyun/test] ls ~					# 表示当前家目录 
+➜  [/Users/atyun/test] ls ~zhang		# 表示用户 zhang的家目录 
+➜  [/Users/atyun/test] ls ~-				# 表示前一个工作目录 
+➜  [/Users/atyun/test] ls ~-				# 表示前一个工作目录 
+➜  [/Users/atyun/test] ls a[A-Z]*		# 匹配 a开头的第二个字符为A-Z的文件
+➜  [/Users/atyun/test] ls aA[0-9]]*	# 匹配 aA开头的第三个字符为0-9的文件
+➜  [/Users/atyun/test] ls a[ABC]*		# 匹配 a开头的第二个字符为 ABC 中的任意一个字符的文件
+➜  [/Users/atyun/test] ls a[^BC]*		# 匹配 a开头的第二个字符不为 ABC 中的任意一个字符的文件
+```
+
+Linux也提供了一些与定义的字符类，常用的如下：
+
+* `[:digit:]`：任意数字
+* `[:lower:]`：任意小写字母
+* `[:upper:]`：任意大些字母
+* `[:alpha:]`：任意字母
+* `[:alnum:]`：任意数字或字母
+
+以上字符类定义的是所有字符而不是单个字符，使用的时候需要再添加`[]`来表示匹配单个字符：
+
+```bash
+➜  [/Users/atyun/test] ls aA[[:digit:]].txt			# 匹配 aA开头的第三个字符为数字 并以.txt结尾的文件
+aA0.txt aA1.txt aA2.txt aA3.txt aA4.txt aA5.txt aA6.txt aA7.txt aA8.txt aA9.txt
+```
+
+查看当前目录的所有`.`开头的文件：
+
+```bash
+➜  [/Users/atyun] ls -d .[^.]* # -d 表示只显示当前目录，.[^.]* 表示'.' 开头的第二个字符不为'.'的文件
+```
+
+匹配时`[]`表示获取 1 个字符`{}`表示获取字符，所以`[1-10]`并不能表示 1到10
+
+
+
+## 文件管理命令
+
+### cp
+
+`cp`用于文件的复制：
+
+```bash
+[root@guest ~]# cp --help
+Usage: cp [OPTION]... [-T] SOURCE DEST					# 复制指定文件到某路径
+  or:  cp [OPTION]... SOURCE... DIRECTORY				# 复制多个指定文件到某文件夹
+  or:  cp [OPTION]... -t DIRECTORY SOURCE...		# 向某个文件复制多个文件
+Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY.
+```
+
+在复制过程中，如果目标文件存在会提示是否覆盖：
+
+```bash
+➜  [/Users/atyun/test] cp -i aA0.txt ./b.txt		# root 用户不会提示
+overwrite ./b.txt? (y/n [n])
+```
+
+并且可以添加`--backup`参数来生成将要被覆盖文件到备份：
+
+```bash
+[root@guest ~]# cp 1.txt 2.txt --backup
+cp: overwrite ‘2.txt’? y
+[root@guest ~]# ll *.txt*
+-rw-r--r--. 1 root root 0 Sep 27 03:15 1.txt
+-rw-r--r--. 1 root root 0 Sep 27 03:17 2.txt
+-rw-r--r--. 1 root root 0 Sep 27 03:16 2.txt~
+[root@guest ~]# cp 1.txt 2.txt --backup=numbered		# 定义备份格式
+[root@guest ~]# ll *.txt*
+-rw-r--r--. 1 root root 0 Sep 27 03:15 1.txt
+-rw-r--r--. 1 root root 0 Sep 27 03:20 2.txt
+-rw-r--r--. 1 root root 0 Sep 27 03:16 2.txt~
+-rw-r--r--. 1 root root 0 Sep 27 03:17 2.txt.~1~
+```
+
+如果复制的为文件夹需要添加`-r`参数，以将文件夹下的所有文件都复制：
+
+```bash
+➜  [/Users/atyun] cp test test2
+cp: test is a directory (not copied).
+➜  [/Users/atyun] cp -r test test2
+➜  [/Users/atyun] ls -d test*
+test  test2
+```
+
+在复制过程中默认并不会保留文件的`元数据`，可以通过`-a`命令来指定元数据的复制：
+
+```bash
+➜  [/Users/atyun] ll -d test*
+drwxr-xr-x  64 atyun  staff   2.0K Sep 27 10:24 test
+drwxr-xr-x  64 atyun  staff   2.0K Sep 27 10:28 test2
+➜  [/Users/atyun] cp -a test test3
+➜  [/Users/atyun] cp -a test2{,.bak}			# 也可以用于创建test2的备份
+➜  [/Users/atyun] ll -d test*
+drwxr-xr-x  64 atyun  staff   2.0K Sep 27 10:24 test
+drwxr-xr-x  64 atyun  staff   2.0K Sep 27 10:28 test2
+drwxr-xr-x  64 atyun  staff   2.0K Sep 27 10:28 test2.bak
+drwxr-xr-x  65 atyun  staff   2.0K Sep 27 11:10 test3
+drwxr-xr-x  64 atyun  staff   2.0K Sep 27 10:24 test4
+
+```
+
+**注：**`-a`选项经常用于文件的备份和归档，如果只想保留权限可以使用`-p`选项
+
+Linux命令执行一般没有提示，如果想查看复制过程可以使用`-v`选项
+
+对于文件夹中的软链接复制的时候并不会复制链接信息，而是将被链接文件直接以连接文件名复制，可以添加`-d`选项复制
+
+
+
+### mv
+
+`mv`命令用于文件的移动，用法和`cp`很相似：
+
+```bash
+[root@guest ~]# mv --help
+Usage: mv [OPTION]... [-T] SOURCE DEST					# 移动指定文件到某路径
+  or:  mv [OPTION]... SOURCE... DIRECTORY				# 移动多个指定文件到某文件夹
+  or:  mv [OPTION]... -t DIRECTORY SOURCE...		# 向某个文件移动多个文件
+Rename SOURCE to DEST, or move SOURCE(s) to DIRECTORY.
+```
+
+如果文件在同一文件夹内移动则为改名；
+
+```bash
+➜  [/Users/atyun] mv -r test test4
+➜  [/Users/atyun] ls -d test*
+test2 test3 test4 
+```
+
+与Windows一样，如果文件的移动在同一分区，不会更改数据的磁盘位置
+
+
+
+### rm
+
+`rm`命令用于删除文件， 能不使用`rm`命令就不要使用，因为经常会产生一些误操作
+
+即使在`CentOS6`开始已经禁止了如`rm -rf /`的使用，但是如果键入了`rm -rf /*`仍然会删除根目录下的所有数据
+
+在操作过程中很有可能出现如下误操作：
+
+```bash
+[root@guest ~]#rm -rf /data /*		
+```
+
+以上命令可能想删除`/data`下的所有数据，但是在`/data`和`/*`之间不小心添加了一个空格，这条命令就将会先删除`/data/`下的所有数据，然后在删除`/`目录下的所有数据。
+
+可以将`rm`命令设置别名为`mv`命令，将需要删除的数据都存到一个指定的文件夹：
+
+```bash
+➜  [/Users/atyun] alias rm='mv -t /test'
+```
+
+`rm`执行的删除如果被删除文件正在被使用，那该文件并不会被立刻删除，知道关闭了文件才会被删除
+
+且，如果该文件在此期间被保存了，那么文件依旧会存在
+
+如果想要在文件被使用时删除，可以先使用`>`将文件清空，之后再删除，但是如果文件依旧被保存，仍然无法删除：
+
+```bash
+[root@guest test]# vim 1.txt				# terminal-1
+[root@guest test]# > 1.txt					# terminal-2
+[root@guest test]# rm -f 1.txt			# terminal-2
+# terminal-1 保存后
+[root@guest test]# ll 1.txt
+-rw-r--r--. 1 root root 66 Sep 27 04:15 1.txt
+```
+
+
+
+### mkdir
+
+该命令用于文件目录的创建：
+
+```bash
+[root@guest test]# mkdir /a/b
+```
+
+如果`/a`文件目录不存在，会报错：
+
+```bash
+mkdir: cannot create directory ‘/a/b’: No such file or directory
+```
+
+可以添加`-p`选项来创建相关的文件目录：
+
+```bash
+[root@guest test]# mkdir -p /a/b
+[root@guest test]# tree /a		# tree 命令可以用于查看文件目录结构，可以通过 yum install tree 来安装
+/a
+└── b
+```
+
+
+
+## 链接
+
+在 Windows 中有快捷方式，是我们快速访问某个路径下的文件，而在 Linux 也有类似的方式被称为链接
+
+Linux 中的链接分为：
+
+* 硬链接：硬链接指通过索引节点来进行连接
+* 软链接：通过含有另一个文件位置信息的文本文件来链接到该文件
+
+
+
+### 硬链接
+
+硬链接通过文件的`inode`，即 Linux 中每个文件的唯一标识（可以理解为id）来进行链接
+
+可以通过`ln`命令（link）来创建硬链接：
+
+```bash
+➜  [/Users/atyun/test] ln 1.txt 2
+➜  [/Users/atyun/test] ll -i				# -i 选项用于查看文件 inode 信息
+total 0
+# inode 							# 链接数
+12888644381 -rw-r--r--  2 atyun  staff     0B Sep 27 15:08 1.txt
+12888644381 -rw-r--r--  2 atyun  staff     0B Sep 27 15:08 2
+```
+
+可以看到两个文件的 `inode`完全一样，都为`12888644381`。所以指向的是同一块物理磁盘
+
+如果被链接的文件不在同一分区不能使用硬链接，因为不同分区文件的`inode`都是隔离的
+
+硬链接不允许链接文件，因为有可能出现循环嵌套
+
+但是 Linux 中的上一级目录`..`和当前目录`.`属于例外，它们会被硬链接到相应的文件，对应文件的链接数也会随之改变
+
+```bash
+➜  [/Users/atyun/test] mkdir dir1
+➜  [/Users/atyun/test] ls -ild */
+12888647048 drwxr-xr-x  2 atyun  staff  64 Sep 27 15:37 dir1/
+➜  [/Users/atyun/test] mkdir dir1/a
+➜  [/Users/atyun/test] ls -ild */
+12888647048 drwxr-xr-x  3 atyun  staff  96 Sep 27 15:37 dir1/
+➜  [/Users/atyun/test] mkdir dir1/a/b
+➜  [/Users/atyun/test] ls -ild */
+12888647048 drwxr-xr-x  3 atyun  staff  96 Sep 27 15:37 dir1/
+```
+
+
+
+### 软链接
+
+软链接实际上是一个新的文件，其中内容描述所指向文件的地址信息，软链接文件和原文件是两个不同的文件
+
+所以软链接可以指向文件夹，也可以跨分区
+
+软链接可以通过`ln -s`来创建：
+
+```bash
+➜  [/Users/atyun/test] ln -s dir1 sl
+➜  [/Users/atyun/test] ll -i
+total 0
+12888647048 drwxr-xr-x  4 atyun  staff   128B Sep 27 15:44 dir1
+12888647503 lrwxr-xr-x  1 atyun  staff     4B Sep 27 15:45 sl -> dir1
+```
+
+创建出来的`sl`文件类型为`l`，表示链接文件
+
+软链接的创建几乎都是使用相对路径，需要特别注意的是，这里的相对路径指的是被链接文件相对于链接文件的路
+
+比如，在文件`/a/b/c`中创建对`/a/linked`文件的软链接：
+
+```bash
+➜  [/Users/atyun/test] ln -s ../linked ./a/b/c/link
+➜  [/Users/atyun/test] tree a
+a
+├── b
+│   └── c
+│       └── link -> ../linked
+└── linked
+```
+
+其中第二个参数指的是创建的链接文件的名称以及相对于当前目录的路径
+
+第一个参数指的是被链接文件相对于第二个参数，即链接文件所在的路径
+
+
+

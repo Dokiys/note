@@ -309,7 +309,6 @@ fileH fileG fileF fileE fileD fileC fileB fileA
 ➜  [/Users/atyun] !2788				# ! + history 查看到的行号，可以获取到该行的命令
 ➜  [/Users/atyun] ls -a
 
-
 ![String] => # 查找最近一条执行过的且以 [String] 开头的命令
 !?[String]:p => # 查找最近一条执行过的且包含 [String] 的命令，并以字符串打印
 
@@ -320,6 +319,8 @@ fileH fileG fileF fileE fileD fileC fileB fileA
 ➜  [/Users/atyun] Sites bundler
 
 ➜  [/Users/atyun] !-1:2				# 获取上一条命令的第二个参数
+
+➜  [/Users/atyun] !ls				# 获取上一条以l开头的命令
 ```
 
 **环境变量**

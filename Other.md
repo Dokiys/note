@@ -117,6 +117,7 @@ lrwxr-xr-x  1 postgres  admin    38B Aug 14  2017 redis-server -> ../Cellar/redi
 * 光标跳转行尾：Ctrl + e
 * 从光标删除到命令行尾：Ctrl + k
 * 光标处和命令行首切换：Ctrl + x x
+* 在当前目录打开Finder：键入`open .`
 
 
 
