@@ -14,9 +14,15 @@ Git 保存了提交的历史记录。
 
 通过`git commit`命令可以将修改保存成了一个新的提交记录 `C2`。`C2` 的父节点是 `C1`，父节点是当前提交中变更的基础。
 
-```
+```bash
 git commit <filename> -m"提交说明"
 ```
+
+Git 还可以修改最后一次提交的描述信息，当然，如果`push`之后是没法修改的：
+
+ ```bash
+git commit --amend
+ ```
 
 
 
@@ -26,41 +32,55 @@ Git 的分支也非常轻量。它们只是简单地指向某个提交纪录。�
 
 创建分支：
 
-> `git branch [分支名]`
+```bash
+git branch [分支名]
+```
 
 切换分支：
 
-> `git checkout [分支名]`
+```bash
+git checkout [分支名]
+```
 
 切换同时创建分支：
 
-> `git checkout -b [分支名]`
+```bash
+git checkout -b [分支名]
+```
 
 重命名：
 
-> git branch -m [分支名old] [分支名new]
+```bash
+git branch -m [分支名old] [分支名new]
+```
 
 查看分支来源：
 
-> git reflog show [分支名]
-
-
+```bash
+git reflog show [分支名]
+```
 
 ### git merge
 
 将指定分支合并到当前分支之后。
 
-> `git merge [分支名]`
+```bash
+git merge [分支名]
+```
 
 `merge`命令只会将选择的分支合并到当前分支，当前分支中的修改不会保存到`merge`到分支中。
 
 以下命令会将分支2合并到分支1之后：
 
-> `git merge [分支1] [分支2]`
+```bash
+git merge [分支1] [分支2]
+```
 
 `merge`产生冲突时放弃`merge`
 
-> git merge --abort
+```bash
+git merge --abort
+```
 
 
 
@@ -68,7 +88,9 @@ Git 的分支也非常轻量。它们只是简单地指向某个提交纪录。�
 
 `rebase`会将当前分支移动到指定的分支上。
 
-> `git rebase [分支名]`
+```bash
+git rebase [分支名]
+```
 
 如果当前分支和制定的`rebase`分支来自同一继承，那么会将当前分支的引用直接指向制定分支。
 
@@ -86,7 +108,9 @@ HEAD 通常情况下是指向分支名的
 
 可以利用`checkout`命令并指定提交记录的hash码让HEAD指向具体的提交
 
-> `git checkout [提交记录hash码]`
+```bash
+git checkout [提交记录hash码]
+```
 
 
 
@@ -99,17 +123,20 @@ git的hash值基于 SHA-1，共 40 位。例如： `fed2da64c0efc5293610bdd892f8
 - 使用 `^` 向上移动 1 个提交记录
 - 使用 `~<num>` 向上移动多个提交记录，如 `~3`
 
-> `git checkout [分支名]^`
->
-> `git checkout [分支名]~3`
+```bash
+git checkout [分支名]^
+
+git checkout [分支名]~3
+```
 
 
 
 ### 强制修改分支位置
 
-> `git branch -f [分支名] [提交号]`
->
-> 例如：`git branch -f master HEAD~3`,将master分支强制指向当前分支的第前三个提交
+```bash
+git branch -f [分支名] [提交号]
+# 例如：`git branch -f master HEAD~3`,将master分支强制指向当前分支的第前三个提交
+```
 
 
 
@@ -121,17 +148,21 @@ git的hash值基于 SHA-1，共 40 位。例如： `fed2da64c0efc5293610bdd892f8
 
 `git reset` 通过把分支记录回退几个提交记录来实现撤销改动。你可以将这想象成“改写历史”。`git reset` 向上移动分支，原来指向的提交记录就跟从来没有提交过一样。
 
-> `git reset [提交号]`
->
-> 例如：`git reset HEAD^1`
+```bash
+git reset [提交号]
+# 例如：git reset HEAD^1
+```
+
+
 
 **git revert**
 
 `git revert` 会将指定的提交记录的**上一个提交记录**作为一个新的提交，`revert`之后可以将更新推送到远程仓库与别人分享。
 
-> `git revert [提交号]`
->
-> 例如：`git revert HEAD`
+```bash
+git revert [提交号]
+# 例如`git revert HEAD
+```
 
 
 
@@ -139,9 +170,10 @@ git的hash值基于 SHA-1，共 40 位。例如： `fed2da64c0efc5293610bdd892f8
 
 实现“我想要把这个提交放到这里, 那个提交放到刚才那个提交的后面”
 
-> `git cherry-pick <提交号>...`
->
-> 例如：`git cherry-pick C1 C4`
+```bash
+git cherry-pick <提交号>...
+# 例如：git cherry-pick C1 C4
+```
 
 相较于`rebase`，`git cherry-pick`可以指定提交的记录，
 
@@ -155,7 +187,9 @@ git的hash值基于 SHA-1，共 40 位。例如： `fed2da64c0efc5293610bdd892f8
 
 增加了这个选项后, Git 会打开一个 UI 界面并列出将要被复制到目标分支的备选提交记录，它还会显示每个提交记录的哈希值和提交说明，提交说明有助于你理解这个提交进行了哪些更改。
 
-> `git rebase -i HEAD~4`
+```bash
+git rebase -i HEAD~4
+```
 
 
 
@@ -163,9 +197,10 @@ git的hash值基于 SHA-1，共 40 位。例如： `fed2da64c0efc5293610bdd892f8
 
 `tag`可以用于永远指向某个提交记录的标识呢，比如软件发布新的大版本，或者是修正一些重要的 Bug 或是增加了某些新特性。
 
-> `git tag [标签名] [提交号]`
->
-> 例如：`git tag V1 C1`
+```bash
+git tag [标签名] [提交号]
+# 例如：`git tag V1 C1`
+```
 
 
 
@@ -173,7 +208,9 @@ git的hash值基于 SHA-1，共 40 位。例如： `fed2da64c0efc5293610bdd892f8
 
 `git describe`用来描述离你最近的锚点（也就是标签tag）
 
-> `git describe <ref>`
+```bash
+git describe <ref>
+```
 
 `<ref>` 可以是任何能被 Git 识别成提交记录的引用，如果你没有指定的话，Git 会以你目前所检出的位置（`HEAD`）。
 
@@ -272,7 +309,9 @@ Git 远程仓库相当的操作实际可以归纳为两点：
 
 `git clone` 命令在真实的环境下的作用是在**本地**创建一个远程仓库的拷贝（比如从 github.com）
 
-> `git clone [ssh地址]`
+```bash
+git clone [ssh地址]
+```
 
 
 
@@ -301,19 +340,18 @@ Git 远程仓库相当的操作实际可以归纳为两点：
 
 `git fetch` 的参数和 `git push` 极其相似。他们的概念是相同的，只是方向相反罢了（因为现在你是下载，而非上传）
 
-```
+```bash
 git fetch origin <source>:<destination>
-例如：
+# 例如：
 git fetch origin foo^:master
-//会将远程仓库中的foo分支的上一个提交，fetch到本地的master
-//如果destination不存在的话，会在本地新建一个分支保存提交记录
+# 会将远程仓库中的foo分支的上一个提交，fetch到本地的master
+# 如果destination不存在的话，会在本地新建一个分支保存提交记录
 ```
 
 如果不指定 <source>的话即将本地的分支删除
 
-```
-git fetch origin :bar
-//即从远程仓库fetch空到分支bar，即删除bar分支。
+```bash
+git fetch origin :bar			#即从远程仓库fetch空到分支bar，即删除bar分支。
 ```
 
 
@@ -345,7 +383,9 @@ git fetch origin bar~1:bugFix; git merge bugFix
 
 `git pull`还可以和`rebase`一起使用，即
 
-> `git pull --rebase` 
+```bash
+git pull --rebase 
+```
 
 该命令会从远程仓库获取到最新的提交并将当前分支合并到该提交上。
 
