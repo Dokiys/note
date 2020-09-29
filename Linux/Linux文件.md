@@ -68,7 +68,7 @@ graph TB
 
 
 
-## 文件目录命令
+## 文件目录
 
 ### 查看
 
@@ -97,7 +97,7 @@ drwxr-xr-x  13 atyun  staff   416B Sep 24 19:51 test
 drwxr-xr-x   2 atyun  staff    64B Sep 15 16:42 uaejson
 ```
 
-其中显示出的第一个字母表示的是文件类型，Linux下的文件类型如下；
+其中显示出的第一个字母表示的是**文件类型**<a id="FileType" href="#BFileType">↵</a>，Linux下的文件类型如下；
 
 * \- ：普通文件
 * d：目录文件
@@ -196,7 +196,7 @@ aA0.txt aA1.txt aA2.txt aA3.txt aA4.txt aA5.txt aA6.txt aA7.txt aA8.txt aA9.txt
 
 
 
-## 文件管理命令
+## 文件管理
 
 ### cp
 
@@ -438,6 +438,273 @@ a
 其中第二个参数指的是创建的链接文件的名称以及相对于当前目录的路径
 
 第一个参数指的是被链接文件相对于第二个参数，即链接文件所在的路径
+
+
+
+## I/O
+
+> 程序 = 指令 + 数据
+
+### Output
+
+打开的文件在`/proc`中都有一个`fd`（file descriptior）文件描述符，其中包含了Linux提供的标准输入输出：
+
+* 标准输入（STDIN）- 0 默认接受来自键盘的输入
+* 标准输出（STDOUT）- 1 默认输出到终端窗口
+* 标准错误（STDERR）-2 默认输出到终端窗口
+
+```bash
+[root@guest test]# vim 2.txt
+[root@guest proc]# ps aux | grep vim
+root     11782  0.1  1.0 149376  5128 pts/1    S+   01:27   0:00 vim 2.txt
+root     11808  0.0  0.1 112808   968 pts/2    S+   01:28   0:00 grep --color=auto vim
+[root@guest ~]# cd /proc/11782/fd
+[root@guest fd]# ll
+total 0
+lrwx------. 1 root root 64 Sep 29 01:28 0 -> /dev/pts/1
+lrwx------. 1 root root 64 Sep 29 01:28 1 -> /dev/pts/1
+lrwx------. 1 root root 64 Sep 29 01:28 2 -> /dev/pts/1
+lrwx------. 1 root root 64 Sep 29 01:28 4 -> /root/test/.2.txt.swp
+```
+
+当然，我们可以通过**重定向**来将标准输出，输出到指定位置。比如将`ls`到内容重定向到另外的终端窗口：
+
+```bash
+[root@guest test]# tty
+/dev/pts/1
+[root@guest fd]# tty
+/dev/pts/2
+[root@guest fd]# ls > /dev/pts/1				# 重定向符号 '>'
+[root@guest test]# 0  1  2  4
+```
+
+指定的输出也可以为文件，如果文件存在则会将其中内容覆盖，如果想要在文件后面添加内容可以使用`'>>'`:
+
+```bash
+[root@guest fd]# ls > ~/ls.txt
+[root@guest ~]# vim ls.txt
+0
+1
+2
+4
+[root@guest fd]# ls >> ~/ls.txt
+[root@guest ~]# vim ls.txt
+0
+1
+2
+4
+0
+1
+2
+4
+```
+
+这样就可以实现将输出内容存到某个文件
+
+标准错误是不会被`'>'`重定向的。如果想重定向错误需要指定输出类型
+
+比如执行某条可能出现错误的命令，并且想将错误信息保存到某个文件中：
+
+```bash
+[root@guest fd]# cmd > ~/ls.txt
+-bash: cmd: command not found
+[root@guest fd]# cmd 2> ~/ls.txt				# 也可以使用 >> 进行追加
+[root@guest ~]# vim ls.txt
+-bash: cmd: command not found
+```
+
+如果一条命令中可能同时出现标准输出和标准错误输出，可以将`'>'`和`'2>'`同时添加：
+
+```bash
+[root@guest ~]# ls  /boot /djfaks 2> ~/error.log  > info.log
+# 多条命令可以使用() 来将所有信息输出到同一个位置
+[root@guest ~]# (cal 09 1752;cal 09 2020) > /dev/null		#/null文件类似windows中的回收站，只是不可撤销
+```
+
+也可也将所有信息存放在一个文件里：
+
+```bash
+[root@guest ~]# ls  /boot /djfaks &> ~/error.log
+```
+
+还可以将标准错误转化成标准输出：
+
+```bash
+[root@guest ~]# ls  /boot /djfaks > ~/info.log 2>&1
+#  但是如下写法不行
+#  因为在执行标准错误输出的时候，并没有被转向到标准输出
+[root@guest ~]# ls  /boot /djfaks 2>&1 > ~/info.log 	
+```
+
+
+
+### Input
+
+对于接收的输入可以使用`'<'`来接收，比如使用`cat`命令，接收来自某个文件的输入，并输出到指定位置：
+
+```bash
+[root@guest ~]# vim input.txt
+hello work!
+[root@guest ~]# cat < input.txt > info.log
+[root@guest ~]# vim info.log
+hello work!
+```
+
+`cat`命令还可以使用`<<[终止符]`实现多行重定向，也被称为就地文本（heretext）：
+
+```bash
+[root@guest ~]# cat > info.log <<EOF		# 可以自定义任意终止符，通常使用'EOF'（end of file）
+> hello
+> work
+> !
+> EOF
+```
+
+`tr`是一个与输入输出常用的外部命令，其可以将指定的字符进行转换成：
+
+```bash
+[root@guest ~]# tr 'abc' '1234'
+abcde
+123de
+```
+
+
+
+### pipe ｜
+
+pipe 即管道，一种通信机制。表示符号为`'|'`
+
+其可以将前一个进程的标准输出作为后一个进程的标准输入，由于socket也使用标准输入输出，所有也可以用于网络通信。Java NIO 中的 pipe 与此有些类似。
+
+```bash
+[root@guest ~]# cat < info.log | tr 'a-z' 'A-Z'
+HELLO
+WORK
+!
+```
+
+标准错误不能通过管道转发，但可以通过`2>&1`或者`|&`的方式实现
+
+对于一些相对比较大的文件的查看可以使用`less`命令，如果是标准输入，就可以通过管道传入`less`再进行查看：
+
+```bash
+[root@guest ~]# ls -l /etc | less
+```
+
+还可以使用`tee`命令来实现重定向到多个目标，`tee`命令会将标准输入作为标准输出输出，并且输出到指定文件：
+
+```bash
+[root@guest ~]# ls -l /etc | tee -a info.log			# -a 表示在info.log文件内容后添加内容而不是覆盖
+[root@guest ~]# ls -l /etc | tee info.log ｜ tee info2.log	# 重复使用tee实现多目标重定向
+```
+
+
+
+
+
+## 文件的查找
+
+### locate命令
+
+`locate`命令基于`mlocate`数据库来查找文件，所以具有快速，延迟的特点：
+
+```bash
+[root@guest ~]# yum install mlocate				# 安装mlocate
+[root@guest ~]# updatedb									# 更新数据库 对于新添加的文件，在updatedb之前是查找不到的
+[root@guest ~]# locate info.log
+/root/info.log
+```
+
+也可以通过正则表达式来搜索：
+
+```bash
+[root@guest ~]# locate -r '\mit.conf$'
+/etc/security/sepermit.conf
+```
+
+
+
+### find命令
+
+`find`命令会遍历指定的路径进行搜索，可以精确的实时搜索，但速度相对较慢且执行命令的用户必须要有相应权限
+
+`find`默认会搜索当前目录下的所有目录：
+
+```bash
+[root@guest test]# find
+.
+./2.txt
+./sl
+./td
+./td/x
+./td/x/2
+./td/x/1
+./td/y
+```
+
+可以添加选项`-maxdepth [number]`和`-mindepth [number]`来指定查找的层级：
+
+```bash
+# 设定查找的最大层级和最小层级都为2，即指查找第二层的文件
+[root@guest test]# find -maxdepth 2 -mindepth 2		
+./td/x
+./td/y
+```
+
+也可以添加`-name`选项来指定查找文件的名称：
+
+```bash
+[root@guest test]# find ./ -name "s*"		# 查找s开头的文件或目录
+./sl
+```
+
+`-type`可以指定搜索<a id="BFileType" href="#FileType">文件类型</a>：
+
+```bash
+[root@guest test]# find ./ -type f			# file
+./2.txt
+[root@guest test]# find ./ -type d			# directory
+./
+./td
+./td/x
+./td/x/2
+./td/x/1
+./td/y
+```
+
+还可以通过正则表达式来搜索：
+
+```bash
+[root@guest test]# find ./ -regex '.*\x$'
+./td/x
+```
+
+`-user [USERNAME]`，`-group [GRPNAME]`，`-uid [UserID]`，`-gid [GroupID]`等选项可以搜索对应的用户或组：
+
+```bash
+[root@guest test]# find ./ -user root -ls
+527247    4 drwxr-xr-x   3 root     root         4096 Sep 29 06:10 ./
+519945    0 -rw-r--r--   1 root     root            0 Sep 29 01:27 ./2.txt
+527275    0 lrwxrwxrwx   1 root     root            5 Sep 27 07:51 ./sl -> 1.txt
+527270    4 drwxr-xr-x   4 root     root         4096 Sep 27 06:25 ./td
+527271    4 drwxr-xr-x   4 root     root         4096 Sep 27 06:25 ./td/x
+527273    4 drwxr-xr-x   2 root     root         4096 Sep 27 06:25 ./td/x/2
+527272    4 drwxr-xr-x   2 root     root         4096 Sep 27 06:25 ./td/x/1
+527274    4 drwxr-xr-x   2 root     root         4096 Sep 27 06:25 ./td/y
+```
+
+也可以用`-nouser`，`-nogroup`等命令搜索没有用户或者组的文件
+
+`find`的查询条件可以通过与`-a`(默认，可省略)、或`-o`、非`-not,!`来实现，且遵循德·摩根定律：
+
+```bash
+[root@guest test]# find ./ ( -type d -a -name "*t*" )
+-bash: syntax error near unexpected token `('
+[root@guest test]# find ./ \( -type d -a -name "*t*" \)
+./td
+```
+
+
 
 
 
