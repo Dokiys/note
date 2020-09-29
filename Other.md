@@ -88,6 +88,27 @@ lrwxr-xr-x  1 postgres  admin    38B Aug 14  2017 redis-server -> ../Cellar/redi
 
 
 
+
+
+## Java
+
+HelloWorld.java 文件的编译和运行
+
+```java
+public class HelloWorld {    
+  public static void main(String []args) {       
+    System.out.println("Hello World");    
+  } 
+}
+```
+
+
+
+```
+c:\jdk\demoapp> javac HelloWorld.java
+c:\jdk\demoapp> java HelloWorld
+```
+
 # 快捷键
 
 ## RubyMine
