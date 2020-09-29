@@ -78,15 +78,6 @@
 
 
 
-## 相关资料
-
-- [Web-第三十天 Activiti工作流【悟空教程】](https://cloud.tencent.com/developer/article/1178597)
-- [《Activiti实战》笔记](https://juejin.im/post/5a4064365188252b145b4560#heading-18)
-- [Activiti就是这么简单](https://juejin.im/post/5aafa3eef265da23784015b9)
-- [Activiti 5.22.0 API文档](https://www.activiti.org/javadocs/)
-
-
-
 ## ActivitiListener
 
 activiti使用的时候，通常需要跟业务紧密的结合在一起，有些业务非常的复杂，通常有如下一些场景：

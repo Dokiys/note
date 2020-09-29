@@ -1,6 +1,6 @@
 # Linux文件
 
-标准目录结构
+## 标准目录结构
 
 ```mermaid
 graph TB

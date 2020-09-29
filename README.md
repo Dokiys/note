@@ -9,6 +9,13 @@
 
 Java网络编程：[尚硅谷_Java网络编程](https://www.bilibili.com/video/BV16J411h7Rd?from=search&seid=10343956130926584696)
 
+Activiti入门：
+
+- [Web-第三十天 Activiti工作流【悟空教程】](https://cloud.tencent.com/developer/article/1178597)
+- [《Activiti实战》笔记](https://juejin.im/post/5a4064365188252b145b4560#heading-18)
+- [Activiti就是这么简单](https://juejin.im/post/5aafa3eef265da23784015b9)
+- [Activiti 5.22.0 API文档](https://www.activiti.org/javadocs/)
+
 
 
 ## Linux
