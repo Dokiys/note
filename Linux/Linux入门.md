@@ -321,6 +321,8 @@ fileH fileG fileF fileE fileD fileC fileB fileA
 ➜  [/Users/atyun] !-1:2				# 获取上一条命令的第二个参数
 
 ➜  [/Users/atyun] !ls				# 获取上一条以l开头的命令
+
+➜  [/Users/atyun] !-1:2-3				# 获取上一条命令的第2，3个参数
 ```
 
 **环境变量**
