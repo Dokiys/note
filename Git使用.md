@@ -222,6 +222,13 @@ git describe <ref>
 
 当 `ref` 提交记录上有某个标签时，则只输出标签名称
 
+如果想给分支添加描述信息可以使用：
+
+```bash
+git config branch.[分支名].description [分支描述信息]
+git config branch.[分支名].description  						# 查看分支描述信息
+```
+
 
 
 ## Git文件
