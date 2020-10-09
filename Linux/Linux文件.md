@@ -192,7 +192,7 @@ aA0.txt aA1.txt aA2.txt aA3.txt aA4.txt aA5.txt aA6.txt aA7.txt aA8.txt aA9.txt
 ➜  [/Users/atyun] ls -d .[^.]* # -d 表示只显示当前目录，.[^.]* 表示'.' 开头的第二个字符不为'.'的文件
 ```
 
-匹配时`[]`表示获取 1 个字符`{}`表示获取字符，所以`[1-10]`并不能表示 1到10
+匹配时`[]`表示获取 1 个字符，`{}`表示获取字符，所以`[1-10]`并不能表示 1到10
 
 
 
@@ -596,6 +596,21 @@ WORK
 ```bash
 [root@guest ~]# ls -l /etc | tee -a info.log			# -a 表示在info.log文件内容后添加内容而不是覆盖
 [root@guest ~]# ls -l /etc | tee info.log ｜ tee info2.log	# 重复使用tee实现多目标重定向
+```
+
+
+
+`grep`和`|`经常一起联用
+
+`grep`可以用来查找标准输出中的指定字符，`-E`选项可以添加或条件，与条件则多次使用`grep`即可
+
+```bash
+# 查找含有'20200929'的一行
+➜  [/Users/atyun/works/boko] git branch -vv | grep 20200929		
+# 查找含有'20200929'或者'2020100'的一行
+➜  [/Users/atyun/works/boko] git branch -vv | grep -E '20200929|2020100'
+# 查找含有'202009'且包含'add'的一行
+➜  [/Users/atyun/works/boko] git branch -vv | grep 202009 | grep add
 ```
 
 
