@@ -1639,6 +1639,93 @@ end
 
 
 
+# Active Record 查询
+
+## 关联查询
+
+对于添加了关联关系的`model`，可以使用`includes`和`joins`方法将指定的`model`添加到当前`model`中
+
+### includes
+
+该方法会将指定表中的所有字段一次性全部加入到当前`model`中，调用时不会再次查询：
+
+```bash
+[1] pry(main)>visa = StudentVisa.includes(:visa_counsellor).last
+...
+[2] pry(main)> visa.visa_counsellor
+#<User:0x00007fb6aecf6220> {
+                               :id => 2,
+                         :username => "aa_admin",
+                           :gender => "male",
+                           :status => "active",
+                             :post => "admin",
+                           ...
+```
+
+也可以给关联的对象传入条件：
+
+```ruby
+User.includes(:posts).where('posts.name = ?', 'example')
+```
+
+同时还可以使用`select`方法来指定选择的需要查询的值
+
+需要注意的是，对关联对象`:visa_counsellor`选择查询结果时，需要使用关联对象原本的名称：
+
+```ruby
+StudentVisa.includes(:visa_counsellor).select(:visa_counsellor_id,"users.id, users.real_name").distinct
+```
+
+
+
+### joins
+
+`joins`方法采用懒加载，只有在使用时才会将调用的表进行加载：
+
+```bash
+[1] pry(main)> visa = StudentVisa.joins(:visa_counsellor).last
+...
+[2] pry(main)> visa.visa_counsellor
+  User Load (8.8ms)  SELECT  "users".* FROM "users" WHERE "users"."deleted_at" IS NULL AND "users"."id" = $1 LIMIT $2 /*application:Boko,line:(pry):2:in `<main>'*/  [["id", 2], ["LIMIT", 1]]
+```
+
+在`active_record/relation/query_methods.rb`中的`joins`方法可以查看到源码中的更多关联的例子：
+
+```ruby
+# Performs a joins on +args+. The given symbol(s) should match the name of
+# the association(s).
+#
+#   User.joins(:posts)
+#   # SELECT "users".*
+#   # FROM "users"
+#   # INNER JOIN "posts" ON "posts"."user_id" = "users"."id"
+#
+# Multiple joins:
+#
+#   User.joins(:posts, :account)
+#   # SELECT "users".*
+#   # FROM "users"
+#   # INNER JOIN "posts" ON "posts"."user_id" = "users"."id"
+#   # INNER JOIN "accounts" ON "accounts"."id" = "users"."account_id"
+#
+# Nested joins:
+#
+#   User.joins(posts: [:comments])
+#   # SELECT "users".*
+#   # FROM "users"
+#   # INNER JOIN "posts" ON "posts"."user_id" = "users"."id"
+#   # INNER JOIN "comments" "comments_posts"
+#   #   ON "comments_posts"."post_id" = "posts"."id"
+#
+# You can use strings in order to customize your joins:
+#
+#   User.joins("LEFT JOIN bookmarks ON bookmarks.bookmarkable_type = 'Post' AND bookmarks.user_id = users.id")
+#   # SELECT "users".* FROM "users" LEFT JOIN bookmarks ON bookmarks.bookmarkable_type = 'Post' AND bookmarks.user_id = users.id
+    
+```
+
+
+
 # Active Record 回调
 
 ***
