@@ -225,7 +225,7 @@ git describe <ref>
 如果想给分支添加描述信息可以使用：
 
 ```bash
-git config branch.[分支名].description [分支描述信息]
+git config branch.[分支名].description '分支描述信息'
 git config branch.[分支名].description  						# 查看分支描述信息
 ```
 
