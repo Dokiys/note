@@ -6,6 +6,16 @@
 irb -r <文件名>
 ```
 
+在`rails console`中可以使用`reload!`命令重新加载更新过的文件：
+
+```bash
+[1] pry(main)> reload!
+Reloading...
+true
+```
+
+
+
 # self
 
 在类中self表示当前类对象。
