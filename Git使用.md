@@ -285,7 +285,7 @@ git config branch.[分支名].description  						# 查看分支描述信息
 
 
 
-### 比较文件
+### diff 比较文件
 
 ```bash
 git diff <版本号码1(old)> <版本号码2(new)>
