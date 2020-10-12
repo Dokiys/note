@@ -1,4 +1,4 @@
-# Active Record基础
+# ActiveRecord基础
 
 ***
 
@@ -159,7 +159,7 @@ user = User.find_by(name: 'David') # 获取
 user.destroy # 删除
 ```
 
-# Active Record迁移
+# ActiveRecord迁移
 
 ***
 
@@ -926,7 +926,7 @@ user.save! # => ActiveRecord::RecordInvalid: Validation failed: Name can't be bl
 
 
 
-# Active Record 关联
+# ActiveRecord 关联
 
 关联可以将两个业务上有联系的两个模块联系起来，以简化其中的数据操作。
 
@@ -1639,57 +1639,75 @@ end
 
 
 
-# Active Record 查询
+# ActiveRecord 查询
+
+Active Record的查询语句可以通过在相关调用方法后添加`to_sql`方法来输出查询语句：
+
+```bash
+[1] pry(main)> user_array = StudentVisa.includes(:users).distinct.to_sql
+"SELECT DISTINCT \"student_visas\".* FROM \"student_visas\" WHERE \"student_visas\".\"deleted_at\" IS NULL"
+```
+
+
 
 ## 关联查询
 
-对于添加了关联关系的`model`，可以使用`includes`和`joins`方法将指定的`model`添加到当前`model`中
+在ActiveRecord中提供了`joins`和`includes`方法来处理查询关联的`model`
 
-### includes
+两种方法最大的区别在于
 
-该方法会将指定表中的所有字段一次性全部加入到当前`model`中，调用时不会再次查询：
+* `joins`的查询语句采用的是`INNER JOIN`来链接查询
 
-```bash
-[1] pry(main)>visa = StudentVisa.includes(:visa_counsellor).last
-...
-[2] pry(main)> visa.visa_counsellor
-#<User:0x00007fb6aecf6220> {
-                               :id => 2,
-                         :username => "aa_admin",
-                           :gender => "male",
-                           :status => "active",
-                             :post => "admin",
-                           ...
-```
+* `includes`采用的是`LEFT OUTER JOIN`**或**通过多条语句查询
 
-也可以给关联的对象传入条件：
-
-```ruby
-User.includes(:posts).where('posts.name = ?', 'example')
-```
-
-同时还可以使用`select`方法来指定选择的需要查询的值
-
-需要注意的是，对关联对象`:visa_counsellor`选择查询结果时，需要使用关联对象原本的名称：
-
-```ruby
-StudentVisa.includes(:visa_counsellor).select(:visa_counsellor_id,"users.id, users.real_name").distinct
-```
-
-
+  
 
 ### joins
 
-`joins`方法采用懒加载，只有在使用时才会将调用的表进行加载：
+`joins`方法采用懒加载，即只有在使用到关联对象中的值时才会对调用的表进行加载：
 
 ```bash
-[1] pry(main)> visa = StudentVisa.joins(:visa_counsellor).last
+[1] pry(main)> item = item.joins(:order).last
 ...
-[2] pry(main)> visa.visa_counsellor
-  User Load (8.8ms)  SELECT  "users".* FROM "users" WHERE "users"."deleted_at" IS NULL AND "users"."id" = $1 LIMIT $2 /*application:Boko,line:(pry):2:in `<main>'*/  [["id", 2], ["LIMIT", 1]]
+[2] pry(main)> item.order
+  Order Load (8.8ms)  SELECT  "orders".* FROM "orders" WHERE "orders"."id" = $1 LIMIT $2 
 ```
 
-在`active_record/relation/query_methods.rb`中的`joins`方法可以查看到源码中的更多关联的例子：
+由于`joins`采用懒加载机制，就会存在N+1问题
+
+常见的情况例如，在`joins`查询后遍历获取关联对象的值：
+
+```ruby
+Post.joins(:comments).where(:comments => {author: 'Derek'}).map { |post| post.comments.size }
+```
+
+```bash
+  Post Load (1.2ms)  SELECT  "posts".* FROM "posts" INNER JOIN "comments" ON "comments"."post_id" = "posts"."id" WHERE "comments"."author" = $1
+   (1.0ms)  SELECT COUNT(*) FROM "comments" WHERE "comments"."post_id" = $1
+   (3.0ms)  SELECT COUNT(*) FROM "comments" WHERE "comments"."post_id" = $1
+   (0.3ms)  SELECT COUNT(*) FROM "comments" WHERE "comments"."post_id" = $1
+   (1.0ms)  SELECT COUNT(*) FROM "comments" WHERE "comments"."post_id" = $1
+   (2.1ms)  SELECT COUNT(*) FROM "comments" WHERE "comments"."post_id" = $1
+   (1.4ms)  SELECT COUNT(*) FROM "comments" WHERE "comments"."post_id" = $1
+=> [3,5,2,4,2,1]
+```
+
+我们可以在`joins`查询中`select`需要查询的值来(1)缩小范围以及(2)提前加载关联查询的指定字段，以防止在使用关联对象相关属性时再次查询
+
+需要注意的是，对关联对象`:visa_counsellor`选择查询结果时，需要使用关联对象的表名：
+
+```ruby
+# 这里的order 即对应order表
+Item.joins(:order).select('order.title').last
+```
+
+```bash
+SELECT orders.title FROM "items" INNER JOIN "orders" ON "orders"."id" = "items"."order_id" ORDER BY "items"."id" DESC LIMIT $1 
+```
+
+如果需要获取的是关联对象整个类而不是指定的字段，可以使用`ActiveRecord`的`includes`方法来提前加载关联对象。
+
+在`joins`方法的源码注释中可以看到更多关联的例子：
 
 ```ruby
 # Performs a joins on +args+. The given symbol(s) should match the name of
@@ -1721,12 +1739,69 @@ StudentVisa.includes(:visa_counsellor).select(:visa_counsellor_id,"users.id, use
 #
 #   User.joins("LEFT JOIN bookmarks ON bookmarks.bookmarkable_type = 'Post' AND bookmarks.user_id = users.id")
 #   # SELECT "users".* FROM "users" LEFT JOIN bookmarks ON bookmarks.bookmarkable_type = 'Post' AND bookmarks.user_id = users.id
-    
 ```
 
 
 
-# Active Record 回调
+### includes
+
+`includes`方法可以提前将关联对象加载，关联对象的**所有数据**将会被保存在相应的`ActiveRecord`中
+
+所有在使用`includes`方法时并不能指定需要选择的值，只能查询(1)调用对象的所有属性以及(2)所有以参数传入的关联对象的所有属性：
+
+```bash
+[1] pry(main)>visa = StudentVisa.includes(:visa_counsellor).last
+...
+[2] pry(main)> visa.visa_counsellor
+#<User:0x00007fb6aecf6220> {
+                               :id => 2,
+                         :username => "aa_admin",
+                           :gender => "male",
+                           :status => "active",
+                             :post => "admin",
+                           ...
+```
+
+`includes`的默认查询方法是`preload`，即通过一条附加的查询语句来加载关联数据：
+
+```ruby
+Post.includes(:comments).map { |post| post.comments.size }
+```
+
+```bash
+Post Load (1.2ms)  SELECT  "posts".* FROM "posts"
+Comment Load (2.0ms)  SELECT "comments".* FROM "comments" WHERE "comments"."post_id" IN (1, 3, 4, 5, 6)
+=> [3,5,2,4,2,1]
+```
+
+由于`preload`采用第一条语句查询到调用的`ActiveRecord`的结果，再用关联的外键来查询关联对象的结果
+
+所有`preload`并不能给查询的关联对象进行条件查询，但这并不代表`includes`不能进行条件查询
+
+当`includes`使用`where`筛选数据时或者`order`进行排序时，会调用另一个方法`eager_load`，通过 LEFT OUTER JOIN 来进行关联查询：
+
+```ruby
+User.eager_load(:posts).to_a
+# =>
+SELECT "users"."id" AS t0_r0, "users"."name" AS t0_r1, "posts"."id" AS t1_r0,
+       "posts"."title" AS t1_r1, "posts"."user_id" AS t1_r2, "posts"."desc" AS t1_r3
+FROM "users" LEFT OUTER JOIN "posts" ON "posts"."user_id" = "users"."id"
+```
+
+或者可以通过`references`方法来指定使用 LEFT OUTER JOIN 方法来查询结果：
+
+```ruby
+User.includes(:posts).references(:posts)
+```
+
+
+
+### 参考资料
+
+* [《Making sense of ActiveRecord joins, includes, preload, and eager_load》](https://scoutapm.com/blog/activerecord-includes-vs-joins-vs-preload-vs-eager_load-when-and-where) 
+* [《rails 中 preload、includes、Eager load、Joins 的区别》](https://blog.csdn.net/weixin_30301183/article/details/96068446?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.nonecase)
+
+# ActiveRecord 回调
 
 ***
 

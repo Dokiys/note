@@ -14,15 +14,13 @@ Reloading...
 true
 ```
 
-
-
 # self
 
 在类中self表示当前类对象。
 
 在方法中表示当前实例对象，且通常可以省略。
 
-# &. 
+# &.
 
 假设有一个 account 对象，它有一个关联的 owner 对象，现在想要获取 owner 的 address 属性。稳妥的不引发 nil 异常的写法如下：
 
@@ -93,8 +91,6 @@ my_lambda.call('Tomas', '555-012-123')
 
 # Hi Tomas your phone-number is 555-012-123
 ```
-
-
 
 # 断点调试
 

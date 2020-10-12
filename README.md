@@ -28,6 +28,12 @@ Linux入门：[Linux运维学习路线](https://edu.aliyun.com/roadmap/linux?spm
 
 Rails：[Ruby on Rails 指南 (v5.1.1)](https://ruby-china.github.io/rails-guides/index.html)
 
+Rails >> ActiveRecord >> 关联查询：
+
+* [《Making sense of ActiveRecord joins, includes, preload, and eager_load》](https://scoutapm.com/blog/activerecord-includes-vs-joins-vs-preload-vs-eager_load-when-and-where) 
+
+* [《rails 中 preload、includes、Eager load、Joins 的区别》](https://blog.csdn.net/weixin_30301183/article/details/96068446?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.nonecase)
+
 ruby元编程：[Ruby中的元编程](https://deathking.github.io/metaprogramming-in-ruby/)
 
 
