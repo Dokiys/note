@@ -68,8 +68,6 @@ Linux中的 root 用户对操作系统有绝对的权限，误操作对系统破
 
 
 
-
-
 ## Shell简介
 
 Shell 是一种高级程序设计语言
@@ -166,8 +164,6 @@ hits	command
 [root@guest ~]# hash -r 			# => 清空hash
 [root@guest ~]# hash -d whereis			# => 删除指定命令缓存
 ```
-
-
 
 
 
