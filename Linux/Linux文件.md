@@ -86,15 +86,28 @@ lsa='ls -lah'
 通过`ll`命令可以查看当前文件夹下的文件详细信息：
 
 ```bash
-➜  [/Users/atyun/railsPractice] ll
-total 8
-#							所有者						大小		文件时间
-drwxr-xr-x  28 atyun  staff   896B Sep 21 14:22 blog
-drwxr-xr-x   3 atyun  staff    96B Aug 10 09:45 gitPractice
-drwxr-xr-x   4 atyun  staff   128B Sep 17 21:40 iterm2
-drwxr-xr-x  13 atyun  staff   416B Sep 24 19:51 test
--rw-r--r--   1 atyun  staff   374B Aug 17 18:26 test.rb
-drwxr-xr-x   2 atyun  staff    64B Sep 15 16:42 uaejson
+[root@guest ~]# ll
+#							所有者			 大小	 文件最后修改时间
+drwxr-xr-x. 2 root root  4096 Oct 13 07:38 f1
+-rw-r--r--. 1 root root     0 Oct 14 03:04 f2
+-rw-r--r--. 1 root root 72411 Oct 12 01:34 shadowsocks-all.log
+-rwxr-xr-x. 1 root root 46729 Oct 12 01:31 shadowsocks-all.sh
+-rw-r--r--. 1 root root   619 Oct 12 01:34 shadowsocks_r_qr.png
+```
+
+如果需要查看某个文件完整的元数据信息，可以使用`stat`命令：
+
+```bash
+[root@guest ~]# stat f1
+  File: ‘f1’
+  Size: 4096      	Blocks: 8          IO Block: 4096   directory
+Device: fd01h/64769d	Inode: 520031      Links: 2
+Access: (0755/drwxr-xr-x)  Uid: (    0/    root)   Gid: (    0/    root)
+Context: unconfined_u:object_r:admin_home_t:s0
+Access: 2020-10-13 07:40:59.531969540 +0000
+Modify: 2020-10-13 07:38:22.909424142 +0000
+Change: 2020-10-13 07:38:22.909424142 +0000
+ Birth: -
 ```
 
 其中显示出的第一个字母表示的是**文件类型**<a id="FileType" href="#BFileType">↵</a>，Linux下的文件类型如下；
