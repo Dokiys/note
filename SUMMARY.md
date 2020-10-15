@@ -1,4 +1,4 @@
 # Table of contents
 
-* [Code Note](README.md)
-
+* [Preface](README.md)
+* [Other](Other.md)
