@@ -1,5 +1,5 @@
 ---
-description: 保存一些学习笔记
+description: 保存一些编程学习笔记
 ---
 
 # Code Note
