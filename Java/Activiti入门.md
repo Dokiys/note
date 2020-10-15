@@ -164,9 +164,9 @@ activiti发起流程需要先通过bpmn文件进行部署流程定义，然后�
 
 使用RepositoryService对activiti 的repository 进行操作。通过RepositoryService可以获得流程定义的DeploymentBuilder类
 
-> ```java
-> DeploymentBuilder deploymentBuilder = repositoryService.createDeployment()
-> ```
+```java
+DeploymentBuilder deploymentBuilder = repositoryService.createDeployment()
+```
 
 DeploymentBuilder可以将指定的流程文件，或者文件流发布为流程定义。并可以设置部署的名称以及种类。
 
@@ -215,11 +215,10 @@ identityService.setAuthenticatedUserId(null);
 
 查询流程一般有HistoricProcessInstanceQuery和ProcessInstanceQuery。HistoricProcessInstanceQuery用于查询历史流程和列表查询，ProcessInstanceQuery一般用于查询运行中的流程。获取方式如下：
 
->```java
->HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery();
->ProcessInstanceQuery processInstanceQuery = runtimeService.createProcessInstanceQuery();
->
->```
+```java
+HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery();
+ProcessInstanceQuery processInstanceQuery = runtimeService.createProcessInstanceQuery();
+```
 
 查询我发起的流程：
 
