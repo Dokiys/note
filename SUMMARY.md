@@ -18,8 +18,23 @@
 
 ## Ruby
 
+* [Rails](Ruby/Rails/README.md)
+  * [Rails入门](Ruby/Rails/Rails入门.md)
+  * [Action Controller](Ruby/Rails/Actioncontroller.md)
+  * [Rails Route](Ruby/Rails/RailsRoute.md)
+  * [Active Record](Ruby/Rails/ActiveRecord.md)
+  * [Active Support](Ruby/Rails/ActiveSupport.md)
+* [Points](Ruby/points/README.md)
+  * [include&extend](Ruby/points/include&extend.md)
+  * [module](Ruby/points/module.md)
+  * [Ruby中的闭包](Ruby/points/Ruby中的闭包.md)
+  * [Ruby中的变量](Ruby/points/Ruby中的变量.md)
+* [ruby元编程](Ruby/ruby元编程.md)
+* [ruby杂记](Ruby/ruby杂记.md)
+
 ## Other
 
 * [Git使用](Git使用.md)
 * [OAuth2](OAuth2.md)
 * [Other](other.md)
+
