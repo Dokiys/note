@@ -18,7 +18,7 @@
 ## Ruby
 
 * [Rails](Ruby/Rails/Rails入门.md)
-  * [Action Controller](Ruby/Rails/Actioncontroller.md)
+  * [Action Controller](Ruby/Rails/ActionController.md)
   * [Rails Route](Ruby/Rails/RailsRoute.md)
   * [Active Record](Ruby/Rails/ActiveRecord.md)
   * [Active Support](Ruby/Rails/ActiveSupport.md)
