@@ -32,7 +32,7 @@
 
 ## Other
 
-* [Git使用](Git使用.md)
-* [OAuth2](OAuth2.md)
-* [Other](Other.md)
+* [Git使用](Other/Git使用.md)
+* [OAuth2](Other/OAuth2.md)
+* [Other](Other/Other.md)
 
