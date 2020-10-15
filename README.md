@@ -1,5 +1,5 @@
 ---
-description: 保存一些编程学习笔记
+description: 保存一些学习过程中记录的笔记，附带视频或者文章链接
 ---
 
 # Preface
