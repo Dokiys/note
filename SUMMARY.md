@@ -18,7 +18,6 @@
 ## Ruby
 
 * [Rails](Ruby/Rails/README.md)
-  * [Rails入门](Ruby/Rails/Rails入门.md)
   * [Action Controller](Ruby/Rails/Actioncontroller.md)
   * [Rails Route](Ruby/Rails/RailsRoute.md)
   * [Active Record](Ruby/Rails/ActiveRecord.md)
