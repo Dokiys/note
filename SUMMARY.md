@@ -1,4 +1,11 @@
 # Table of contents
 
 * [Preface](README.md)
-* [Other](Other.md)
+* [Other](other.md)
+
+## Java
+
+## Linux
+
+## Ruby
+

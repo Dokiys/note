@@ -2,7 +2,7 @@
 description: 保存一些编程学习笔记
 ---
 
-# Code Note
+# Preface
 
 ## Java
 

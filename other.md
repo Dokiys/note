@@ -1,47 +1,49 @@
-# 日常笔记
+# Other
 
-## 终端命令
+## 日常笔记
 
-### 查找
+### 终端命令
 
-#### 端口占用
+#### 查找
+
+**端口占用**
 
 ```bash
 $ lsof -i:[端口]
 $ ps -ef | grep [查找的字符串]
 
-[root@guest ~]# ls -a			# 查看所以文件（.开头的文件为隐藏文件 ls 命令不会显示）
+[root@guest ~]# ls -a            # 查看所以文件（.开头的文件为隐藏文件 ls 命令不会显示）
 
 [root@guest ~] man ascii  # 查看 ascii 编码表
 ```
 
-#### 历史命令
+**历史命令**
 
-~~~bash
+```bash
 history | grep [查找内容]
 # 查找内容过多时可以键入'/'然后输入需要查找的内容进行搜索
 # 键入'?'然后输入需要查找的内容是自下往上搜索
 # 搜索时 'n' => 下一项，'N' => 上一项
-~~~
+```
 
-#### 路径
+**路径**
 
 ```bash
-[root@guest kernel]# pwd 						# =>  查看当前路径
+[root@guest kernel]# pwd                         # =>  查看当前路径
 /lib/kernel
-[root@guest ~]# which nano					# => 查看外部命令路径
+[root@guest ~]# which nano                    # => 查看外部命令路径
 /usr/bin/nano
-[root@guest ~]# whereis nano				# => 查看外部命令路径，同时列出相关配置文件
-nano: /usr/bin/nano /usr/share/nano	
+[root@guest ~]# whereis nano                # => 查看外部命令路径，同时列出相关配置文件
+nano: /usr/bin/nano /usr/share/nano
 ```
 
-#### 文件路径
+**文件路径**
 
-```
+```text
 find <查找路径> -name <查找文件名>
 ```
 
-#### redis-cli
+**redis-cli**
 
 ```bash
 # 查找运行的redis
@@ -55,7 +57,7 @@ aclocal-1.15                        genv                                hyperkit
 acyclic                             gettext                             idn2                                pkg-config
 annotate                            gettext.sh                          ifnames                             pltcl_delmod
 apm                                 gettextize                          img2webp                            pltcl_listmod
-autoconf                            gexpand                             initdb                              pltcl_loadmod	 。。省略
+autoconf                            gexpand                             initdb                              pltcl_loadmod     。。省略
 ➜  [/usr/local/bin] git:(master) ✗
 ➜  [/usr/local/bin] git:(master) ✗
 ➜  [/usr/local/bin] git:(master) ✗ ll | grep redis
@@ -72,25 +74,19 @@ lrwxr-xr-x  1 postgres  admin    38B Aug 14  2017 redis-server -> ../Cellar/redi
 ➜  [/usr/local/Cellar/redis/4.0.1/bin] git:(master) ✗ redis-cli
 ```
 
+#### 操作
 
-
-### 操作
-
-#### 文件：
+**文件：**
 
 ```bash
-➜  [/Users/atyun] cp ai.json /Users/atyun/works/ai.json 		# 复制文件到指定路径
-➜  [/Users/atyun] mv ai.json /Users/atyun/works/ai.json 		# 移动文件到指定路径
+➜  [/Users/atyun] cp ai.json /Users/atyun/works/ai.json         # 复制文件到指定路径
+➜  [/Users/atyun] mv ai.json /Users/atyun/works/ai.json         # 移动文件到指定路径
 
-[root@guest ~]# source .tcshrc 			# 使.tcshrc文件立即生效
-[root@guest ~]# . .tcshrc  					# 可以用'.'代替‘source'
+[root@guest ~]# source .tcshrc             # 使.tcshrc文件立即生效
+[root@guest ~]# . .tcshrc                      # 可以用'.'代替‘source'
 ```
 
-
-
-
-
-## Java
+### Java
 
 HelloWorld.java 文件的编译和运行
 
@@ -102,42 +98,40 @@ public class HelloWorld {
 }
 ```
 
-
-
-```
+```text
 c:\jdk\demoapp> javac HelloWorld.java
 c:\jdk\demoapp> java HelloWorld
 ```
 
-# 快捷键
+## 快捷键
 
-## Linux
+### Linux
 
 * vim中跳转行首：Home 或 Shift + ^
 * vim中跳转行尾：End 或 Shift + $
 * vim中查找：normal模式下键入 `'/'`，n 查找下一个，N 查找上一个
 
-## RubyMine
+### RubyMine
 
 * 代码整理：Command + Option + L
-* 返回上一光标：Command + Option + <-
+* 返回上一光标：Command + Option + &lt;-
 * 折叠所有块：Command + CapsLock + ‘-’
 * 折叠当前快：Command + '-' / '+'
 * 打开所有块：Command + CapsLock + ’+‘
-* 添加自定义代码块折叠：Command + Option + T  ->  <editor-fold...>
+* 添加自定义代码块折叠：Command + Option + T  -&gt;  
 
-## MAC
+### MAC
 
 * 反撤销： Command + Shift + Z
 * Chrome检查：Command + Shift + C
 
-## iterm2
+### iterm2
 
 * 新建窗口： Command + T
 * 水平分屏： Command + D
 * 垂直分屏： Command + Shift + D
-* 在最近使用的分屏直接切换.：Command + '['
-* 切换标签页： Command +  <-
+* 在最近使用的分屏直接切换.：Command + '\['
+* 切换标签页： Command +  &lt;-
 * 清屏：Ctrl + L
 * 复制字符串：双击添加到粘贴板 or 选中 + Command + 鼠标拖动到指定位置
 * 光标跳转行首：Ctrl + a
@@ -146,9 +140,8 @@ c:\jdk\demoapp> java HelloWorld
 * 光标处和命令行首切换：Ctrl + x x
 * 在当前目录打开Finder：键入`open .`
 
-
-
-## VsCode
+### VsCode
 
 * 全局搜索帮助：Command + Shift + P
 * 全局搜索文件：Command + P
+
