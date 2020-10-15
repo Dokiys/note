@@ -8,8 +8,6 @@
 export PS1='\[\e[32;40m\]> \[\e[36;40m\][\[\e[36;40m\]\u \[\e[36;40m\]\w]\$ \[\e[37;40m\]'
 ```
 
-
-
 ```bash
 > [root ~]$ vim .bashrc
 
@@ -21,4 +19,6 @@ export PS1='\[\e[32;40m\]> \[\e[36;40m\][\[\e[36;40m\]\u \[\e[36;40m\]\w]\$ \[\e
 # Source global definitions
 > [root ~]# . .bashrc 			# 将配置文件重新加载到内存，使修改立即生效
 ```
+
+
 
