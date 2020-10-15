@@ -31,7 +31,7 @@
 * [ruby元编程](Ruby/ruby元编程.md)
 * [ruby杂记](Ruby/ruby杂记.md)
 
-## Other
+## 其他
 
 * [Git使用](Git使用.md)
 * [OAuth2](OAuth2.md)
