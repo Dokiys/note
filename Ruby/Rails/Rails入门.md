@@ -4,7 +4,7 @@ Rails 是使用 Ruby 语言编写的 Web 应用开发框架，目的是通过解
 
 
 
-## Hello, World!
+## Hello, Work!
 
 ### 创建 Blog 应用
 
@@ -50,7 +50,7 @@ $ bin/rails server
 
 访问 [http://localhost:3000](http://localhost:3000/)。这时应该看到默认的 Rails 欢迎页面。
 
-要让 Rails 显示“Hello, World!”，需要创建**控制器**和**视图**。
+要让 Rails 显示“Hello, Work!”，需要创建**控制器**和**视图**。
 
 控制器
 
@@ -82,7 +82,7 @@ $ bin/rails generate controller Welcome index
 在文本编辑器中打开 `app/views/welcome/index.html.erb` 文件，然后写入想显示的内容。例如：
 
 ```erb
-<h1>Hello, World!</h1>
+<h1>Hello, Work!</h1>
 ```
 
 创建控制器和视图之后还需要配置路由，在编辑器中打开 `config/routes.rb` 文件：
