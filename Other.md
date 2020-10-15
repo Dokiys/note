@@ -111,6 +111,12 @@ c:\jdk\demoapp> java HelloWorld
 
 # 快捷键
 
+## Linux
+
+* vim中跳转行首：Home 或 Shift + ^
+* vim中跳转行尾：End 或 Shift + $
+* vim中查找：normal模式下键入 `'/'`，n 查找下一个，N 查找上一个
+
 ## RubyMine
 
 * 代码整理：Command + Option + L
