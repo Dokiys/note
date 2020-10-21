@@ -115,9 +115,9 @@ c:\jdk\demoapp> java HelloWorld
 
 * 代码整理：Command + Option + L
 * 返回上一光标：Command + Option + &lt;-
-* 折叠所有块：Command + CapsLock + ‘-’
+* 折叠所有块：Command + CapsLock + ' - '
 * 折叠当前快：Command + '-' / '+'
-* 打开所有块：Command + CapsLock + ’+‘
+* 打开所有块：Command + CapsLock + ' + '
 * 添加自定义代码块折叠：Command + Option + T  -&gt;  
 
 ### MAC
@@ -130,7 +130,7 @@ c:\jdk\demoapp> java HelloWorld
 * 新建窗口： Command + T
 * 水平分屏： Command + D
 * 垂直分屏： Command + Shift + D
-* 在最近使用的分屏直接切换.：Command + '\['
+* 在最近使用的分屏直接切换.：Command + ' \[ '
 * 切换标签页： Command +  &lt;-
 * 清屏：Ctrl + L
 * 复制字符串：双击添加到粘贴板 or 选中 + Command + 鼠标拖动到指定位置
