@@ -249,23 +249,24 @@ git config branch.[分支名].description  						# 查看分支描述信息
    git reset HEAD //放弃所有缓存
    ```
 
-3. 已经用 git commit 提交了代码
+3. 已经用 git commit 提交了代码，需要全部撤回
 
    ```bash
    git reset --hard HEAD^
    ```
 
-   * 对单个已提交文件撤回
-
-   首先查询这个文件的log
+4. 对单个已提交文件撤回
 
    ```bash
    $ git log <fileName>
+   $ git checkout <commit-id> <fileName>
+   $ git commit
    ```
 
-   其次查找到这个文件的上次commit id xxx，并对其进行reset操作
+   如果不行修改提交记录并撤回某文件可以：
 
    ```bash
+   $ git log <fileName>
    $ git reset <commit-id> <fileName>
    ```
 
@@ -275,12 +276,11 @@ git config branch.[分支名].description  						# 查看分支描述信息
    $ git checkout <fileName>
    ```
 
-   最后amend一下，再push上去
+   最后amend一下
 
    ```bash
    //对上一次的提交进行修改，可以使用该命令。也可以修改提交说明。
    $ git commit --amend 
-   $ git push origin <remoteBranch>
    ```
 
 
