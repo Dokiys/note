@@ -74,7 +74,7 @@ end
 **self**
 
 - 在 ruby 中，`self`是一个总是指向当前对象（current object）的特殊变量
-- `self`被认为是默认的 receiver。如果没有明确指出 receiver，那么系统将把`self`当做receiver；
+- `self`被认为是默认的 receiver。如果没有明确指出 receiver，那么系统将把`self`当做 receiver；
 - 实例变量是在`self`（当前对象）中查找的。也就是说，如果我使用`@var`，那么 ruby 就会在`self`所指向的对象中去寻找此实例变量。
 
 **注：**实例变量并不是由类定义的，它们也和子类以及继承机制无关。
@@ -269,7 +269,7 @@ class Car
 end
 ```
 
-**注：**method_missing`方法的效率不甚理想，对效率敏感的项目尽量要避免使用此方法。
+**注：**`method_missing`方法的效率不甚理想，对效率敏感的项目尽量要避免使用此方法。
 
 
 
@@ -332,8 +332,6 @@ puts eval("str + ' Rubyist'") # => "Hello Rubyist"
 * `instance_eval`，`module_eval`和`class_eval`是`eval`方法的特殊形式。
 
 ### instance_eval
-
-了一个名为`instance_eval`的公开方法，该方法
 
 `instance_eval`方法可被一个实例调用，并通过传入字符串或者传递一个代码块来操作对象的实例变量。该方法由`Object`类提供。
 
