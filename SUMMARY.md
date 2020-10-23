@@ -13,6 +13,7 @@
 * [Linux入门](Linux/Linux入门.md)
 * [Linux文件](Linux/Linux文件.md)
 * [Linux用户和组](Linux/Linux用户和组.md)
+* [Linux文本](./Linux/Linux文本.md)
 * [Linux杂记](Linux/Linux杂记.md)
 
 ## Ruby
