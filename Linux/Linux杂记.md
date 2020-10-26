@@ -6,6 +6,24 @@
 
 
 
+#### scp
+
+Linux命令行下可以通过`scp`命令传输文件，添加`-r`选项可以传输目录
+
+从服务器下载文件
+
+```bash
+> [bysj ~]$ scp username@servername:/path/filename /tmp/local_destination
+```
+
+上传本地文件目录到服务器
+
+```bash
+> [bysj ~]$ scp -r /path/local_filename username@servername:/path 
+```
+
+
+
 #### $PS1
 
 `$PS1`参数可以更改命令行的提示前缀，在内存中修改只影响当前会话，可以将修改保存至`~/.bashrc`中
@@ -53,4 +71,6 @@ Linux 下的`/usr/share/dict/words`中保存了几乎所有英语单词，例如
 3
 4
 ```
+
+
 

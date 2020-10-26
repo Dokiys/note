@@ -2,28 +2,7 @@
 
 ## 标准目录结构
 
-```mermaid
-graph TB
-	/ --- bin
-	/ --- boot
-	/ --- dev
-	/ --- etc
-	/ --- home
-  home --- home_dev(dev)
-  home --- bob
-  home ---alice
-	/ --- root
-	/ --- run
-	/ --- sbin
-	/ --- tmp
-	/ --- usr
-  usr --- usr_bin(usr)
-  usr --- local
-  usr --- usr_sbin(sbin)
-  usr --- usr_temp(temp)
-	/ --- var
-  var --- var_temp(temp)
-```
+![Linux标准目录结构](../image/Linux/Linux文件/d0c50-linux2bfile2bsystem2bhierarchy.jpg)
 
 > /  --- 根目录
 >
