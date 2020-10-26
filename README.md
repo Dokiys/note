@@ -32,7 +32,11 @@ Rails &gt;&gt; ActiveRecord &gt;&gt; 关联查询：
 
 ruby元编程：[Ruby中的元编程](https://deathking.github.io/metaprogramming-in-ruby/)
 
-## OAuth2.0
+
+
+## Other
+
+### OAuth2.0
 
 OAuth2.0：[《OAuth 2.0 教程》](http://www.ruanyifeng.com/blog/2019/04/oauth_design.html)
 
@@ -41,7 +45,13 @@ doorkeeper：
 * [Ruby on Rails使用doorkeeper实现oauth2保护api接口](https://www.embbnux.com/2016/01/26/ruby_on_rails_use_doorkeeper_for_auth2-0_to_protect_api/)
 * [OAuth 2.0 教程: Grape API 整合 Doorkeeper](https://ruby-china.org/topics/14656)
 
-## Git
+### Git
 
 Git使用：[Learn Git Branching](https://learngitbranching.js.org/?locale=zh_CN)
+
+
+
+### Regexp
+
+正则表达式：[正则表达式基础](https://edu.aliyun.com/lesson_1734_14288?spm=5176.10731542.0.0.30562fc9j5sRRS)
 
