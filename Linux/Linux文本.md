@@ -2,6 +2,8 @@
 
 ## 文本查看
 
+### cat
+
 `cat`命令用于查看文件内容，它会将文件的全部内容输出到控制台：
 
 ```bash
@@ -51,6 +53,8 @@ Hello Work!
 
 
 
+### less & more
+
 而`more`和`less`命令可以用于分页查看文件内容
 
 其区别在于`more` 命令查看到最后一页自动退出，而`less`则可以通过`/`搜索内容`n/N`匹配 下/上 一个结果
@@ -94,6 +98,8 @@ tail: 'f3' has appeared;  following end of new file
 
 
 ## 文本处理
+
+### cut
 
 类似于 Windows 系统中的剪切，Linux 中也有`cut`命令来执行剪切操作
 
@@ -146,6 +152,8 @@ bin:1:bin:/bin:/sbin/nologin
 
 
 
+### paste
+
 如果`cat`命令同时查看两个文件，会将两个文件内容纵向合并在一起：
 
 ```bash
@@ -182,6 +190,8 @@ a|b|c|d|e|f|g|h|i
 
 ## 文本分析
 
+### wc
+
 `wc`可以用于统计文件的行，字符数，字节数等数据：
 
 ```bash
@@ -194,6 +204,8 @@ a|b|c|d|e|f|g|h|i
 其中`-L`选项可以显示最长行的长度
 
 
+
+### sort
 
 `sort`命令可以用于文本的排序，和去重。与`cat`命令一样可以选择行列，但选项名不一样
 
@@ -234,6 +246,8 @@ sync:x:5:0:sync:/sbin:/bin/sync
 
 
 
+### uniq
+
 `uniq`命令用于连续重复行的操作：
 
   ```bash
@@ -268,6 +282,8 @@ sync:x:5:0:sync:/sbin:/bin/sync
 ```
 
 
+
+### diff
 
 `diff`可以比较两个文件的不同：
 
@@ -352,3 +368,49 @@ total 16
 * grep：文本过滤工具
 * sed：文本编辑工具
 * awk：文本报告生成器
+
+### grep 
+
+`grep`文本搜索工具，`egrep`,`fgrep`等同于 `grep` 添加`-e`,`-f`等参数。可以通过`man`命令查看其帮助。
+
+其可以根据指定的模式匹配对应的文本行。例如查找`/etc/passwd`中带有`"root"`的行：
+
+```bash
+> [bysj ~]$ grep root /etc/passwd
+root:x:0:0:root:/root:/bin/bash
+operator:x:11:0:operator:/root:/sbin/nologin
+```
+
+通常`grep`与别的标准输出一起使用，以此来过滤内容：
+
+```bash
+> [bysj ~]$ ll | grep f1
+-rw-rw-r--. 1 bysj bysj    9 Oct 23 09:58 f1
+-rw-rw-r--. 1 bysj bysj    8 Oct 23 09:43 f1.orig
+```
+
+常用的`grep`命令参数如下：
+
+> `--color=auto`:默认别名添加了该参数，对匹配的文本着色显示
+>
+> `-v`：只显示不被匹配的行
+>
+> `-i`：忽略匹配字符串的大小写
+>
+> `-n`：显示匹配的行号
+>
+> `-c`：统计匹配的行数
+>
+> `-q`：不输出任何信息，如果匹配不成功会将全局参数`$?`设置为 1
+>
+> `-B|A｜C[num]`：同时输出匹配的 前｜后｜前后`num`行
+>
+> `-e`：逻辑 或 ，可以添加多个条件
+>
+> `-w`：匹配字符为单词
+>
+> `-f`：根据指定文件中的内容去匹配
+>
+> `-o`：只显示正则表达式匹配的部分
+
+正则表达式的内容可以参见[Regexp.md](../Other/Regexp.md)
