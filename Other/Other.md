@@ -4,45 +4,6 @@
 
 ### 终端命令
 
-#### 查找
-
-**端口占用**
-
-```bash
-$ lsof -i:[端口]
-$ ps -ef | grep [查找的字符串]
-
-[root@guest ~]# ls -a            # 查看所以文件（.开头的文件为隐藏文件 ls 命令不会显示）
-
-[root@guest ~] man ascii  # 查看 ascii 编码表
-```
-
-**历史命令**
-
-```bash
-history | grep [查找内容]
-# 查找内容过多时可以键入'/'然后输入需要查找的内容进行搜索
-# 键入'?'然后输入需要查找的内容是自下往上搜索
-# 搜索时 'n' => 下一项，'N' => 上一项
-```
-
-**路径**
-
-```bash
-[root@guest kernel]# pwd                         # =>  查看当前路径
-/lib/kernel
-[root@guest ~]# which nano                    # => 查看外部命令路径
-/usr/bin/nano
-[root@guest ~]# whereis nano                # => 查看外部命令路径，同时列出相关配置文件
-nano: /usr/bin/nano /usr/share/nano
-```
-
-**文件路径**
-
-```text
-find <查找路径> -name <查找文件名>
-```
-
 **redis-cli**
 
 ```bash
@@ -73,6 +34,8 @@ lrwxr-xr-x  1 postgres  admin    38B Aug 14  2017 redis-server -> ../Cellar/redi
 ➜  [/usr/local/bin] git:(master) ✗ cd ../Cellar/redis/4.0.1/bin
 ➜  [/usr/local/Cellar/redis/4.0.1/bin] git:(master) ✗ redis-cli
 ```
+
+
 
 #### 操作
 
