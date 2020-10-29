@@ -24,6 +24,7 @@
   * [Active Record](Ruby/Rails/ActiveRecord.md)
   * [Active Support](Ruby/Rails/ActiveSupport.md)
 * [Points](Ruby/points/README.md)
+  * [check_nil.md](/Ruby/points/check_nil.md)
   * [include&extend](Ruby/points/include&extend.md)
   * [module](Ruby/points/module.md)
   * [Ruby中的闭包](Ruby/points/Ruby中的闭包.md)
