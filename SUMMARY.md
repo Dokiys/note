@@ -25,7 +25,7 @@
   * [Active Support](Ruby/Rails/ActiveSupport.md)
 * [Points](Ruby/points/README.md)
 
-  * [nil_check.md](Ruby/points/nil_check.md)
+  * [nil_check](Ruby/points/nil_check.md)
 
   * [include&extend](Ruby/points/include&extend.md)
   * [module](Ruby/points/module.md)
