@@ -363,12 +363,6 @@ total 16
 
 
 
-## 文本三剑客
-
-* grep：文本过滤工具
-* sed：文本编辑工具
-* awk：文本报告生成器
-
 ### grep 
 
 `grep`文本搜索工具，`egrep`,`fgrep`等同于 `grep` 添加`-e`,`-f`等参数。可以通过`man`命令查看其帮助。
@@ -415,9 +409,7 @@ operator:x:11:0:operator:/root:/sbin/nologin
 
 正则表达式的内容可以参见[Regexp.md](../Other/Regexp.md)
 
-
-
-### vim
+## vim
 
 `vi`(Visual Interface)文本编辑器，`vim`(Vi Improved)增强版
 
@@ -427,9 +419,15 @@ operator:x:11:0:operator:/root:/sbin/nologin
 
 还有`gedit`，`gvim`等其他编辑工具
 
+可以使用`vimtutor`工具来查看`vim`的使用说明书
+
+```bash
+[root@vultr ~]$ vimtutor
+```
 
 
-#### 模式
+
+### 模式
 
 `vim`是一个模式编辑器，键入信息会根据模式匹配对应行为，主要模式有三种：
 
@@ -454,7 +452,7 @@ operator:x:11:0:operator:/root:/sbin/nologin
 
 
 
-#### 命令模式
+### 命令模式
 
 命令模式下通过定位和命令修改文件：
 
@@ -462,7 +460,7 @@ operator:x:11:0:operator:/root:/sbin/nologin
 
 
 
-##### 地址定界
+#### 地址定界
 
 * `w`：跳转下一个单词词首
 * `b|e`：跳转当前或下一个单词词 首/尾 
@@ -477,7 +475,7 @@ operator:x:11:0:operator:/root:/sbin/nologin
 * `Ctrl + u|d`：向文件 首/尾 部翻半屏
 * `zt|zz|zb`：将光标所在行移动到屏幕 顶/中/底 部
 
-##### 编辑
+#### 编辑
 
 * `d`：删除内容，`c`会在删除之后进入编辑模式
 * `y`：复制内容，详见[vim寄存器](#vim寄存器)
@@ -488,15 +486,16 @@ operator:x:11:0:operator:/root:/sbin/nologin
 
 * `@$｜@^`：command 到行尾， `@w`：command 到下一个单词词首
 
-* `#yy`：command 当前行/第 # 行
+* `#@@`：command 当前行/第 # 行
 
 * `@i + " or ( or [`：command `""`,`()`,`[]`之间的内容
 
-##### 常用命令
+#### 常用命令
 
 * `#u`：撤销修改，撤销直接 # 次修改 
 * `U`：撤销所在行内容为打开文件的内容
 * `Ctrl + r`：重做撤销
+* `#>> | #<<`：可用于当前行及后 # 行的缩进
 * `#.`：重复前 # 次操作，不包括撤销
 
 * `#x`： 剪切光标处字符，键入 # 剪切光标处 # 个字符，`xp`一起用可以交换字符位置
@@ -510,7 +509,7 @@ operator:x:11:0:operator:/root:/sbin/nologin
 
 
 
-##### vim寄存器
+#### vim寄存器
 
 `vim`提供了 26 个字母寄存器分别名为 a，b，c.... 和 1 个无名寄存器，用于存放剪切内容
 
@@ -534,7 +533,7 @@ operator:x:11:0:operator:/root:/sbin/nologin
 
 
 
-##### 标记和宏(macro)
+#### 标记和宏(macro)
 
 标记可以记录某个位置并利用`'`来跳转
 
@@ -547,7 +546,7 @@ operator:x:11:0:operator:/root:/sbin/nologin
 
 
 
-#### 扩展命令模式
+### 扩展模式
 
 键入`:`可以进入该模式
 
@@ -557,7 +556,7 @@ operator:x:11:0:operator:/root:/sbin/nologin
 
 
 
-地址定界(position)：
+#### 地址定界
 
 * `#`：第 # 行
 * `#1,#2`：第 #1 行到第 #2 行 
@@ -568,9 +567,7 @@ operator:x:11:0:operator:/root:/sbin/nologin
 
 ` vim`扩展命令的地址定界还支持正则匹配：`/pat1/,/pat2/`从第一个被`pat1`匹配到的模式到第一个被`pat2`匹配到的模式，也可混用 `/pat1/,+#`
 
-
-
-编辑(command)：
+#### 编辑
 
 * `d`：删除
 * `y`：复制
@@ -585,25 +582,77 @@ operator:x:11:0:operator:/root:/sbin/nologin
     * `gc`：每次替换之前询问
   * 命令中的分隔符`'/'`可以替换成其他符号。如`@`,`#`等
 
-
-
-查找：
+#### 查找
 
 * `/|?`：从光标处向文件 尾部/首部 搜索指定字符，部分字符需要使用`'\'`转义
 
 * `n|N`：搜索中与命令 同/反 方向查找下一个匹配内容
 
-
-
-常用命令：
+#### 常用命令
 
 * `:q` ：退出
 * `:q!` ：强制退出
 * `:wq|:x` ：保存bi退出
 * `:r [filename]`：读取指定文件内容到当前文件中
-* `:w [filename]`：将当前文件内容写入另外一个文件
+* `:w [filename]`：另存为
 * `! [command]`：在不关闭文件到情况下执行其他命令命令
 * `r! [command]`：将其他命令的输入读入到文件中（注意不能输入别名命令）
 
 
+
+#### 偏好设置
+
+扩展模式下可以设置`vim`的工作特性，比如显示行好，自动缩进等。设置只对当前进程有效，将设置写入配置文件可以永久保存，`/etc/vimrc`和`~./vimrc`分别针对全局和用户配置
+
+常用的设置如下：
+
+* `set cul|no cul`：启用/禁用 当前光标行标识线(cursorline)
+* `set paste|nopast`：启用/禁用 保留格式复制（常用语复制某些换行代码时出现的格式错误）
+
+* `set nu|nonu`：显示/不显示 行号
+* `set ai|noai`：启用/禁用 自动缩进(auto indent)
+* `set si|nosi`：启用/禁用 智能缩进(smart indent)
+* `set hlsearch|nohlsearch`：启用/禁用 高亮搜索
+* `syntax on|syntax off`：启用/禁用 语法高亮
+* `set list|nolist`：启用/禁用 换行符，空格等显示
+* `set fileformat=dos|unix`：启用 windows/unix 文本格式
+
+* `set textwidth=#`：设置文本宽度
+* `set ic|noic`：启用/忽略 大小写
+
+更多偏好设置可以使用`help option-list`来查看各参数说明，`set all`来查看当前设置的所有参数值
+
+
+
+### 可视化模式
+
+通过`v`，`V`，`Ctrl + v`等命令可以从命令模式进入到可视化模式，该模式通常用于选择指定文本块的复制、删除、修改等操作。
+
+`v`命令进入的可视化模式面向字符选择，`V`则是面向行。`Ctrl + v`则是面向块，通常用于带有缩进格式的文本。
+
+可视化模式可以使用[命令模式](#命令模式)中的[地址定界](#地址定界)来选择范围，也可以使用[命令模式](#命令模式)中的[编辑命令](#编辑)来操作选择的内容
+
+
+
+### 多操作
+
+可以使用一下命令来选择多文件同时操作，默认只在当前页面显示第一个文件：
+
+```bash
+vim [File1] [File2] [File3]
+```
+
+`-o|O`选项用于选择 水平分割/垂直分隔 多个文件的窗口，使用`Ctrl + w; [Arrow]`指定窗口间切换
+
+打开多个窗口时在扩展命令模式下有一下命令：
+
+* `:next|prev`：跳转到下/上 一个窗口
+* `:first|last`：跳转到第一\最后 一个窗口
+* `:wqall`：保存并退出所有窗口
+
+
+
+单个文件可以使用`Ctrl + w; s|v`来 水平/垂直 分割窗口
+
+关闭分割窗口使用`Ctrl + w; q|o`，其中`q`删除相邻窗口，`o`删除所有窗口
 
