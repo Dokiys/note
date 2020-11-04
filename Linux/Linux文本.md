@@ -383,6 +383,12 @@ operator:x:11:0:operator:/root:/sbin/nologin
 -rw-rw-r--. 1 bysj bysj    8 Oct 23 09:43 f1.orig
 ```
 
+`grep`添加 AND 条件可以通过多次`grep`实现，添加 OR 条件可以通过一下方式将`|`转义：
+
+```bash
+➜  [/Users/atyun/Library] ll Logs | grep 'a\|r'
+```
+
 常用的`grep`命令参数如下：
 
 > `--color=auto`:默认别名添加了该参数，对匹配的文本着色显示
@@ -399,7 +405,7 @@ operator:x:11:0:operator:/root:/sbin/nologin
 >
 > `-B|A｜C[num]`：同时输出匹配的 前｜后｜前后`num`行
 >
-> `-e`：逻辑 或 ，可以添加多个条件
+> `-e`：正则匹配
 >
 > `-w`：匹配字符为单词
 >
