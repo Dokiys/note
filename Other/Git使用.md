@@ -60,6 +60,14 @@ git branch -m [分支名old] [分支名new]
 git reflog show [分支名]
 ```
 
+删除分支：
+
+```bash
+git branch -d
+```
+
+
+
 ### git merge
 
 将指定分支合并到当前分支之后。
