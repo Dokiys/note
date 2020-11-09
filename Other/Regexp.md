@@ -1,4 +1,4 @@
-# REGEXP正则表达式
+#### REGEXP正则表达式
 
 > `Regular Expressions`使用单个字符串来描述、匹配一系列匹配某个句法规则的字符串由一类特殊字符及文本字符。
 
@@ -157,6 +157,16 @@ Linux下可以通过`man 7 regex`查看相关帮助。
 ```
 
 ![邮箱](/Users/atyun/Documents/typora/note/image/Other/Regexp/regexpmail.svg)
+
+
+
+**截取文件基名：**
+
+```bash
+\.[^.]*$
+```
+
+
 
 
 
