@@ -82,6 +82,7 @@ c:\jdk\demoapp> java HelloWorld
 * 折叠当前快：Command + '-' / '+'
 * 打开所有块：Command + CapsLock + ' + '
 * 添加自定义代码块折叠：Command + Option + T  -&gt;  
+* 分屏：某文件的Tab栏上右键，选择Split Vertically 或 Split Horizontally
 
 ### MAC
 
