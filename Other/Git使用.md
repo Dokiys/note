@@ -210,6 +210,13 @@ git tag [标签名] [提交号]
 # 例如：`git tag V1 C1`
 ```
 
+`tag`查看：
+
+```bash
+git tag	# => 查看当前仓库所有tag
+git tag -l ‘v0.1.*’ # => 查看匹配的tag
+```
+
 
 
 ### Git Describe
