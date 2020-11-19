@@ -66,6 +66,13 @@ git reflog show [分支名]
 git branch -d
 ```
 
+强制修改分支位置
+
+```bash
+git branch -f [分支名] [提交号]
+# 例如：`git branch -f master HEAD~3`,将master分支强制指向当前分支的第前三个提交
+```
+
 
 
 ### git merge
@@ -94,7 +101,7 @@ git merge --abort
 
 ### git rebase
 
-`rebase`会将当前分支移动到指定的分支上。
+`rebase`会将当前分支移动到指定的分支之后，并将该分支最新提交作为指定分支的一次修改，而不是对其进行合并，`rebase`很容易出现冲突！！。
 
 ```bash
 git rebase [分支名]
@@ -102,9 +109,21 @@ git rebase [分支名]
 
 如果当前分支和制定的`rebase`分支来自同一继承，那么会将当前分支的引用直接指向制定分支。
 
+在整理提交时，如果你不清楚你想要的提交记录的哈希值，以利用交互式的 rebase。
 
 
-### HEAD
+
+交互式 rebase 指的是使用带参数 `--interactive` 的 rebase 命令, 简写为 `-i`
+
+增加了这个选项后, Git 会打开一个 UI 界面并列出将要被复制到目标分支的备选提交记录，它还会显示每个提交记录的哈希值和提交说明，提交说明有助于你理解这个提交进行了哪些更改。
+
+```bash
+git rebase -i HEAD~4
+```
+
+
+
+### 相对引用
 
 HEAD 是一个对当前检出记录的符号引用 —— 也就是指向你正在其基础上进行工作的提交记录。
 
@@ -122,8 +141,6 @@ git checkout [提交记录hash码]
 
 
 
-### 相对引用
-
 git的hash值基于 SHA-1，共 40 位。例如： `fed2da64c0efc5293610bdd892f82a58e8cbc5d8`
 
 哈希值指定提交记录很不方便，所以 Git 引入了相对引用。可以从一个分支使用鲜菇蒂引用切换到具体的提交记录
@@ -139,20 +156,9 @@ git checkout [分支名]~3
 
 
 
-### 强制修改分支位置
-
-```bash
-git branch -f [分支名] [提交号]
-# 例如：`git branch -f master HEAD~3`,将master分支强制指向当前分支的第前三个提交
-```
-
-
-
-### 撤销变更
+### 提交撤销
 
 主要有两种方法用来撤销变更 —— `git reset` & `git revert`。
-
-**`git reset`**
 
 `git reset` 通过把分支记录回退几个提交记录来实现撤销改动。你可以将这想象成“改写历史”。`git reset` 向上移动分支，原来指向的提交记录就跟从来没有提交过一样。
 
@@ -161,11 +167,7 @@ git reset [提交号]
 # 例如：git reset HEAD^1
 ```
 
-
-
-**git revert**
-
-`git revert` 会将指定的提交记录的**上一个提交记录**作为一个新的提交，`revert`之后可以将更新推送到远程仓库与别人分享。
+`git revert` 会将指定的提交记录的**上一个提交记录**作为一个新的提交
 
 ```bash
 git revert [提交号]
@@ -174,7 +176,7 @@ git revert [提交号]
 
 
 
-### 整理提交
+### cherry-pick
 
 实现“我想要把这个提交放到这里, 那个提交放到刚才那个提交的后面”
 
@@ -184,20 +186,6 @@ git cherry-pick <提交号>...
 ```
 
 相较于`rebase`，`git cherry-pick`可以指定提交的记录，
-
-
-
-### 交互式的 rebase
-
-在整理提交时，如果你不清楚你想要的提交记录的哈希值，以利用交互式的 rebase。
-
-交互式 rebase 指的是使用带参数 `--interactive` 的 rebase 命令, 简写为 `-i`
-
-增加了这个选项后, Git 会打开一个 UI 界面并列出将要被复制到目标分支的备选提交记录，它还会显示每个提交记录的哈希值和提交说明，提交说明有助于你理解这个提交进行了哪些更改。
-
-```bash
-git rebase -i HEAD~4
-```
 
 
 
@@ -248,12 +236,12 @@ git config branch.[分支名].description  						# 查看分支描述信息
 
 ## Git文件
 
-### git 撤销，放弃本地修改
+### 文件撤销
 
 1. 未使用 git add 缓存代码时
 
    ```bash
-   git checkout -- filepathname 
+   git checkout -- [filepathname]
    git checkout head . //撤销所有文件
    ```
 
@@ -297,6 +285,42 @@ git config branch.[分支名].description  						# 查看分支描述信息
    //对上一次的提交进行修改，可以使用该命令。也可以修改提交说明。
    $ git commit --amend 
    ```
+
+5. [撤销提交记录](#提交撤销)
+
+
+
+### 进度暂存
+
+`git stash`可以将对当前分支的缓存区和工作区的修改保存到`list`，此时`git status`查看当前工作区是干净的。
+
+ ```bash
+git stash 
+git stash save 'test'	# 对保存内容添加注释信息
+ ```
+
+`git stash list`可以查看保存的所有进度
+
+```bash
+git stash list
+stash@{0}: On dit: test
+```
+
+需要恢复时可以通过`pop`或`apply`恢复修改内容。
+
+```bash
+git stash pop	# 会在list中删除 stash
+git stash pop stash@{0}	# 序号0是通过list查看得到的
+git stash apply # 不会删除list中的 stash
+git stash apply stash@{0}	# 序号0是通过list查看得到的
+```
+
+进度删除可以使用`drop`或者`clear`
+
+```bash
+git stash drop stash@{0} # 删除序号为0的 stash
+git stash clear # 清除list中所有 stash
+```
 
 
 
