@@ -24,15 +24,9 @@
   * [Active Record](Ruby/Rails/ActiveRecord.md)
   * [Active Support](Ruby/Rails/ActiveSupport.md)
 * [Points](Ruby/points/README.md)
-
-  * [nil_check](Ruby/points/nil_check.md)
-
-  * [include&extend](Ruby/points/include&extend.md)
   * [module](Ruby/points/module.md)
-  * [Ruby中的闭包](Ruby/points/Ruby中的闭包.md)
+  * [nil_check](Ruby/points/nil_check.md)
   * [Ruby中的变量](Ruby/points/Ruby中的变量.md)
-
-
 
 * [ruby元编程](Ruby/ruby元编程.md)
 * [ruby杂记](Ruby/ruby杂记.md)
@@ -41,6 +35,7 @@
 
 * [Git使用](Other/Git使用.md)
 * [OAuth2](Other/OAuth2.md)
+*  [一个HTTP](Other/一个HTTP请求.md) 
 * [Regexp](Other/Regexp.md)
 * [Other](Other/Other.md)
 
