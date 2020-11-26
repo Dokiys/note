@@ -37,8 +37,6 @@ lrwxr-xr-x  1 postgres  admin    38B Aug 14  2017 redis-server -> ../Cellar/redi
 
 
 
-#### 操作
-
 **文件：**
 
 ```bash
@@ -70,27 +68,70 @@ c:\jdk\demoapp> java HelloWorld
 
 ### gitbook
 
-添加`tab`：
+添加`tab`，只在`gitbook`自动生成的页面可以展示：
 
-{% tabs first="First Tab", second="Second Tab", third="Third Tab" %}
+{% tabs %}
 
-{% content "first" %}
+{% tab title="Text Tab" %}
 
-```bash
-the first content
+`gitbook`中一行的宽度和`Markdown`通用格式中的宽度规定是一样的，也就是说，在 Typroa 中换行时，在`gitbook`页面上也会相应的换行。但是在`tab`会比原来的宽度稍短一些。
+
+{% endtab %} 
+
+
+
+{% tab title="Code Tab" %}
+
+```
+hello work!
+============================== there is 83 charaters ==============================
+通常一行不超过80个字符
+```
+{% endtab %} 
+
+
+
+{% tab title="Image Tab" %}
+
+tab中的图片宽度：
+
+![700px](../image/Other/Other/700px.png)
+
+{% endtab %} 
+
+
+
+{% tab title="Tabs Template" %}
+
+```gitbook
+{% tabs %}
+
+{% tab title="First Tab" %}
+
+The first content...
+
+{% endtab %} 
+
+
+
+{% tab title="Second Tab" %}
+
+The second content...
+
+{% endtab %} 
+
+
+
+{% tab title="Third Tab" %}
+
+The third content...
+
+{% endtab %} 
+
+{% endtabs %}
 ```
 
-{% content "second" %}
-
-```bash
-the second content
-```
-
-{% content "third" %}
-
-```bash
-the third content
-```
+{% endtab %} 
 
 {% endtabs %}
 
@@ -98,7 +139,7 @@ the third content
 
 图片宽度：
 
-![image_size](../image/Other/Other/image_size.png)
+![750px](../image/Other/Other/750px.png)
 
 
 
