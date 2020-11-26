@@ -52,7 +52,7 @@
 
 但是问题来了，如何确定我要发送的数据会被准确的发送到的某台设备？
 
-`网卡`解决了这一问题。网卡在生产的时候会有一个全球唯一的`MAC地址`。这个时候，多台计算机连接在交换机上时，需要先将自己的MAC地址告诉给交换机。所有的数据传输会先被封装到保存有目标MAC地址和源MAC地址的数据帧里，由交换机分配。
+`网卡`解决了这一问题。网卡在生产的时候会有一个唯一的`MAC地址`(实际上并不一定是全球唯一)。这个时候，多台计算机连接在交换机上时，需要先将自己的MAC地址告诉给交换机。所有的数据传输会先被封装到保存有目标MAC地址和源MAC地址的数据帧里，由交换机分配。
 
 ![数据帧格式](../image/Other/一个HTTP请求/u=459692903,458309401&fm=26&gp=0.jpg)
 
@@ -380,4 +380,6 @@ $ curl -v "http://www.baidu.com"
   [牛皮了，头一次见有清华架构师把TCP/IP三次握手四次挥手解释的这么明白](https://www.bilibili.com/video/BV1ai4y1s7sG?from=search&seid=12943997456469060503)
 
 [《TCP/IP Protocol》](https://codefarm.me/2018/05/19/tcp-ip-protocol/)
+
+[《为什么 TCP 建立连接需要三次握手》](https://draveness.me/whys-the-design-tcp-three-way-handshake/)
 

@@ -66,6 +66,42 @@ c:\jdk\demoapp> javac HelloWorld.java
 c:\jdk\demoapp> java HelloWorld
 ```
 
+
+
+### gitbook
+
+添加`tab`：
+
+{% tabs first="First Tab", second="Second Tab", third="Third Tab" %}
+
+{% content "first" %}
+
+```bash
+the first content
+```
+
+{% content "second" %}
+
+```bash
+the second content
+```
+
+{% content "third" %}
+
+```bash
+the third content
+```
+
+{% endtabs %}
+
+
+
+图片宽度：
+
+![image_size](../image/Other/Other/image_size.png)
+
+
+
 ## 快捷键
 
 ### Linux
