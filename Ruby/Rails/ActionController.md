@@ -47,7 +47,7 @@ end
 
 ## 参数
 
-Rails 中不区分`get`请求的参数和`post`请求的参数，都通过`parmas`散列来获取。
+Rails 中不区分`get`请求的参数和`post`请求的参数，都通过`params`散列来获取。
 
 ```ruby
 class ClientsController < ApplicationController

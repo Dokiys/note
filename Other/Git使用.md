@@ -165,6 +165,7 @@ git checkout [分支名]~3
 ```bash
 git reset [提交号]
 # 例如：git reset HEAD^1
+git reset --hard origin/[分支名]		# => 可以将放弃本地分支为push的提交，强制拉取远程分支
 ```
 
 `git revert` 会将指定的提交记录的**上一个提交记录**作为一个新的提交
