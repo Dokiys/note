@@ -24,10 +24,10 @@
   * [Active Record](Ruby/Rails/ActiveRecord.md)
   * [Active Support](Ruby/Rails/ActiveSupport.md)
 * [Points](Ruby/points/README.md)
+  *  [batch_update.md](Ruby/points/batch_update.md)
   * [module](Ruby/points/module.md)
   * [nil_check](Ruby/points/nil_check.md)
-  * [Ruby中的变量](Ruby/points/Ruby中的变量.md)
-
+* [Ruby中的变量](Ruby/points/Ruby中的变量.md)
 * [ruby元编程](Ruby/ruby元编程.md)
 * [ruby杂记](Ruby/ruby杂记.md)
 

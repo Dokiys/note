@@ -325,9 +325,9 @@ stash@{0}: On dit: test
 需要恢复时可以通过`pop`或`apply`恢复修改内容。
 
 ```bash
-git stash pop	# 会在list中删除 stash
-git stash pop stash@{0}	# 序号0是通过list查看得到的
-git stash apply # 不会删除list中的 stash
+git stash pop							# 会在list中删除 stash
+git stash pop stash@{0}		# 序号0是通过list查看得到的
+git stash apply						# 不会删除list中的 stash
 git stash apply stash@{0}	# 序号0是通过list查看得到的
 ```
 
