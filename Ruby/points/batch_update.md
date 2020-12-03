@@ -31,7 +31,8 @@ def batch_update(params, allow_nil = false)
       res.raise_error("ids in params must exist and be an Array!") unless ids.is_a? Array
 
       # Get hash from columns which need to update
-      _attrs = self.attribute_names.tap { |e| e.delete self.primary_key }
+      # _attrs = self.attribute_names.tap { |e| e.delete self.primary_key }
+			_attrs = self.attribute_names.dup.tap { |e| e.delete self.primary_key }
 
       block = "lambda { |_k, _v| (_attrs.include? _k) " + (allow_nil ? "" : "&& _v.present? ") + "}"
       params.select! &eval(block)
@@ -55,5 +56,32 @@ end
 
 
 
+### 记一个bug
 
+```ruby
+# obj.tap {|x| block }    -> obj
+# 
+# Yields self to the block, and then returns self.
+# The primary purpose of this method is to "tap into" a method chain,
+# in order to perform operations on intermediate results within the chain.
+# 
+#    (1..10)                  .tap {|x| puts "original: #{x}" }
+#      .to_a                  .tap {|x| puts "array:    #{x}" }
+#      .select {|x| x.even? } .tap {|x| puts "evens:    #{x}" }
+#      .map {|x| x*x }        .tap {|x| puts "squares:  #{x}" }
+def tap
+  # This is a stub implementation, used for type inference (actual method behavior may differ)
+  yield self; self
+end
+```
+
+`tap`会改变`self`
+
+ ```ruby
+# _attrs = self.attribute_names.tap { |e| e.delete self.primary_key }
+# # => 会改变 self 中的 @attribute_names 值，应该使用拷贝值删减
+_attrs = self.attribute_names.dup.tap { |e| e.delete self.primary_key }
+ ```
+
+### 一定要注意对底层属性的更改操作，最好使用拷贝对象
 
