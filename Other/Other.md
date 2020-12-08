@@ -227,5 +227,5 @@ The third content...
 
 ### Postman
 
-* 美化JSON：Comman + B
+* 美化JSON：Command + B
 
