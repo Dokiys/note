@@ -108,24 +108,6 @@ Cannot start debugger. Gem 'Ruby-debug-ide' isn't installed or its executable sc
 
 # Rails
 
-Rails 中的安全获取：
-
-```ruby
-account = Account.new(owner: nil) # account without an owner
-
-account.owner.address
-# => NoMethodError: undefined method `address' for nil:NilClass
-
-account && account.owner && account.owner.address
-# => nil
-
-account.try(:owner).try(:address)
-# => nil
-
-account&.owner&.address
-# => nil
-```
-
 Rails 中的安全存取：
 
 ```ruby
@@ -144,5 +126,30 @@ false
 false
 [6] pry(main)> params[:search].blank?
 true
+```
+
+调用环境：
+
+```ruby
+# 在 action_controller 环境中执行 wrap_paramters
+ActiveSupport.on_load(:action_controller) do
+  wrap_parameters format: [:json] if respond_to?(:wrap_parameters)
+end
+```
+
+字符换行
+
+```ruby
+method_def <<
+  "def #{method_name}(#{definition})" <<
+  "  _ = #{to}" <<
+  "  _.#{method}(#{definition})" <<
+  "rescue NoMethodError => e" <<
+  "  if _.nil? && e.name == :#{method}" <<
+  %(   raise DelegationError, "#{self}##{method_name} delegated to #{to}.#{method}, but #{to} is nil: \#{self.inspect}") <<
+  "  else" <<
+  "    raise" <<
+  "  end" <<
+  "end"
 ```
 
