@@ -381,6 +381,12 @@ git clone [ssh地址]
 git remote -v
 ```
 
+以及存在的本地仓库想要与远程管理可以使用：
+
+```bash
+git remote add origin [Git远程仓库url]
+```
+
 
 
 ### 远程分支

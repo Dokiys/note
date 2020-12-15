@@ -153,3 +153,39 @@ method_def <<
   "end"
 ```
 
+`Arel`
+
+```ruby
+relation = RewardPolicy.where(:id => 27, :seq => 2)
+# a = relation.arel
+connection = ActiveRecord::Base.connection
+b = connection.combine_bind_parameters( where_clause: relation.where_clause.binds )
+result = connection.exec_params(relation.where_sql, connection.type_casted_bind(b))
+connection.exec_no_cache(relation.where_sql),
+# table = Arel::Table.new(:reward_policies)
+# sql = connection.to_sql(relation)
+p result
+# # c = Arel::Nodes::And.new(a.constraints).to_sql(Arel::Table.engine)
+# c = Arel::Nodes::SqlLiteral.new("WHERE #{Arel::Nodes::And.new(a.constraints).to_sql(Arel::Table.engine)}")
+# # b = a.where_sql
+collector = connection.collector()
+# # sql, binds = connection.visitor.compile(b)
+collected = connection.visitor.accept(a, collector)
+result = collected.compile(b.dup, connection)
+
+# connection.to_sql(c, b)
+# sql,b,c = connection.to_sql_and_binds(a, [], nil)
+# sql, binds, preparable = ActiveRecord::Base.connection.select_all(a, "SQL")
+# sql, binds, preparable = to_sql_and_binds(a, [], nil)
+# b = a.where_sql
+# c = a.constraints
+# Arel::Visitors::ToSql.new(self)
+# collector = Arel::Collectors::SQLString.new
+```
+
+
+
+
+
+
+
