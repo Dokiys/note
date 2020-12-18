@@ -27,6 +27,7 @@
   *  [batch_update.md](Ruby/points/batch_update.md)
   * [module](Ruby/points/module.md)
   * [nil_check](Ruby/points/nil_check.md)
+  *  [StyleGuide.md](Ruby/points/StyleGuide.md)
 * [Ruby中的变量](Ruby/points/Ruby中的变量.md)
 * [ruby元编程](Ruby/ruby元编程.md)
 * [ruby杂记](Ruby/ruby杂记.md)

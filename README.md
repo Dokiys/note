@@ -32,7 +32,9 @@ Rails &gt;&gt; ActiveRecord &gt;&gt; 关联查询：
 
 ruby元编程：[Ruby中的元编程](https://deathking.github.io/metaprogramming-in-ruby/)
 
+Ruby >> points >> StyleGuide:
 
+* [The Ruby Style Guide](https://rubystyle.guide/#introduction)
 
 ## Other
 
