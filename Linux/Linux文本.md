@@ -689,3 +689,16 @@ done
 "中国普通高中": "中国普通高中",
 ```
 
+`awk`还可以对列处理
+
+```bash
+$ cat text
+2 this is a test
+3 Are you like awk
+This's a test
+10 There are orange,apple,mongo
+
+$ awk '$1>2 && $2=="Are" {print $1,$2,$3}' log.txt
+3 Are you
+```
+

@@ -16,37 +16,6 @@ Reloading...
 true
 ```
 
-## self
-
-在类中self表示当前类对象。
-
-在方法中表示当前实例对象，且通常可以省略。
-
-## &.
-
-假设有一个 account 对象，它有一个关联的 owner 对象，现在想要获取 owner 的 address 属性。稳妥的不引发 nil 异常的写法如下：
-
-```ruby
-if account && account.owner && account.owner.address
-...
-end
-```
-
-我们可以使用安全调用运算符重写前面的例子：
-
-```ruby
-account&.owner&.address
-```
-
-## &:
-
-对每一个元素执行某方法
-
-```ruby
-[1,2,3].map{ |x| x.to_s } # ['1','2','3']
-[1,2,3].map(&:to_s) # 与上面等价
-```
-
 ## <<
 
 as an ordinary method
