@@ -227,3 +227,15 @@ def _check_nil(params, allow_nil = false)
 end
 ```
 
+v3.1
+
+```ruby
+def _check_nil(params, allow_nil: false)
+  _attrs = self.attribute_names.dup.tap { |e| e.delete self.primary_key }
+
+  block = "lambda { |_k, _v| (_attrs.include? _k.to_s) #{allow_nil ? "" : "&& _v.present?"}"
+  params.select! &eval(block)
+  params.present? ? params.symbolize_keys : raise(StandardError, "No columns to update!")
+end
+```
+

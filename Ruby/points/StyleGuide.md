@@ -65,7 +65,7 @@ something = something ? something.downcase : nil
 # ok
 something = something.downcase if something
 
-# better
+# better（just nil）
 something &&= something.downcase
  ```
 
@@ -75,10 +75,9 @@ something &&= something.downcase
 # good - this comma is meaningful for array destructuring
 [[1, 2, 3], [4, 5, 6]].map { |a,| a }
 # => [
-         [0] 1,
-         [1] 4
-     ]
-
+# 	[0] 1,
+#		[1] 4
+# ]
 ```
 
 
@@ -286,6 +285,18 @@ do_something if x.between?(1000, 2000)
 ```
 
 ## String
+
+### 引号
+
+```ruby
+a = 1
+"#{a}" # => "1"
+'#{a}' # => "\#{a}"
+
+"'#{a}' test" # => "'1' test"
+```
+
+### new
 
 ```ruby
 # bad
