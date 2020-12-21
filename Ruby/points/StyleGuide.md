@@ -406,6 +406,7 @@ m = /(?<a>FOO)(?<b>BAR)/.match('FOOBAR')
 str = "111 100a 11bb"
 r = %r|\w{1,2}\d{2,5}|	# => /\w{1,2}\d{2,5}/
 
-str.match(t)						# => #<MatchData "111">
+str.match(r)						# => #<MatchData "111">
+r.match(str)						# => #<MatchData "111">
 ```
 
