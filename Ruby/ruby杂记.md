@@ -133,6 +133,22 @@ end
 
 # Rails
 
+## console
+
+查看当前迁移版本：
+
+```ruby
+# Rails 5.2
+ApplicationRecord.connection.migration_context.current_version
+ApplicationRecord.connection.migration_context.get_all_versions
+
+# Rails 5.1.7
+ActiveRecord::Migrator.current_version
+ActiveRecord::Migrator.get_all_versions
+```
+
+
+
 ## Rails 中的安全存取：
 
 ```ruby
