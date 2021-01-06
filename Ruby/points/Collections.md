@@ -16,7 +16,68 @@ array.tap { |a| a.delete(2) }	# => [1, 3]
 
 
 
+## Enumerable
+
+### inject or each
+
+```ruby
+array = [1,2,3]
+
+result = []
+array.each { |e| result << e+1 }
+
+result = array.inject([]) { |r,e| r << e+1 }
+```
+
+
+
 ## Hash
+
+### 创建
+
+```ruby
+> {a:'1'}.class
+ => Hash
+> {:a =>'1'}.class
+ => Hash
+```
+
+定义方法时的默认Hash
+
+ ```ruby
+class MyHash
+  def self.hello(var = false)
+    p var
+  end
+
+  def self.work(var: false)
+    p var
+  end
+end
+
+MyHash.hello
+=> false
+MyHash.hello(Object.new)	 
+=> #<Object:0x00007fc0b718ede8>
+
+
+MyHash.work
+=> false
+
+MyHash.work(Object.new)
+=> ArgumentError (wrong number of arguments (given 1, expected 0))
+
+MyHash.work(var: Object.new, obj:1, str:2)
+=> ArgumentError (unknown keywords: obj, str)
+
+MyHash.work(obj: Object.new)
+=> ArgumentError (unknown keyword: obj)
+
+MyHash.work(var: Object.new)
+=> #<Object:0x00007fe426835510>
+ ```
+
+
 
 ### 常用方法
 
@@ -110,7 +171,7 @@ str.split(',')			# => ["1","2","3"]
 
 
 
-### `|=`
+### merge
 
 ```ruby
 a = [1,2,3] 
