@@ -189,6 +189,15 @@ The third content...
 * vim中跳转行首：Home 或 Shift + ^
 * vim中跳转行尾：End 或 Shift + $
 * vim中查找：normal模式下键入 `'/'`，n 查找下一个，N 查找上一个
+* 命令行光标移动：
+  * 光标移动到行首：Ctrl + A
+  * 光标移动到行尾：Ctrl + E
+  * 光标移动到上一个单词词首：Esc 然后 + B
+  * 光标移动到下一个单词词首：Esc 然后 + F
+  * 删除光标后的一个单词：Esc 然后 + D
+  * 删除光标前一个单词：Ctrl + W
+  * 清除光标后至行尾的内容：Ctrl + K
+  * 恢复删除：Ctrl + Y
 
 ### RubyMine
 
