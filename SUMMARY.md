@@ -24,13 +24,14 @@
   * [Active Record](Ruby/Rails/ActiveRecord.md)
   * [Active Support](Ruby/Rails/ActiveSupport.md)
 * [Points](Ruby/points/README.md)
-  *  [batch_update.md](Ruby/points/batch_update.md)
-  *  [Collections.md](Ruby/points/Collections.md) 
+  *  [CodeShow.md](Ruby/points/CodeShow.md)
+  *  [ConvertObj.md](Ruby/points/ConvertObj.md) 
   * [module](Ruby/points/module.md)
   * [nil_check](Ruby/points/nil_check.md)
   *  [StyleGuide.md](Ruby/points/StyleGuide.md)
 * [ruby元编程](Ruby/ruby元编程.md)
 * [ruby杂记](Ruby/ruby杂记.md)
+*  [Sidekiq相关.md](Ruby/Sidekiq相关.md) 
 
 ## Other
 

@@ -1,4 +1,4 @@
-# Collections
+# ConvertObj
 
 ## Object
 
@@ -18,15 +18,31 @@ array.tap { |a| a.delete(2) }	# => [1, 3]
 
 ## Enumerable
 
-### inject or each
+### inject
 
 ```ruby
-array = [1,2,3]
+array = [1, 2, 3]
 
 result = []
 array.each { |e| result << e+1 }
 
-result = array.inject([]) { |r,e| r << e+1 }
+result = array.inject(Array.new) { |r,e| r << e+1 }
+# => [2, 3, 4]
+```
+
+
+
+### each or map
+
+```ruby
+array = [1, 2, 3]
+
+result = []
+array.each { |e| result << e+1 }			# => [1, 2, 3]
+array																	# => [1, 2, 3]
+
+result = array.map { |e| e+1 }				# => [2, 3, 4]
+array																	# => [1, 2, 3]
 ```
 
 
@@ -36,10 +52,12 @@ result = array.inject([]) { |r,e| r << e+1 }
 ### 创建
 
 ```ruby
-> {a:'1'}.class
- => Hash
-> {:a =>'1'}.class
- => Hash
+h1 = {a:'1'}			# => {:a => "1"}
+h2 = {:a =>'1'}		# => {:a => "1"}
+h3 = {'a' => '1'}	# => {"a"=>"1"}
+
+h1 == h2					# => true
+h1 == h3 					# => false
 ```
 
 定义方法时的默认Hash
@@ -107,6 +125,17 @@ obj.user_id	# => 1
 
 
 
+### ActiveRecorde _to_hash
+
+```ruby
+user = User.first
+attr = user.attributes
+attr.class
+# => Hash < Object
+```
+
+
+
 ## Array
 
 ### 常用方法
@@ -116,6 +145,16 @@ array = [1, 2, 3]
 
 array.append(4)				# => [1, 2, 3, 4]
 array.push(5)					# => [1, 2, 3, 4, 5]
+```
+
+
+
+### iterate
+
+#### map
+
+```ruby
+
 ```
 
 

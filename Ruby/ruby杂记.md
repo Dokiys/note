@@ -131,6 +131,15 @@ end
 
 
 
+### ObjecSpace
+
+```ruby
+ObjectSpace.each_object(Module).flat_map(&:instance_methods).uniq.grep(/__\w+__/)
+# => [:__send__, :__id__, :__method__, :__callee__, :__dir__]
+```
+
+
+
 # Rails
 
 ## console

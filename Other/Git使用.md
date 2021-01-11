@@ -77,6 +77,8 @@ git branch -f [分支名] [提交号]
 
 ### git merge
 
+**没事别瞎merge！！确定需要之后再merge！！**
+
 将指定分支合并到当前分支之后。
 
 ```bash
@@ -520,8 +522,6 @@ git push origin :foo
 
 
 
-
-
 ### 远程跟踪
 
 `master` 和 `o/master` 的关联关系就是由分支的“remote tracking”属性决定的。`master` 被设定为跟踪 `o/master`
@@ -530,18 +530,35 @@ git push origin :foo
 
 可以让任意分支跟踪 `o/master`, 然后该分支会像 `master` 分支一样得到隐含的 push 目的地以及 merge 的目标。
 
-> 例如：以下命令就可以创建一个名为 `totallyNotMaster` 的分支，它跟踪远程分支 `o/master`。
->
-> ```bash
-> git checkout -b totallyNotMaster o/master
-> git checkout -b totallyNotMaster -t o/master
-> ```
->
-> 另一种设置远程追踪分支的方法就是使用：`git branch -u` 命令，
->
-> ```bash
-> git branch -u o/master foo
-> //如果当前就在 foo 分支上, 还可以省略 foo：
-> git branch -u o/master
-> ```
+例如：以下命令就可以创建一个名为 `totallyNotMaster` 的分支，它跟踪远程分支 `o/master`。
+
+```bash
+git checkout -b totallyNotMaster o/master
+git checkout -b totallyNotMaster -t o/master
+```
+
+如果遇到报错
+
+```bash
+git checkout -b test -t origin/master
+fatal: Cannot update paths and switch to branch 'test' at the same time.
+Did you intend to checkout 'origin/master' which can not be resolved as commit?
+```
+
+可以查看远程是否可以fetch
+
+```bash
+git remote -v
+git fetch origin
+```
+
+另一种设置远程追踪分支的方法就是使用：`git branch -u` 命令，
+
+```bash
+git branch -u o/master foo
+//如果当前就在 foo 分支上, 还可以省略 foo：
+git branch -u o/master
+```
+
+
 
