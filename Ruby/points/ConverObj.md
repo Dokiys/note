@@ -43,6 +43,9 @@ array																	# => [1, 2, 3]
 
 result = array.map { |e| e+1 }				# => [2, 3, 4]
 array																	# => [1, 2, 3]
+result = array.flat_map { |e| [e, -e] } 				#=> [1, -1, 2, -2, 3, -3]
+array																	# => [1, 2, 3]
+
 ```
 
 

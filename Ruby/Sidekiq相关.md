@@ -14,6 +14,8 @@ class RewardPolicyWorkers::ExportListWorker
   def perform(params)
     # do something hither...
   end
+
+end
 ```
 
 `sidekicks_options`中的`queue`选项可在`sidekiq.yml`的`:queues:`设置并选择
