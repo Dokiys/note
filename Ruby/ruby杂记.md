@@ -131,12 +131,30 @@ end
 
 
 
-### ObjecSpace
+## ObjectSpace
 
 ```ruby
 ObjectSpace.each_object(Module).flat_map(&:instance_methods).uniq.grep(/__\w+__/)
 # => [:__send__, :__id__, :__method__, :__callee__, :__dir__]
 ```
+
+
+
+## OpenStruct
+
+```ruby
+operators = result.inject([]) do |memo, obj|
+  memo << OpenStruct.new({user_id: obj[0], real_name: obj[1]})
+end
+```
+
+通过打开 irb 并运行以查找 String 上可用的所有方法:
+
+```ruby
+"".methods.sort
+```
+
+
 
 
 
@@ -241,15 +259,19 @@ result = collected.compile(b.dup, connection)
 
 
 
-## OpenStruct
+## 事务嵌套
+
+为了保证一个子事务的 rollback 被父事务知晓，必须手动在子事务中添加 :require_new => true 选项。比如下面的写法：
 
 ```ruby
-operators = result.inject([]) do |memo, obj|
-  memo << OpenStruct.new({user_id: obj[0], real_name: obj[1]})
+User.transaction do
+  User.create(:username => 'Kotori')
+  User.transaction(:requires_new => true) do
+    User.create(:username => 'Nemu')
+    raise ActiveRecord::Rollback
+  end
 end
 ```
-
-
 
 
 

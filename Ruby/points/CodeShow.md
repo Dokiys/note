@@ -179,5 +179,21 @@ class Response
     response
   end
 end
+
+```
+
+
+
+## next
+
+```ruby
+arr = ["A","2B","3C"]
+arr = arr.inject(Array.new) do |r, e|
+  next r if (e.length == 1) && (r << e)
+  next r if is_B_end? && (r << e.slice(-1))
+
+  r
+end
+# arr => ["A","B"]
 ```
 
