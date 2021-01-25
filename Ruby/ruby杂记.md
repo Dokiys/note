@@ -156,9 +156,42 @@ end
 
 
 
+## Singleton
+
+```ruby
+require "singleton"
+class A
+	include Singleton
+
+	def test
+		p '1'
+	end
+end
+A.instance
+# => #<A:0x00007fa4ba900860>
+A.instance
+# => #<A:0x00007fa4ba900860>
+```
+
+
+
 
 
 # Rails
+
+## 不常用方法
+
+```ruby
+Student.none.class
+# => Student::ActiveRecord_Relation < ActiveRecord::Relation
+StudentVisa.name.tableize
+"student_visas"
+
+''.presence || false
+# => false
+```
+
+
 
 ## console
 

@@ -221,6 +221,22 @@ Baz.new.bar # NoMethodError: undefined method ‘bar’ for #<Baz:0x1e3d4>
 
 `extend`也有一个叫`self.extended`的方法,作用和`include`中的`self.included`类似。
 
+同时`included`方法可以用作文件夹在时的一些初始化操作：
+
+```ruby
+module A 
+    def A.included(mod)       
+      puts "#{self} included in #{mod}"     
+    end   
+end   
+module Enumerable     
+  include A   
+end
+# => prints "A included in Enumerable"
+```
+
+
+
 可参考[《Ruby中include和extend的比较》](http://xuyao.club/blog/2015/06/29/include-vs-extend-in-ruby/)
 
 

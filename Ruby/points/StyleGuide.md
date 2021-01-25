@@ -9,6 +9,22 @@ raise SomeException, 'message'
 do_something rescue nil
 ```
 
+
+
+### 捕获方法异常
+
+```ruby
+def method
+  # run code
+rescue Timeout::Error
+  # do something ...
+rescue => ex
+  # do something ...
+end
+```
+
+
+
 ## swap var
 
 ```ruby

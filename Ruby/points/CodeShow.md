@@ -197,3 +197,71 @@ end
 # arr => ["A","B"]
 ```
 
+
+
+## 默认参数选项
+
+```ruby
+  def pop(timeout = 0.5, options = {})
+    options, timeout = timeout, 0.5 if Hash === timeout
+    timeout = options.fetch :timeout, timeout
+    ...
+  end
+```
+
+
+
+## 循环
+
+```ruby
+do_something until true_condition
+# Example:
+#		a = 0; b = []; b << a+=1 until (a == 3) 	#	b => [1 2 3]
+```
+
+
+
+## 前置操作
+
+```ruby
+def process(commands)
+  logging(commands) do
+    ensure_connected do
+      # ... do something
+    end
+  end
+end
+```
+
+
+
+## Catch Error
+
+```ruby
+def io
+  yield
+rescue TimeoutError => e1
+  # Add a message to the exception without destroying the original stack
+  e2 = TimeoutError.new("Connection timed out")
+  e2.set_backtrace(e1.backtrace)
+  raise e2
+rescue Errno::ECONNRESET, Errno::EPIPE, Errno::ECONNABORTED, Errno::EBADF, Errno::EINVAL => e
+  raise ConnectionError, "Connection lost (%s)" % [e.class.name.split("::").last]
+end
+
+def read
+  io do
+    value = connection.read
+    @pending_reads -= 1
+    value
+  end
+end
+
+def write(command)
+  io do
+    @pending_reads += 1
+    connection.write(command)
+  end
+end
+```
+
