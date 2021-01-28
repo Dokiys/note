@@ -190,6 +190,14 @@ git cherry-pick <提交号>...
 
 相较于`rebase`，`git cherry-pick`可以指定提交的记录，
 
+例如将需要使用的代码提交到了存在不确定使用的代码分支中
+
+```bash
+git log # 查看需要的提交的 commit id
+git checkout [需要使用该代码的分支]
+git cherry-pick [commit id] # 提交该 commit 到当前分支
+```
+
 
 
 ### 分支归档
