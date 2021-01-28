@@ -181,6 +181,26 @@ attr.class
 
 
 
+### deep_values
+
+```ruby
+def deep_values(obj, &block)
+  case obj
+  when Hash
+    obj.keys.each do |k|
+      obj[k] = yield deep_values(obj[k], &block)
+    end
+    obj
+  when Array
+    obj.map! { |e| deep_values(e, &block) }
+  else
+    yield obj
+  end
+end
+```
+
+
+
 ## Array
 
 ### 常用方法

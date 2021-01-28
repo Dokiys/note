@@ -175,6 +175,19 @@ A.instance
 
 
 
+## ``
+
+在ruby代码中，可以使用``来执行操作系统中的命令
+
+```ruby
+result = `pwd`
+# result => "/Users/aaa/railsPractice/test\n"
+result.class
+# => String
+```
+
+
+
 
 
 # Rails
