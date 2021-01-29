@@ -413,9 +413,6 @@ process Regexp.last_match(1)
 /(?<meaningful_var>regexp)/ =~ string
 # some code
 process meaningful_var
-
-m = /(?<a>FOO)(?<b>BAR)/.match('FOOBAR')
-=> #<MatchData "FOOBAR" a:"FOO" b:"BAR">
 ```
 
 ```ruby
@@ -424,5 +421,40 @@ r = %r|\w{1,2}\d{2,5}|	# => /\w{1,2}\d{2,5}/
 
 str.match(r)						# => #<MatchData "111">
 r.match(str)						# => #<MatchData "111">
+```
+
+
+
+`ruby` 中的 `Regex`
+
+```ruby
+## 字符匹配
+	[0-9a-zA-Z_] => \w
+	[0-9] 			 => \d
+  white space  => \s   # (tabs, regular space, newline)
+	# 对应的取反可用大写字母
+	^[0-9a-zA-Z_] 		=> \W
+	^[0-9] 			 			=> \D
+  not white space  	=> \S   # (tabs, regular space, newline)
+
+## 分组匹配的字符串可以用数组下标或者命名来获取
+  m = "David 30".match /(?<name>\w+) (?<age>\d+)/
+  m.to_a
+  # => ["David 30", "David", "30"]
+  # m[1] == m[name] => 'David'
+
+## 位置锚定
+	str = 'aa bb 1a432 ll nnn* 123 fff __'
+	# 匹配以【一个字母后跟着一个空格的字符串】开头的【一个或多个字母】
+  str[/(?<=\w )(\w+)/]   	# => "bb"
+
+	# 匹配【一个或多个字母】且后面跟着【一个空格后面跟着一个或多个数字的字符串】
+  str[/(\w+)(?= \d+)/]    # => "bb"  
+
+	# 匹配【不】以【一个字母后跟着一个空格】开头的【一个或多个数字】
+	str[/(?<!\w )(\d+)/]    # => "432"  
+
+	# 匹配【一个或多个字母】且后面【不】跟着【一个字母或者一个空格】
+	str[/(\w+)(?![\w ])/]   # => "ooo"
 ```
 
