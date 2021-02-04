@@ -1,4 +1,4 @@
-# Ruby
+# ''.presenceRuby
 
 ## irb
 
@@ -162,73 +162,6 @@ csv << ["\xEF\xBB\xBF ID","Name","AGE"]
 
 
 
-
-
-# Rails
-
-## 不常用方法
-
-```ruby
-Student.none.class
-# => Student::ActiveRecord_Relation < ActiveRecord::Relation
-StudentVisa.name.tableize
-"student_visas"
-
-''.presence || false
-# => false
-```
-
-
-
-## console
-
-查看当前迁移版本：
-
-```ruby
-# Rails 5.2
-ApplicationRecord.connection.migration_context.current_version
-ApplicationRecord.connection.migration_context.get_all_versions
-
-# Rails 5.1.7
-ActiveRecord::Migrator.current_version
-ActiveRecord::Migrator.get_all_versions
-```
-
-
-
-## Rails 中的安全存取：
-
-```ruby
-[1] pry(main)> params = {user: 2}
-{
-    :user => 2
-}
-[2] pry(main)> params[:search]
-nil
-# parmas[:search].present? => NoMethodError: undefined method for nil:NilClass
-[3] pry(main)> params[:search] ||= {}
-{}
-[4] pry(main)> params[:search].present?
-false
-[5] pry(main)> params[:search].nil?
-false
-[6] pry(main)> params[:search].blank?
-true
-```
-
-
-
-## 调用环境：
-
-```ruby
-# 在 action_controller 环境中执行 wrap_paramters
-ActiveSupport.on_load(:action_controller) do
-  wrap_parameters format: [:json] if respond_to?(:wrap_parameters)
-end
-```
-
-
-
 ## 字符换行
 
 ```ruby
@@ -245,53 +178,5 @@ method_def <<
   "end"
 ```
 
-
-
-## `Arel`
-
-```ruby
-relation = RewardPolicy.where(:id => 27, :seq => 2)
-# a = relation.arel
-connection = ActiveRecord::Base.connection
-b = connection.combine_bind_parameters( where_clause: relation.where_clause.binds )
-result = connection.exec_params(relation.where_sql, connection.type_casted_bind(b))
-connection.exec_no_cache(relation.where_sql),
-# table = Arel::Table.new(:reward_policies)
-# sql = connection.to_sql(relation)
-p result
-# # c = Arel::Nodes::And.new(a.constraints).to_sql(Arel::Table.engine)
-# c = Arel::Nodes::SqlLiteral.new("WHERE #{Arel::Nodes::And.new(a.constraints).to_sql(Arel::Table.engine)}")
-# # b = a.where_sql
-collector = connection.collector()
-# # sql, binds = connection.visitor.compile(b)
-collected = connection.visitor.accept(a, collector)
-result = collected.compile(b.dup, connection)
-
-# connection.to_sql(c, b)
-# sql,b,c = connection.to_sql_and_binds(a, [], nil)
-# sql, binds, preparable = ActiveRecord::Base.connection.select_all(a, "SQL")
-# sql, binds, preparable = to_sql_and_binds(a, [], nil)
-# b = a.where_sql
-# c = a.constraints
-# Arel::Visitors::ToSql.new(self)
-# collector = Arel::Collectors::SQLString.new
-```
-
-
-
-## 事务嵌套
-
-为了保证一个子事务的 rollback 被父事务知晓，必须手动在子事务中添加 :require_new => true 选项。比如下面的写法：
-
-```ruby
-User.transaction do
-  User.create(:username => 'Kotori')
-  User.transaction(:requires_new => true) do
-    User.create(:username => 'Nemu')
-    raise ActiveRecord::Rollback
-  end
-end
-```
-
-
+更好的方法可参见 [StyleGuide.md](points/StyleGuide.md) 中的`string`部分
 

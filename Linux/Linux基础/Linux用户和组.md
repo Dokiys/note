@@ -216,7 +216,7 @@ Options:
 
 ```
 
-`useradd`创建的新用户默认密码被'! !'禁用，开业通过`-p`选项进行修改：
+`useradd`创建的新用户默认密码被'! !'禁用，可以通过`-p`选项进行修改：
 
 ```bash
 [root@guest ~]# getent shadow lisi
@@ -552,6 +552,8 @@ FILE: 文件名
 [root@guest data]# ll
 -rw-r--rw-. 1 root bin 0 Oct 13 07:44 test
 ```
+
+**注：**`chown`和`chgrp`命令都可以添加`-R`选项来将目录下的所有文件修改所有者
 
 现在我们将文件的所有者改成`wangwu`以后会发现，该用户不能访问该文件：
 

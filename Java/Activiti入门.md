@@ -442,12 +442,3 @@ taskService.setVariableLocal(task.getId(),"变量名",value);
 taskService.setVariables(task.getId(),variablesMap)
 taskService.setVariable(task.getId(),"变量名",value);
 ```
-
-
-
-
-
-
-
-
-
