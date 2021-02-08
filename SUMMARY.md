@@ -32,11 +32,11 @@
 
 * [并发编程](Java/并发编程.md)
 * [Java网络编程](Java/Java网络编程.md)
+*  [GradPro部署](Java/GradPro部署.md) 
 
 ## Other
 
 * [Git使用](Other/Git使用.md)
-*  [Docker](Other/Docker.md) 
 * [OAuth2](Other/OAuth2.md)
 *  [一个HTTP请求](Other/一个HTTP请求.md) 
 * [Regexp](Other/Regexp.md)

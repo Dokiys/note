@@ -287,5 +287,13 @@ User.transaction do
 end
 ```
 
+设置事务隔离级别：
+
+```ruby
+transaction isolation: :repeatable_read do
+	# do something...
+end
+```
+
 
 
