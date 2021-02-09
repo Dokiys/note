@@ -72,6 +72,12 @@ sudo systemctl start docker
 sudo docker run hello-world
 ```
 
+安装`docker-compose`
+
+```bash
+ sudo yum install docker-compose
+```
+
 
 
 ### Tomcat
@@ -438,7 +444,10 @@ docker rmi IMAGE_ID				# 删除镜像
 docker ps -a 							# 查看所有容器
 docker start 容器名称			 # 启动某个容器
 docker stop 容器名称			 # 停止某个容器
-docker stop $(docker ps -qa)	# 停止所有容器
+docker stop $(docker ps -qa)	
+docker rm $(docker ps -qa)
+docker images
+docker restart $(docker ps -qa)	
 docker rm 容器id					 # 删除某个容器
 docker stats							# 查看容器内存占用
 
