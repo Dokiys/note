@@ -152,23 +152,27 @@ User.includes(:posts).references(:posts)
 
 
 
-## 不常用方法
+## 类名转换
 
 ```ruby
+# 类名转表名
 Student.none.class
 # => Student::ActiveRecord_Relation < ActiveRecord::Relation
 StudentVisa.name.tableize
 "student_visas"
 
-''.presence || false
-# => false
+# 驼峰转蛇形
+"CamelCasedName".underscore
+# => camel_cased_name
+
+# 蛇形转驼峰
+"camel_cased_name".camelize
+# => CamelCasedName
 ```
 
 
 
-## console
-
-查看当前迁移版本：
+## 查看迁移版本
 
 ```ruby
 # Rails 5.2
@@ -228,9 +232,16 @@ true
 | `{ a:nil }` | `false` | `true`  | `false`               | `true`          | `false`    | `true`          |
 | `[[],[]]`   | `false` | `true`  | `false`               | `true`          | `false`    | `true`          |
 
+非空获取
+
+```ruby
+''.presence || false
+# => false
+```
 
 
-## 调用环境：
+
+## 调用环境
 
 ```ruby
 # 在 action_controller 环境中执行 wrap_paramters
@@ -241,7 +252,138 @@ end
 
 
 
-## `Arel`
+## batch_update
+
+记一个bug
+
+```ruby
+# obj.tap {|x| block }    -> obj
+# 
+# Yields self to the block, and then returns self.
+# The primary purpose of this method is to "tap into" a method chain,
+# in order to perform operations on intermediate results within the chain.
+# 
+#    (1..10)                  .tap {|x| puts "original: #{x}" }
+#      .to_a                  .tap {|x| puts "array:    #{x}" }
+#      .select {|x| x.even? } .tap {|x| puts "evens:    #{x}" }
+#      .map {|x| x*x }        .tap {|x| puts "squares:  #{x}" }
+def tap
+  # This is a stub implementation, used for type inference (actual method behavior may differ)
+  yield self; self
+end
+```
+
+`tap`会改变`self`
+
+ ```ruby
+_attrs = self.attribute_names.tap { |e| e.delete self.primary_key }
+# => 会改变 self 中的 @attribute_names 值，应该使用拷贝值删减
+_attrs = self.attribute_names.dup.tap { |e| e.delete self.primary_key }
+ ```
+
+**一定要注意对底层属性的更改操作，最好使用拷贝对象**
+
+
+
+### V1
+
+```ruby
+# Batch update <tt>ApplicationRecord</tt> with single SQL
+# +params+ will be filtered by current <tt>ApplicationRecord</tt>.attributes(except primary key)
+def batch_update_v2(params, relation, allow_nil = false)
+  transaction do
+    # Build condition by relation
+    where_sql = relation.try(:where_sql) || raise(StandardError.new("Illegal parameter: #{relation}"))
+    binds = relation.where_clause.binds
+
+    # Build update columns
+    params = _check_nil(params, allow_nil)
+    t = self.table_name.freeze
+    column_sql = (params.map { |k, v| "\"#{k}\" = " + (v.present? ? "'#{v}'" : "NULL") }).join(", ")
+
+    # Execute SQL
+    sql = <<~SQL
+    UPDATE #{t} SET updated_at = NOW(), #{column_sql} #{where_sql}
+    SQL
+    ActiveRecord::Base.connection.exec_query(sql, 'SQL', binds)
+    raise StandardError.new(sql)
+  end
+end
+
+# Return params with current <tt>ApplicationRecord</tt> attribute_names(except primary key).
+# If allow_nil is +true+ ,passes +nil+ value in params,
+# raise Error if no columns passed
+def _check_nil(params, allow_nil = false)
+  _attrs = self.attribute_names.dup.tap { |e| e.delete self.primary_key }
+
+  block = "lambda { |_k, _v| (_attrs.include? _k.to_s) " + (allow_nil ? "" : "&& _v.present? ") + "}"
+  params.select! &eval(block)
+  params.present? ? params : raise(StandardError.new("No columns to update!"))
+end
+```
+
+
+
+### V2
+
+```ruby
+# Batch update <tt>ApplicationRecord</tt> by <tt>ActionController::Parameters</tt>
+# The +params+ will be filtered through all attributes(except primary key) in <tt>ApplicationRecord</tt>
+# And will do nothing for blank attributes in params unless +allow_nil+ is +true+
+def batch_update(params, allow_nil = false)
+  ids = params.delete(:ids)
+
+  params = _check_nil(params, allow_nil)
+  self.where(:id => ids).update_all(params)
+end
+
+def _check_nil(params, allow_nil: false)
+  _attrs = self.attribute_names.dup.tap { |e| e.delete self.primary_key }
+
+  block = "lambda { |_k, _v| (_attrs.include? _k.to_s) #{allow_nil ? "" : "&& _v.present?"}"
+  params.select! &eval(block)
+  params.present? ? params.symbolize_keys : raise(StandardError, "No columns to update!")
+end
+```
+
+
+
+### V3
+
+```ruby
+def base_update(params, allow_nil = false)
+  transaction do
+    ids = params.require(:ids)
+    attrs = HashWithIndifferentAccess.new(check_nil(params, allow_nil))
+
+    self.where(id: ids).update_all(attrs)
+  end
+end
+
+# Return params with current <tt>ApplicationRecord</tt> attribute_names(except primary key).
+# if allow_nil is +true+ ,passes blank value in params
+def check_nil(params, allow_nil = false)
+  params = permit_attr!(params, primary_key)
+  params.reject { |_k, v| v.blank? } unless allow_nil == true
+
+  params
+end
+
+# Return +params+ instance that include only record attributes
+# and except given +args+ , no attributes permitted return {}
+def permit_attr(params, *args)
+  permit_attr!(params, args) rescue nil
+end
+
+# Performance as +permit_attr+, but raise error while illegal +params+
+def permit_attr!(params, *args)
+  params.permit(attribute_names - args.map(&:to_s))
+end
+```
+
+
+
+### `Arel`
 
 ```ruby
 relation = RewardPolicy.where(:id => 27, :seq => 2)
@@ -296,4 +438,74 @@ end
 ```
 
 
+
+## PSQL数组查询
+
+[Array Functions and Operators](https://www.postgresql.org/docs/8.2/functions-array.html)
+
+```ruby
+School.where("school_type && ?","{group_pathway}").to_sql
+# => "SELECT \"schools\".* FROM \"schools\" WHERE \"schools\".\"deleted_at\" IS NULL AND (school_type && '{group_pathway}')"
+```
+
+
+
+## 不更新updated_at
+
+```ruby
+ActiveRecord::Base.record_timestamps = false
+begin
+  run_the_code_that_imports_the_data
+ensure
+  ActiveRecord::Base.record_timestamps = true  # don't forget to enable it again!
+end
+```
+
+```ruby
+>> user.updated_at
+=> Wed, 16 Mar 2016 09:15:30 UTC +00:00
+
+>> user.name = "Dan"
+>> user.save(touch: false)
+  UPDATE "users" SET "name" = ? WHERE "users"."id" = ?  [["name", "Dan"], ["id", 12]]
+=> true
+
+>> user.updated_at
+=> Wed, 16 Mar 2016 09:15:30 UTC +00:00
+```
+
+
+
+## 迁移限制字符串长度
+
+```ruby
+change_column :users, :login, :string, :limit => 55s
+```
+
+
+
+## 迁移设置值
+
+利用迁移设置默认值和初始值：
+
+```ruby
+class AddSomethingToMyModule < ActiveRecord::Migration[5.0]
+  def up
+    add_column :my_modules, :something, :string, default: 'default_value'
+    change_column_default :my_modules, :something, nil
+  end
+
+  def down
+    remove_column :my_modules, :something
+  end
+  
+  # 迁移中也可执行sql
+  # def down
+  #   execute <<-SQL
+  #     DROP INDEX IF EXISTS index_products_on_category_id_and_name_and_tags;
+  #     DROP FUNCTION IF EXISTS sort_array(unsorted_array anyarray);
+  #   SQL
+  # end
+end
+```
 
