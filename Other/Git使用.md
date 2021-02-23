@@ -560,11 +560,11 @@ fatal: Cannot update paths and switch to branch 'test' at the same time.
 Did you intend to checkout 'origin/master' which can not be resolved as commit?
 ```
 
-可以查看远程是否可以fetch
+可以用`remote`命令查看远程是否可以fetch并用`set-url`选项来修改远程仓库
 
 ```bash
 git remote -v
-git fetch origin
+git remote set-url origin [remote repository]
 ```
 
 另一种设置远程追踪分支的方法就是使用：`git branch -u` 命令，
