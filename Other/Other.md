@@ -4,48 +4,12 @@
 
 ### 终端命令
 
-**redis-cli**
-
 ```bash
-# 查找运行的redis
-➜  [/etc] ps aux | grep redis
-root 67 0.0 0.0 4310532 532 ?? Ss 4Aug20 6:03.16 /usr/local/bin/redis-server 127.0.0.1:6379
-atyun 0891 0.0 0.0 4278524 704 s005  S+ 3:06PM 0:00.00 grep --color=auto --exclude-dir=.bzr --exclude-dir=CVS --exclude-dir=.git --exclude-dir=.hg --exclude-dir=.svn --exclude-dir=.idea --exclude-dir=.tox redis
-➜  [/etc] cd /usr/local/bin
-➜  [/usr/local/bin] git:(master) ✗ ls
-aclocal                             gecho                               hostid                              pgbench
-aclocal-1.15                        genv                                hyperkit                            pinky
-acyclic                             gettext                             idn2                                pkg-config
-annotate                            gettext.sh                          ifnames                             pltcl_delmod
-apm                                 gettextize                          img2webp                            pltcl_listmod
-autoconf                            gexpand                             initdb                              pltcl_loadmod     。。省略
-➜  [/usr/local/bin] git:(master) ✗
-➜  [/usr/local/bin] git:(master) ✗
-➜  [/usr/local/bin] git:(master) ✗ ll | grep redis
-lrwxr-xr-x  1 postgres  admin    41B Aug 14  2017 redis-benchmark -> ../Cellar/redis/4.0.1/bin/redis-benchmark
-lrwxr-xr-x  1 postgres  admin    41B Aug 14  2017 redis-check-aof -> ../Cellar/redis/4.0.1/bin/redis-check-aof
-lrwxr-xr-x  1 postgres  admin    42B Dec 17  2015 redis-check-dump -> ../Cellar/redis/3.0.5/bin/redis-check-dump
-lrwxr-xr-x  1 postgres  admin    41B Aug 14  2017 redis-check-rdb -> ../Cellar/redis/4.0.1/bin/redis-check-rdb
-lrwxr-xr-x  1 postgres  admin    35B Aug 14  2017 redis-cli -> ../Cellar/redis/4.0.1/bin/redis-cli
-lrwxr-xr-x  1 postgres  admin    40B Aug 14  2017 redis-sentinel -> ../Cellar/redis/4.0.1/bin/redis-sentinel
-lrwxr-xr-x  1 postgres  admin    38B Aug 14  2017 redis-server -> ../Cellar/redis/4.0.1/bin/redis-server
-➜  [/usr/local/bin] git:(master) ✗
-➜  [/usr/local/bin] git:(master) ✗
-➜  [/usr/local/bin] git:(master) ✗ cd ../Cellar/redis/4.0.1/bin
-➜  [/usr/local/Cellar/redis/4.0.1/bin] git:(master) ✗ redis-cli
-```
-
-
-
-**文件：**
-
-```bash
-➜  [/Users/atyun] cp ai.json /Users/atyun/works/ai.json         # 复制文件到指定路径
-➜  [/Users/atyun] mv ai.json /Users/atyun/works/ai.json         # 移动文件到指定路径
-
 [root@guest ~]# source .tcshrc             # 使.tcshrc文件立即生效
 [root@guest ~]# . .tcshrc                      # 可以用'.'代替‘source'
 ```
+
+
 
 ### Java
 
