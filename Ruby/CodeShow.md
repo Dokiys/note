@@ -313,3 +313,20 @@ ensure
 end
 ```
 
+
+
+## 埃拉托斯特尼筛法
+
+Ruby实现素数筛选
+
+![ertosthenes](../image/Ruby/CodeShow/Sieve_of_Eratosthenes_animation.gif)
+
+```bash
+index = 0
+while primes[index]**2 <= primes.last
+      prime = primes[index]
+      primes = primes.select { |x| x == prime || x % prime != 0 }
+      index += 1
+end
+```
+
