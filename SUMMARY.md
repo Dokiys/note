@@ -4,29 +4,26 @@
 
 ## Ruby
 
-* [Rails](Ruby/Rails/Rails入门.md)
-  * [Action Controller](Ruby/Rails/ActionController.md)
-  * [Rails Route](Ruby/Rails/RailsRoute.md)
-  * [Active Record](Ruby/Rails/ActiveRecord.md)
-  * [Active Support](Ruby/Rails/ActiveSupport.md)
-  *  [RailsEx](Ruby/Rails/RailsEx.md)
-  *  [Rails杂记](Ruby/Rails/Rails杂记.md) 
+* [Rails](Ruby/RoR/Rails入门.md)
+  *  [RailsEx](Ruby/RoR/RailsEx.md)
+  *  [Rails杂记](Ruby/RoR/Rails杂记.md) 
 * [Points](Ruby/points/README.md)
-  *  [ConvertObj](Ruby/points/ConvertObj.md) 
   * [Module引入](Ruby/points/Module引入.md)
+  * [Ruby元编程](Ruby/points/Ruby元编程.md)
+  * [ConvertObj](Ruby/points/ConvertObj.md)
   *  [StyleGuide](Ruby/points/StyleGuide.md)
 *  [CodeShow](Ruby/CodeShow.md)
-* [Ruby元编程](Ruby/Ruby元编程.md)
 * [Ruby杂记](Ruby/Ruby杂记.md)
-*  [Sidekiq相关](Ruby/Sidekiq相关.md) 
+*  [Sidekiq相关](Ruby/Sidekiq相关.md)
 
 ## Linux
 
-* [Linux基础](Linux/Linux基础/Linux基础.md)
-  * [Linux文件](Linux/Linux基础/Linux文件.md)
-  * [Linux用户和组](Linux/Linux基础/Linux用户和组.md)
-  * [Linux文本](Linux/Linux基础/Linux文本.md)
-* [Linux杂记](Linux/Linux杂记.md)
+* [Linux基础](Ops/Linux基础/Linux基础.md)
+  * [Linux文件](Ops/Linux基础/Linux文件.md)
+  * [Linux用户和组](Ops/Linux基础/Linux用户和组.md)
+  * [Linux文本](Ops/Linux基础/Linux文本.md)
+* [Linux杂记](Ops/Linux杂记.md)
+* [HelloDocker.md](Ops/HelloDocker.md) 
 
 ## Java
 

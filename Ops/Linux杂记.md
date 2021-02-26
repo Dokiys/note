@@ -80,3 +80,40 @@ Linux 下的`/usr/share/dict/words`中保存了几乎所有英语单词，例如
 
 
 
+## 文本处理小工具
+
+### 批量对多行文件进行相同处理：
+
+```bash
+➜  [/Users/atyun/railsPractice/test] cat text
+中国985高校
+中国211高校
+中国非211高校
+中国C9高校
+中外合作办学高校
+中国普通高中
+
+cat text | while read line
+do
+	echo "\"${line}\": \"${line}\"",
+done
+"中国985高校": "中国985高校",
+"中国211高校": "中国211高校",
+"中国非211高校": "中国非211高校",
+"中国C9高校": "中国C9高校",
+"中外合作办学高校": "中外合作办学高校",
+"中国普通高中": "中国普通高中",
+```
+
+`awk`还可以对列处理
+
+```bash
+$ cat text
+2 this is a test
+3 Are you like awk
+This's a test
+10 There are orange,apple,mongo
+
+$ awk '$1>2 && $2=="Are" {print $1,$2,$3}' log.txt
+3 Are you
+```

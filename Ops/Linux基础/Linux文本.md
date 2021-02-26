@@ -443,9 +443,7 @@ operator:x:11:0:operator:/root:/sbin/nologin
 
 模式间的相互转化：
 
-![](../image/Linux/Linux文本/vim_mode.png)
-
-
+![](../../image/Ops/Linux基础/Linux文本/vim_mode.png)
 
 命令模式 => 插入模式
 
@@ -661,44 +659,3 @@ vim [File1] [File2] [File3]
 单个文件可以使用`Ctrl + w; s|v`来 水平/垂直 分割窗口
 
 关闭分割窗口使用`Ctrl + w; q|o`，其中`q`删除相邻窗口，`o`删除所有窗口
-
-
-
-## 文本处理小工具
-
-### 批量对多行文件进行相同处理：
-
-```bash
-➜  [/Users/atyun/railsPractice/test] cat text
-中国985高校
-中国211高校
-中国非211高校
-中国C9高校
-中外合作办学高校
-中国普通高中
-
-cat text | while read line
-do
-	echo "\"${line}\": \"${line}\"",
-done
-"中国985高校": "中国985高校",
-"中国211高校": "中国211高校",
-"中国非211高校": "中国非211高校",
-"中国C9高校": "中国C9高校",
-"中外合作办学高校": "中外合作办学高校",
-"中国普通高中": "中国普通高中",
-```
-
-`awk`还可以对列处理
-
-```bash
-$ cat text
-2 this is a test
-3 Are you like awk
-This's a test
-10 There are orange,apple,mongo
-
-$ awk '$1>2 && $2=="Are" {print $1,$2,$3}' log.txt
-3 Are you
-```
-
