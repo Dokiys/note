@@ -2,7 +2,7 @@
 
 ## 标准目录结构
 
-![Linux标准目录结构](../../image/Ops/Linux文件/d0c50-linux2bfile2bsystem2bhierarchy.jpg)
+![Linux标准目录结构](../../image/Ops/Linux基础/Linux文件/d0c50-linux2bfile2bsystem2bhierarchy.jpg)
 
 > /  --- 根目录
 >
