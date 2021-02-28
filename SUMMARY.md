@@ -9,12 +9,12 @@
   *  [Rails杂记](Ruby/RoR/Rails杂记.md) 
 * [Points](Ruby/points/README.md)
   * [Module引入](Ruby/points/Module引入.md)
-  * [Ruby元编程](Ruby/points/Ruby元编程.md)
   * [ConvertObj](Ruby/points/ConvertObj.md)
-  *  [StyleGuide](Ruby/points/StyleGuide.md)
-*  [CodeShow](Ruby/CodeShow.md)
-* [Ruby杂记](Ruby/Ruby杂记.md)
-*  [Sidekiq相关](Ruby/Sidekiq相关.md)
+  * [StyleGuide](Ruby/points/StyleGuide.md)
+* [CodeShow](Ruby/CodeShow.md)
+* [Ruby杂记](Ruby/ruby杂记.md)
+* [Ruby元编程](Ruby/ruby元编程.md)
+* [Sidekiq相关](Ruby/Sidekiq相关.md)
 
 ## Linux
 
