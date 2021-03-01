@@ -379,6 +379,26 @@ $ curl -v "http://www.baidu.com"
 
 
 
+## HTTPS
+
+SSL 是指安全套接字层，用于加密通信过程中的传输内容。TLS（传输层安全）是更为安全的 SSL。HTTPS是通过TLS/SSL加密通道加密的HTTP协议。
+
+大致运作方式就是通过非对称加密在Client和Server之间获取一个双方都知道的密钥（Premaster secret），在每次数据传输时使用该密钥对称加密传输内容。其中，Server返回的公钥及其他信需要有CA的证书，以确保Server的正确身份。
+
+**RSA加密方式：**
+
+![RSA](../image/Other/一个HTTP请求/bg2014092003.png)
+
+**Diffie-HEllman加密方式：**
+
+![Diffie-Hellman](../image/Other/一个HTTP请求/bg2014092007.png)
+
+Diffie-Hellman密钥交换原理（离散对数问题）：
+
+![Diffie-Hellman](../image/Other/一个HTTP请求/400px-Diffie-Hellman-Schlüsselaustausch.svg.png)
+
+
+
 # 相关阅读
 
  [《计算机网络（第7版）》——谢希仁](https://www.academia.edu/35460532/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C_%E7%AC%AC7%E7%89%88_%E8%B0%A2%E5%B8%8C%E4%BB%81)
