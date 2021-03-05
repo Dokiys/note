@@ -377,6 +377,21 @@ $ curl -v "http://www.baidu.com"
 
 而`Web API`中的`WebSockets`，是创建 基于`WebSocket协议`连接 的一组接口。
 
+WebSocket协议允许服务器主动向客户端推送信息，其连接的建立是由HTTP协议完成的。具体步骤如下：
+
+> 1）客户端先会发送一个符合HTTP格式的握手包，其中请求方法为GET，HTTP版本不低于1.1
+> 必须包含Upgrade头部，值为websocket
+> 必须包含Sec-WebSocket-Key头部，值是一个Base64编码的16字节随机字符串。
+> 必须包含Sec-WebSocket-Version头部，值为13
+> 其他可选首部可以参考：[RFC6455](https://tools.ietf.org/html/rfc6455#section-4.1)
+>
+> 2）服务端验证客户端的握手包后会返回一个握手包给客户端。格式如下：
+> 必须包含Connection头部，值为Upgrade
+> 必须包含一个Upgrade头部，值为websocket
+> 必须包含一个Sec-Websocket-Accept头部，值由：Sec-WebSocket-Key对应值加上一个固定的字符串，然后进行SHA-1计算，最后将计算结果进行Base-64编码。
+>
+> 3）客户端收到服务端的握手包之后，对得到的Sec-Websocket-Accept头部进行校验以建立连接。
+
 
 
 ## HTTPS
@@ -393,7 +408,7 @@ SSL 是指安全套接字层，用于加密通信过程中的传输内容。TLS�
 
 ![Diffie-Hellman](../image/Other/一个HTTP请求/bg2014092007.png)
 
-Diffie-Hellman密钥交换原理（离散对数问题）：
+Diffie-Hellman密钥交换原理（[离散对数问题](https://zh.wikipedia.org/wiki/%E7%A6%BB%E6%95%A3%E5%AF%B9%E6%95%B0)）：
 
 ![Diffie-Hellman](../image/Other/一个HTTP请求/400px-Diffie-Hellman-Schlüsselaustausch.svg.png)
 

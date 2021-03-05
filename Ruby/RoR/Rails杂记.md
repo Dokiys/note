@@ -168,6 +168,10 @@ StudentVisa.name.tableize
 # 蛇形转驼峰
 "camel_cased_name".camelize
 # => CamelCasedName
+
+# 复数
+'person'.pluralize
+# => "people"
 ```
 
 

@@ -203,3 +203,6 @@ The third content...
 
 * 美化JSON：Command + B
 
+### Chrome
+
+* 打开最近关闭的tab页：Comman + Shift + T

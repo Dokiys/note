@@ -29,6 +29,14 @@ arr.clone.each { &:downcase }
 # arr => ['a', 'b' , 'c']
 ```
 
+### 方法查看
+
+```ruby
+# 查看某实例或者类的所有方法
+Object.methods
+Object.new.methods
+```
+
 
 
 ## Enumerable
@@ -291,4 +299,27 @@ str.gsub(/([=+-])x/,'\11x')		# => "-2x-1x+3x-6x=-1x+2"
 ​	其中`([=+-])`在替换的字符串中的表示为`\1`
 
 
+
+## Time
+
+### 常用方法
+
+```ruby
+Time.now					# => 当前时间
+Date.today				# => 今天
+Time.now.utc			# => UTC时间，国际标准时间
+(Time.now - 1.day).now.beginning_of_day		# => 昨天的开始
+(Time.now - 1.week).at_end_of_week	# => 上周的结束
+```
+
+### 日期格式输出
+
+```ruby
+Time.now.strftime('%Y-%m-%d %H:%M:%S')
+# => "2021-03-05 18:08:08"
+Time.now.strftime('%Y-%m-%d')
+# => "2021-03-05"
+Time.now.strftime('%Y年%m月%d日 %H:%M:%S')
+# => "2021年03月05日 18:09:03"
+```
 

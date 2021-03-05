@@ -117,3 +117,15 @@ This's a test
 $ awk '$1>2 && $2=="Are" {print $1,$2,$3}' log.txt
 3 Are you
 ```
+
+
+
+## knowhosts
+
+如果iterm2连接报错：
+
+```
+a session ended very soon after starting. 
+```
+
+可以到`~/.ssh/knowhosts`中将对应的hosts删掉
