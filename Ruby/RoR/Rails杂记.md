@@ -2,12 +2,69 @@
 
 ## 关联查询
 
-在ActiveRecord中提供了`joins`和`includes`方法来处理查询关联的`model`
+在ActiveRecord中提供了四种方法来处理查询关联的`model`
 
-两种方法最大的区别在于
-
+* `preload`条件查询当前`model`，并将结果作为查询条件去查询关联对象（不能对关联对象设置查询条件）
+* `eager_load`使用`LEFT OUTER JOIN`通过一条SQL语句将所有关联对象查询出来
+* `includes`会根据查询条件采用`preload`或者`eager_load`来查询记录
 * `joins`的查询语句采用的是`INNER JOIN`来链接查询
-* `includes`采用的是`LEFT OUTER JOIN`**或**通过多条语句查询
+
+
+
+### includes
+
+`includes`方法可以提前将关联对象加载，关联对象的**所有数据**将会被保存在相应的`ActiveRecord`中
+
+所有在使用`includes`方法时并不能指定需要选择的值，只能查询调用对象的所有属性以及所有以参数传入的关联对象的所有属性：
+
+```bash
+[1] pry(main)>visa = StudentVisa.includes(:visa_counsellor).last
+...
+[2] pry(main)> visa.visa_counsellor
+#<User:0x00007fb6aecf6220> {
+                               :id => 2,
+                         :username => "aa_admin",
+                           :gender => "male",
+                           :status => "active",
+                             :post => "admin",
+                           ...
+```
+
+`includes`的默认查询方法是`preload`，即通过一条附加的查询语句来加载关联数据：
+
+```ruby
+Post.includes(:comments).map { |post| post.comments.size }
+```
+
+```bash
+Post Load (1.2ms)  SELECT  "posts".* FROM "posts"
+Comment Load (2.0ms)  SELECT "comments".* FROM "comments" WHERE "comments"."post_id" IN (1, 3, 4, 5, 6)
+=> [3,5,2,4,2,1]
+```
+
+由于`preload`采用第一条语句查询到调用的`ActiveRecord`的结果，再用关联的外键来查询关联对象的结果
+
+所有`preload`并不能给查询的关联对象进行条件查询，但这并不代表`includes`不能进行条件查询
+
+当`includes`使用`where`筛选**关联对象**数据时或者`order`进行排序时，会调用另一个方法`eager_load`，使用` LEFT OUTER JOIN` 生成一条SQL语句进行查询：
+
+```ruby
+User.eager_load(:posts).to_a
+# =>
+SELECT "users"."id" AS t0_r0, "users"."name" AS t0_r1, "posts"."id" AS t1_r0,
+       "posts"."title" AS t1_r1, "posts"."user_id" AS t1_r2, "posts"."desc" AS t1_r3
+FROM "users" LEFT OUTER JOIN "posts" ON "posts"."user_id" = "users"."id"
+```
+
+或者也可以通过`references`方法来指定使用` LEFT OUTER JOIN` 生成一条SQL语句查询结果：
+
+```ruby
+User.includes(:posts).references(:posts)
+# =>
+SELECT "users"."id" AS t0_r0, "users"."name" AS t0_r1, "posts"."id" AS t1_r0,
+       "posts"."title" AS t1_r1, "posts"."user_id" AS t1_r2, "posts"."desc" AS t1_r3
+FROM "users" LEFT OUTER JOIN "posts" ON "posts"."user_id" = "users"."id"
+```
 
 
 
@@ -41,13 +98,13 @@ Post.joins(:comments).where(:comments => {author: 'Derek'}).map { |post| post.co
 => [3,5,2,4,2,1]
 ```
 
-我们可以在`joins`查询中`select`需要查询的值来(1)缩小范围以及(2)提前加载关联查询的指定字段，以防止在使用关联对象相关属性时再次查询
+我们可以在`joins`查询中`select`需要查询的值来缩小范围以及提前加载关联查询的指定字段，以防止在使用关联对象相关属性时再次查询
 
 需要注意的是，对关联对象`:visa_counsellor`选择查询结果时，需要使用关联对象的表名：
 
 ```ruby
 # 这里的order 即对应order表
-Item.joins(:order).select('order.title').last
+Item.joins(:order).select('orders.title').last
 ```
 
 ```bash
@@ -92,63 +149,10 @@ SELECT orders.title FROM "items" INNER JOIN "orders" ON "orders"."id" = "items".
 
 
 
-### includes
-
-`includes`方法可以提前将关联对象加载，关联对象的**所有数据**将会被保存在相应的`ActiveRecord`中
-
-所有在使用`includes`方法时并不能指定需要选择的值，只能查询(1)调用对象的所有属性以及(2)所有以参数传入的关联对象的所有属性：
-
-```bash
-[1] pry(main)>visa = StudentVisa.includes(:visa_counsellor).last
-...
-[2] pry(main)> visa.visa_counsellor
-#<User:0x00007fb6aecf6220> {
-                               :id => 2,
-                         :username => "aa_admin",
-                           :gender => "male",
-                           :status => "active",
-                             :post => "admin",
-                           ...
-```
-
-`includes`的默认查询方法是`preload`，即通过一条附加的查询语句来加载关联数据：
-
-```ruby
-Post.includes(:comments).map { |post| post.comments.size }
-```
-
-```bash
-Post Load (1.2ms)  SELECT  "posts".* FROM "posts"
-Comment Load (2.0ms)  SELECT "comments".* FROM "comments" WHERE "comments"."post_id" IN (1, 3, 4, 5, 6)
-=> [3,5,2,4,2,1]
-```
-
-由于`preload`采用第一条语句查询到调用的`ActiveRecord`的结果，再用关联的外键来查询关联对象的结果
-
-所有`preload`并不能给查询的关联对象进行条件查询，但这并不代表`includes`不能进行条件查询
-
-当`includes`使用`where`筛选数据时或者`order`进行排序时，会调用另一个方法`eager_load`，通过 LEFT OUTER JOIN 来进行关联查询：
-
-```ruby
-User.eager_load(:posts).to_a
-# =>
-SELECT "users"."id" AS t0_r0, "users"."name" AS t0_r1, "posts"."id" AS t1_r0,
-       "posts"."title" AS t1_r1, "posts"."user_id" AS t1_r2, "posts"."desc" AS t1_r3
-FROM "users" LEFT OUTER JOIN "posts" ON "posts"."user_id" = "users"."id"
-```
-
-或者可以通过`references`方法来指定使用 LEFT OUTER JOIN 方法来查询结果：
-
-```ruby
-User.includes(:posts).references(:posts)
-```
-
-
-
-参考资料
+### 参考资料
 
 * [《Making sense of ActiveRecord joins, includes, preload, and eager_load》](https://scoutapm.com/blog/activerecord-includes-vs-joins-vs-preload-vs-eager_load-when-and-where) 
-* [《rails 中 preload、includes、Eager load、Joins 的区别》](https://blog.csdn.net/weixin_30301183/article/details/96068446?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-3.nonecase)
+* [《Preload, Eagerload, Includes and Joins》](https://bigbinary.com/blog/preload-vs-eager-load-vs-joins-vs-includes)
 
 
 
