@@ -173,6 +173,7 @@ The third content...
 * 添加自定义代码块折叠：Command + Option + T  -&gt;  
 * 分屏：某文件的Tab栏上右键，选择Split Vertically 或 Split Horizontally
 * 查看最近文件：Command + E
+* 复制代码位置：Command + Option +  CapsLock + C
 
 ### MAC
 
