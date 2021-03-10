@@ -2,7 +2,11 @@
 
 # RubyStyleGuide
 
-## raise error
+## error
+
+> catch/throw allows you to quickly exit blocks back to a point where a catch is defined for a specific symbol, raise rescue is the real exception handling stuff involving the Exception object.
+
+### raise_rescue
 
 ```ruby
 raise SomeException, 'message'
@@ -11,10 +15,6 @@ raise SomeException, 'message'
 do_something rescue nil
 ```
 
-
-
-### 捕获方法异常
-
 ```ruby
 def method
   # run code
@@ -22,6 +22,24 @@ rescue Timeout::Error
   # do something ...
 rescue => ex
   # do something ...
+end
+```
+
+### throw_catch
+
+```ruby
+def throw_some
+	throw :some,'some_throw'
+end
+```
+
+```ruby
+def fire
+  msg = catch(:some) do
+    # do something ...
+    throw_some
+    # do something ...
+  end
 end
 ```
 
