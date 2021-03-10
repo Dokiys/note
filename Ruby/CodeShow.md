@@ -10,7 +10,8 @@ class Response
     @messages = messages
     @uuid = RequestStore.store[:request]&.uuid || SecureRandom.uuid
   end
-
+  
+  # 幽灵函数
   def method_missing(method_id, *arguments, &block)
     method_message = *arguments.join
     if (method_id.to_s =~ /^raise_[\w]+/) == 0
@@ -20,7 +21,6 @@ class Response
       error_messages = arguments.first
       @messages = error_messages if error_messages.is_a?(Array)
 
-      # FIXME: 兼容邮件处理转发的情况，可能需要传递block
       yield if block_given?
 
       raise StandardError.new(method_message)
@@ -36,7 +36,7 @@ class Response
     rescue AtyunError => e
       log(e)
       catch_block.call if catch_block.present?
-      response.code = Code::ATYUN_ERROR
+      response.code = Code::CUSTOM_ERROR
       response.message = e.message
     rescue => e
       log(e)
@@ -86,20 +86,6 @@ end
 do_something until true_condition
 # Example:
 #		a = 0; b = []; b << a+=1 until (a == 3) 	#	b => [1 2 3]
-```
-
-
-
-## 前置操作
-
-```ruby
-def process(commands)
-  logging(commands) do
-    ensure_connected do
-      # ... do something
-    end
-  end
-end
 ```
 
 
@@ -315,6 +301,47 @@ end
 
 
 
+## 关联替换
+
+有Record如下：
+
+```ruby
+class AttachmentGroup < ApplicationRecord
+  has_many :attachments, dependent: :destroy
+  
+  ...
+end
+```
+
+其实例方法替换关联对象：
+
+```ruby
+def replace_atch(files, &_block)
+  return [] if files.nil?
+  # deal files to be replace
+  temp_atchs = files.inject(Array.new) do |r, file|
+    atch_params = Attachment.check_file(file)
+    r << Attachment.find_or_initialize_by(atch_params) do |a|
+      yield(a) if block_given?
+      a.attachment_group_id = self.id
+    end
+  end
+
+  # return replaced records
+  proxy = self.attachments
+  old_atchs = proxy.load_target.dup
+  new_atchs = proxy.replace(temp_atchs)
+
+  old_atchs - new_atchs
+end
+```
+
+
+
+
+
+# 算法
+
 ## 埃拉托斯特尼筛法
 
 Ruby实现素数筛选
@@ -324,9 +351,24 @@ Ruby实现素数筛选
 ```bash
 index = 0
 while primes[index]**2 <= primes.last
-      prime = primes[index]
-      primes = primes.select { |x| x == prime || x % prime != 0 }
-      index += 1
+  prime = primes[index]
+  primes = primes.select { |x| x == prime || x % prime != 0 }
+  index += 1
+end
+```
+
+
+
+## 快速排序
+
+![849589-20171015230936371-1413523412](../image/Ruby/CodeShow/849589-20171015230936371-1413523412.gif)
+
+```ruby
+def quick_sort(array)
+  return array if array.size <= 1
+  array.shuffle!
+  left, right = array[1..-1].partition {|n| n <= array.first}
+  quick_sort(left) + [array.first] + quick_sort(right)
 end
 ```
 
