@@ -1,6 +1,4 @@
-# Module引入
-
-***
+# 类引入
 
 ruby 中`module`用于替代多继承的功能，是一个可以包含常量、方法、类定义以及其他模块的集合。
 
@@ -35,6 +33,8 @@ end
 ```
 
 每个模块具有单独的命名空间，以保证模块下的常量和方法互不影响。
+
+
 
 ## Const
 
@@ -129,7 +129,7 @@ end
 
 
 
-# include & extend
+## include & extend
 
 * `include`添加一个模块的方法到实例中
 * `extend`添加一个模块的方法到类中
@@ -192,33 +192,6 @@ Baz.foo # NoMethodError: undefined method ‘foo’ for Baz:Class
 Baz.new.bar # NoMethodError: undefined method ‘bar’ for #<Baz:0x1e3d4>
 ```
 
-如果引入了`ActiveSupport::Concern`可以写成这样：
-
-```ruby
-module Foo
-  extend ActiveSupport::Concern
-
-  module ClassMethods
-    def bar
-      puts 'class method'
-    end
-  end
-
-  def foo
-    puts 'instance method'
-  end
-end
-
-class Baz
-  include Foo
-end
-
-Baz.bar # class method
-Baz.new.foo # instance method
-Baz.foo # NoMethodError: undefined method ‘foo’ for Baz:Class
-Baz.new.bar # NoMethodError: undefined method ‘bar’ for #<Baz:0x1e3d4>
-```
-
 `extend`也有一个叫`self.extended`的方法,作用和`include`中的`self.included`类似。
 
 同时`included`方法可以用作文件夹在时的一些初始化操作：
@@ -241,3 +214,156 @@ end
 
 
 
+# module引入
+
+不同于类，`module`本身不能实例对象，所以`module`通过`extend`引入别的`module`时，其中打方法会被添加到自身的`metaclass`中，并且可以通过`module`名直接调用：
+
+```ruby
+module ExM
+  def hello_exm
+    puts 'hello exm'
+  end
+end
+
+module InM
+  def hello_inm
+    puts 'hello inm'
+  end
+end
+```
+
+```ruby
+module Base
+  include InM;
+  extend ExM;
+end
+
+Base.hello_exm
+# => hello exm
+Base.hello_inm
+# => NoMethodError (undefined method `hello_inm' for Base:Module)
+```
+
+而`Base`通过`include`引入到方法则会在`Base`被其他`class`通过`include`引入时添加到`class`到实例方法中：
+
+```ruby
+class KLASS_IN
+  include Base;
+end
+
+KLASS_IN.hello_inm
+# => NoMethodError (undefined method `hello_inm' for KLASS_IN:Class)
+KLASS_IN.new.hello_inm
+# => hello inm
+```
+
+---
+
+此时在`KLASS_IN`的`self`方法和实例的方法中都不能找到`hello_exm`方法：
+
+```ruby
+KLASS_IN.hello_exm
+# => NoMethodError (undefined method `hello_exm' for KLASS_IN:Class)
+KLASS_IN.new.hello_exm
+# => NoMethodError (undefined method `hello_exm' for #<KLASS_IN:0x00007fbebd098610>)
+```
+
+可以先看一个例子：
+
+```ruby
+module SelfM
+  def self.hello_self
+    puts "hello myself"
+  end
+end
+
+module Base
+  include SelfM;
+  extend SelfM;
+end
+
+Base.hello_self
+# => NoMethodError (undefined method `hello_self' for Base:Module)
+```
+
+可以看到在`Base`中没有找到`SelfM`中的方法。`self`的方法其实存放在`metaclass`中。而ruby中的引入不会将`metaclass`中的方法引入。
+
+所以在上面的例子中`ExM`中的方法已经被添加到了`Base`的`metaclass`中，所以`ExM`中的方法在`KLASS_IN`的`metaclass`和实例中都找不到对应方法。
+
+---
+
+如果`Base`被`extend`到其他到类，同样`ExM`中的方法不会被引入到该类中，而`InM`中到方法会被添加到该类的`metaclass`中：
+
+```ruby
+class KLASS_EX
+  extend Base;
+end
+
+KLASS_EX.hello_inm
+# => hello inm
+KLASS_EX.hello_exm
+# => NoMethodError (undefined method `hello_exm' for KLASS_EX:Class)
+```
+
+
+
+# Rails引入
+
+`Rails`中的`ActiveSupport::Concern`通过其中的`append_features(base)`方法：
+
+```ruby
+def append_features(base)
+  if base.instance_variable_defined?(:@_dependencies)
+    base.instance_variable_get(:@_dependencies) << self
+    return false
+  else
+    return false if base < self
+    @_dependencies.each { |dep| base.include(dep) }
+    super
+    # look here!
+    base.extend const_get(:ClassMethods) if const_defined?(:ClassMethods)
+    base.class_eval(&@_included_block) if instance_variable_defined?(:@_included_block)
+  end
+end
+```
+
+使得引入了`ActiveSupport::Concern`的`module`可以在其被其他类`include`引入时，将其中名为`ClassMethods`的`module`中的方法添加到对应类的`metaclass`中。
+
+```ruby
+module InM
+  def hello_inm
+    puts 'hello inm'
+  end
+end
+
+module BaseModel
+  extend ActiveSupport::Concern
+  include InM
+  
+  def hello_base
+    puts 'hello base module'
+  end
+  
+  module ClassMethods
+  	def hello_record
+      puts 'hello record'
+    end
+  end
+end
+
+class Re < ApplicationRecord
+    include BaseModel
+end
+
+Re.hello_record
+# => hello record
+```
+
+而其中的其他方法，或者在该`module`中通过`include`引入的其他`module`中的方法可以被引入到对应类的实例中。
+
+```ruby
+Re.new.hello_base
+# => hello base module
+Re.new.hello_inm
+# => hello inm
+```
