@@ -29,13 +29,37 @@ arr.clone.each { &:downcase }
 # arr => ['a', 'b' , 'c']
 ```
 
-### 方法查看
+### 常用方法
 
 ```ruby
 # 查看某实例或者类的所有方法
 Object.methods
 Object.new.methods
 ```
+
+判断类型
+
+```ruby
+module M;    end
+class A
+  include M
+end
+class B < A; end
+class C < B; end
+
+# 判断某对象是否属于某类
+b = B.new
+b.instance_of? B	# => true
+b.is_a? A         #=> true
+b.is_a? M         #=> true
+b.kind_of? M      #=> true
+
+# 子父类继承
+A.ancestors 			# => [A, M, Object, Kernel, BasicObject]
+B.superclass			# => A
+```
+
+
 
 
 
