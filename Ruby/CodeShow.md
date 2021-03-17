@@ -192,6 +192,30 @@ private :transaction
 
 
 
+## 大表添加索引
+
+```sql
+-- 假设需要添加索引的表为`fea_moni_res`
+-- 1. 新建与表`fea_moni_res`同结构的表
+CREATE TABLE fea_moni_res_tmp LIKE fea_moni_res;
+
+-- 2. 新表上添加索引
+ALTER TABLE fea_moni_res_tmp ADD INDEX idx_index_name (col_name);
+
+-- 3. *rename*新表为原表的表名，原表换新的名称
+RENAME TABLE fea_moni_res TO fea_moni_res_1, fea_moni_res_tmp TO fea_moni_res;
+
+-- 4. 为原表新增索引，此步耗时较长
+ALTER TABLE fea_moni_res_1 ADD INDEX idx_index_name (col_name);
+
+-- 5. 待索引创建成功后，rename原表为原来的名称，并将新表里的数据导入到原表中
+RENAME TABLE fea_moni_res TO fea_moni_res_tmp, fea_moni_res_1 TO fea_moni_res;
+-- 需要根据业务来确定如果导入数据
+INSERT INTO fea_moni_res(col_name1, col_name2) SELECT col_name1, col_name2 FROM fea_moni_res_tmp;
+```
+
+
+
 ## 事件回调
 
 ```ruby

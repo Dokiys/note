@@ -447,7 +447,9 @@ end
 
 
 
-## PSQL数组查询
+## PSQL
+
+### 数组查询
 
 [Array Functions and Operators](https://www.postgresql.org/docs/8.2/functions-array.html)
 
@@ -455,6 +457,25 @@ end
 School.where("school_type && ?","{group_pathway}").to_sql
 # => "SELECT \"schools\".* FROM \"schools\" WHERE \"schools\".\"deleted_at\" IS NULL AND (school_type && '{group_pathway}')"
 ```
+
+### 查询索引
+
+```sql
+SELECT tablename, indexname, indexdef
+FROM pg_indexes
+WHERE  schemaname = 'public'
+ORDER BY tablename,  indexname;
+```
+
+### 添加索引
+
+```ruby
+add_index :attachments, [:status, :is_view, :parent_id, :owner_id],
+	name: 'atch_com_idx',
+	order:{is_view: :desc, owner_id: :asc}
+```
+
+
 
 
 
