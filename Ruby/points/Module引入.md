@@ -305,6 +305,16 @@ KLASS_EX.hello_exm
 # => NoMethodError (undefined method `hello_exm' for KLASS_EX:Class)
 ```
 
+---
+
+还有一点值得注意的是，`Module`类中提供了一个名为`module_function(*args)`的方法。其可以将指定的方法添加到当前的`module`中，并且同时在该`module`被其他类引入时，将方法添加到类的实例中。
+
+```ruby
+ module_function :mehtod_name
+```
+
+在缺省情况下，`module_function`调用之后会作用于其后添加的所有方法，类似`private`。
+
 
 
 # Rails引入

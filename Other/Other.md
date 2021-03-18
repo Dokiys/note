@@ -174,6 +174,7 @@ The third content...
 * 分屏：某文件的Tab栏上右键，选择Split Vertically 或 Split Horizontally
 * 查看最近文件：Command + E
 * 复制代码位置：Command + Option +  CapsLock + C
+* 进入方法：Command  + B
 
 ### MAC
 

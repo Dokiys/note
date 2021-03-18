@@ -311,6 +311,16 @@ a -= nil_arr
 
 ## String
 
+### 字符串替换
+
+```ruby
+# 字符串占位替换
+str = "Hello %{what}%{operator}"
+params = { what:'Work', operator:'!' }
+
+str % params		# => "Hello Work!"
+```
+
 ### 分组正则匹配替换
 
 ```ruby
