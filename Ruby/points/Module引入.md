@@ -208,9 +208,32 @@ end
 # => prints "A included in Enumerable"
 ```
 
+---
+
+尤其值得注意的是，`self`其实就是调用的该类的一个单例类，可以从下面的例子看到：
+
+```ruby
+car = "car"
+
+class << car
+  def f1; puts "f1"; end
+  def self.f2; puts "f2"; end
+  
+  class << self 
+    def f3; puts "f3"; end
+    def self.f4; puts "f4"; end
+  end
+end
+
+car.f1									# => f1
+car.singleton_class.f2	# => f2
+car.singleton_class.f3	# => f3
+car.singleton_class.singleton_class.f4	# => f4
+```
 
 
-可参考[《Ruby中include和extend的比较》](http://xuyao.club/blog/2015/06/29/include-vs-extend-in-ruby/)
+
+参考资料：[《Ruby中include和extend的比较》](http://xuyao.club/blog/2015/06/29/include-vs-extend-in-ruby/)
 
 
 
