@@ -91,3 +91,8 @@ Rails Spring缓存加速
 
 [bullet:help to kill N+1 queries and unused eager loading](https://github.com/flyerhzm/bullet)
 
+
+
+## Rails Enum
+
+[Rails 关于在 Rails Model 中使用 Enum (枚举) 的若干总结](https://ruby-china.org/topics/28654#)

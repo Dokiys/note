@@ -339,7 +339,10 @@ str.gsub(/([=+-])x/,'\11x')		# => "-2x-1x+3x-6x=-1x+2"
 ### 常用方法
 
 ```ruby
-Time.now					# => 当前时间
+# Time.now					# => 当前系统时间
+Time.zone.now
+Time.current
+
 Date.today				# => 今天
 Time.now.utc			# => UTC时间，国际标准时间
 (Time.now - 1.day).now.beginning_of_day		# => 昨天的开始

@@ -477,8 +477,6 @@ add_index :attachments, [:status, :is_view, :parent_id, :owner_id],
 
 
 
-
-
 ## 不更新updated_at
 
 ```ruby
@@ -502,6 +500,25 @@ end
 >> user.updated_at
 => Wed, 16 Mar 2016 09:15:30 UTC +00:00
 ```
+
+
+
+## 查询删除数据
+
+ ```ruby
+ OpenPlatform.unscoped.last
+#	<OpenPlatform:0x00007fa38c384ca8> {
+# 	           :id => 1,
+#   	     :openid => "orufdasdfasdfjkljzg",
+#     	  :unionid => nil,
+#     	 :platform => "weapp",
+#     	 :app_name => 'aa_assistant',
+#     	  :user_id => 2518,
+#	   	 :created_at => Fri, 26 Mar 2021 11:42:53 CST +08:00,
+# 	   :updated_at => Fri, 26 Mar 2021 11:46:32 CST +08:00,
+#   	 :deleted_at => Fri, 26 Mar 2021 11:46:32 CST +08:00
+#	}
+ ```
 
 
 

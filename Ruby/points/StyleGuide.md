@@ -483,3 +483,49 @@ r.match(str)						# => #<MatchData "111">
 	/ab c/x # => 忽略【正则】中的空格进行匹配(这里匹配 ’abc‘)
 ```
 
+
+
+
+
+# RailsStyleGuide
+
+## Macro Style Methods
+
+```ruby
+class User < ActiveRecord::Base
+  # keep the default scope first (if any)
+  default_scope { where(active: true) }
+
+  # constants come up next
+  COLORS = %w(red green blue)
+
+  # afterwards we put attr related macros
+  attr_accessor :formatted_date_of_birth
+
+  attr_accessible :login, :first_name, :last_name, :email, :password
+
+  # Rails 4+ enums after attr macros
+  enum role: { user: 0, moderator: 1, admin: 2 }
+
+  # followed by association macros
+  belongs_to :country
+
+  has_many :authentications, dependent: :destroy
+
+  # and validation macros
+  validates :email, presence: true
+  validates :username, presence: true
+  validates :username, uniqueness: { case_sensitive: false }
+  validates :username, format: { with: /\A[A-Za-z][A-Za-z0-9._-]{2,19}\z/ }
+  validates :password, format: { with: /\A\S{8,128}\z/, allow_nil: true }
+
+  # next we have callbacks in the order in which they will be executed
+  before_save :cook
+  after_commit :after_commit_callback
+
+  # other macros (like devise's) should be placed after the callbacks
+
+  ...
+end
+```
+
