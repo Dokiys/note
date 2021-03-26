@@ -44,7 +44,7 @@ Comment Load (2.0ms)  SELECT "comments".* FROM "comments" WHERE "comments"."post
 
 由于`preload`采用第一条语句查询到调用的`ActiveRecord`的结果，再用关联的外键来查询关联对象的结果
 
-所有`preload`并不能给查询的关联对象进行条件查询，但这并不代表`includes`不能进行条件查询
+所以`preload`并不能给查询的关联对象进行条件查询，但这并不代表`includes`不能进行条件查询
 
 当`includes`使用`where`筛选**关联对象**数据时或者`order`进行排序时，会调用另一个方法`eager_load`，使用` LEFT OUTER JOIN` 生成一条SQL语句进行查询：
 
@@ -508,7 +508,7 @@ end
 ## 迁移限制字符串长度
 
 ```ruby
-change_column :users, :login, :string, :limit => 55s
+change_column :users, :login, :string, :limit => 55
 ```
 
 

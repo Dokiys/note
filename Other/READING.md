@@ -67,6 +67,14 @@ https://github.com/DatabaseCleaner/database_cleaner
 
 
 
+## JWT
+
+[JWT入门与实战](https://libin1991.github.io/2018/11/02/JWT%E5%85%A5%E9%97%A8%E4%B8%8E%E5%AE%9E%E6%88%98/)
+
+[JSON Web Token (JWT)生成Token及解密实战。](https://zhuanlan.zhihu.com/p/64809302)
+
+
+
 ## Other
 
 [优秀架构师必须掌握的架构思维](http://www.uml.org.cn/zjjs/201807034.asp)

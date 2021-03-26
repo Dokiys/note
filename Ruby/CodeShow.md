@@ -396,3 +396,110 @@ def quick_sort(array)
 end
 ```
 
+
+
+## 机器人指令
+
+```ruby
+class Robot
+  module Sign
+    LEFT = :left
+    RIGHT = :right
+    GO = :go
+    BACK = :back
+  end
+  DIRECTION = ['N','E','S','W']
+  DefualtOptions = {dist: 1}
+  
+  def initialize(signs)
+    @direction = 0;
+    @x, @y = 0, 0
+    @signs = signs
+    
+    @options = DefualtOptions
+  end
+  
+  def parse(opt = {})
+    @options.merge!(opt)
+  end
+  
+  def run
+    return if @signs.length <= 0
+    p 'star running'
+    @signs.delete_if { |e| fire(e) }
+  end
+  
+  def add_sign(sign)
+    @signs << sign
+    
+    self
+  end
+
+  def where_am_i
+    puts "My location is: (#{@x},#{@y})"
+  end
+  
+  def what_is_my_direction
+    puts "My direction is #{DIRECTION[@direction]}"
+  end
+  
+  def my_signs
+    puts "My signs: #{@signs}"
+  end
+  
+  private
+  
+  def fire(event)
+    send(event)
+  end
+  
+  def left
+    @direction = (@direction + 4 - 1) % 4
+  end
+  
+  def right
+    @direction = (@direction + 4 + 1) % 4
+  end
+  
+  def go
+    move()
+  end
+  
+  def back
+    move(flag: false)
+  end
+  
+  def move(flag: true)
+    dist = @options[:dist]
+    union = dist * (flag ? 1 : -1)
+    
+    case DIRECTION[@direction]
+    when 'N'
+      @y += union
+    when 'E'
+      @x += union
+    when 'S'
+      @y -= union
+    when 'W'
+      @x -= union
+    else
+      raise StandardError,'no support command'
+    end
+    
+  end
+end
+
+signs = [:back, :back, :right]
+r = Robot.new(signs)
+r.add_sign(Robot::Sign::GO).add_sign(Robot::Sign::GO)
+# r.parse(dist: 2)
+
+r.my_signs
+r.what_is_my_direction
+r.where_am_i
+r.run
+r.where_am_i
+r.what_is_my_direction
+r.my_signs
+```
+
