@@ -96,3 +96,10 @@ Rails Spring缓存加速
 ## Rails Enum
 
 [Rails 关于在 Rails Model 中使用 Enum (枚举) 的若干总结](https://ruby-china.org/topics/28654#)
+
+
+
+## Redis
+
+[Redis 为什么变慢了？](https://mp.weixin.qq.com/s/YLIW06y6f2ufgyeWUMWdYg)
+

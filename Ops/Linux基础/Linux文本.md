@@ -389,6 +389,17 @@ operator:x:11:0:operator:/root:/sbin/nologin
 ➜  [/Users/atyun/Library] ll Logs | grep 'a\|r'
 ```
 
+`grep`的`-r`选项可以用于查找文件目录下存在某字符的文件，及位置：
+
+```bash
+➜  [/Users/atyun/railsPractice/nginx] grep -r localhost /usr/local/nginx/conf
+/usr/local/nginx/conf/nginx.conf.default:        server_name  localhost;
+/usr/local/nginx/conf/nginx.conf.default:    #    server_name  localhost;
+/usr/local/nginx/conf/nginx.conf:    #    server_name  localhost;
+```
+
+
+
 常用的`grep`命令参数如下：
 
 > `--color=auto`:默认别名添加了该参数，对匹配的文本着色显示
