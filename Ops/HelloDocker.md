@@ -173,4 +173,5 @@ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]				# 运行容器（可以通过--
 docker exec [OPTIONS] CONTAINER COMMAND [ARG...]		# 进入容器（可以通过--help参数查看帮助）
 docker logs [OPTIONS] CONTAINER											# 查看容器日志
 docker cp FILE CONTAINER_ID:CONTAINER_PATH					# 将宿主机中的文件复制到容器中
+docker cp CONTAINER_ID:CONTAINER_FILE PATH					# 将容器中的文件复制到宿主机中
 ```

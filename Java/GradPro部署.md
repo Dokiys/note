@@ -157,7 +157,7 @@ root@adf685ff7f59:/usr/local/tomcat# rm -rf webapps.dist/
 启动`redis`容器并设置密码
 
 ```bash
-docker run -d --name redis -p 6379:6379 -v /home/gradpro/redis:/usr/local/redis redis:5.0 --requirepass "3827541fd098"
+docker run -d --name redis -p 6379:6379 -v /home/gradpro/redis:/usr/local/redis redis:5.0 --requirepass "3887541fd098"
 ```
 
 进入`redis`容器
@@ -202,27 +202,63 @@ root@833f62192e95:/# mysql -u root -p				# => 输入密码[3887541fd098]登录my
 ### nginx
 
 ```bash
-docker pull nginx
+docker pull nginx:stable
 ```
 
 ```bash
 docker run -d --name nginx \
 -p 80:80 \
--v /home/gradpro/docker/nginx/html:/usr/share/nginx/html \
-nginx
+-v /home/gradpro/nginx/html:/usr/share/nginx/html \
+nginx:stable
 ```
 
 ```bash
 docker exec -it nginx /bin/bash
 ```
 
-因为我需要修改`nginx`中的配置，所以需要添加如下的挂载
+因为我需要修改`nginx`中的配置，进入到`nginx`容器中查看`/etc/nginx/nginx.conf`文件可以看到：
 
 ```bash
--v /home/gradpro/docker/nginx/conf/nginx.conf:/etc/nginx/nginx.conf \
+include /etc/nginx/conf.d/*.conf;
 ```
 
-但是添加以后发现启动`nginx` 的时候会报错，原因还没有找到，所以后来直接在系统上部署的`nginx`
+其中引入了`conf.d`下的所有配置文件，进入到该目录，可以看到一个`default.conf`的配置，将我们需要的配置替换掉即可。当然该操作不应该在容器中进行。
+
+我们可以新建一个`default.conf`文件其内容如下：
+
+```conf
+server {
+    listen       80;
+    server_name  207.148.117.37;
+
+    #后台服务配置，配置了这个location便可以通过http://域名/jeecg-boot/xxxx 访问
+    location ^~ /jeecg-boot {
+        proxy_pass              http://207.148.117.37:8080/jeecg-boot/;
+        proxy_set_header        Host 207.148.117.37;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+    #解决Router(mode: 'history')模式下，刷新路由地址不能找到页面的问题
+    location / {
+    		# 如下的root配置如果在docker容器中可能会被定位到/etc/nginx/html
+        # root   html; 
+        root		/usr/share/nginx/html;
+        index  index.html index.htm;
+        if (!-e $request_filename) {
+            rewrite ^(.*)$ /index.html?s=$1 last;
+            break;
+        }
+    }
+}
+```
+
+然后将该文件copy到容器中：
+
+```bash
+docker cp default.conf nginx:/etc/nginx/conf.d/
+# 重启容器
+docker restart nginx
+```
 
 
 
