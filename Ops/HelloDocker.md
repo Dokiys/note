@@ -127,6 +127,64 @@ root@adf685ff7f59:/usr/local/tomcat# exit
 
 
 
+## Dockerfile
+
+通过`Dockerfile`可以在已有镜像的基础上构建自己的镜像。以构建一个自定义的nginx镜像为例子，现有配置文件和打包项目如下：
+
+```bash
+.
+├── default.conf
+└── html
+    ├── avatar2.jpg
+    ├── color.less
+    ├── css
+    ├── goright.png
+    ├── img
+    ├── index.html
+    ├── js
+    ├── logo.png
+    ├── tinymce
+    └── v2.js
+```
+
+在当前目录创建`Dockerfile`文件：
+
+```
+FROM nginx:stable
+COPY default.conf /etc/nginx/conf.d
+VOLUME html
+EXPOSE 80
+```
+
+需要注意的是这里的`EXPOSE`命令只是说明该镜像需要用到80端口，`VOLUME`也只是创建了一个当前目录下html文件的数据卷，只有在镜像运行并且指定端口和数据去的时候才会实际占用端口和挂载。
+
+当前目录结构：
+
+```bash
+.
+├── Dockerfile
+├── default.conf
+└── html
+```
+
+构建镜像，`-t`指定tag，`.`表示当前目录下构建。查看镜像列表即可看到构建的镜像：
+
+```bash
+[root@vultr ~]# docker build -t mynginx:2.0 .
+....
+[root@vultr ~]# docker images
+REPOSITORY   TAG                                IMAGE ID       CREATED          SIZE
+mynginx      2.0                                5cc5f4f9f2c9   34 minutes ago   133MB
+```
+
+运行镜像：
+
+```bash
+[root@vultr ~]# docker run -d --name mynginx -p 80:80 -v $PWD/html:/usr/share/nginx/html mynginx:2.0
+```
+
+
+
 ## docker-compose
 
 有些时候，启动一个容器会有大量的参数设置，维护起来相当困难，并且当有多个容器需要部署时，会很麻烦。
@@ -139,9 +197,9 @@ root@adf685ff7f59:/usr/local/tomcat# exit
  sudo yum install docker-compose
 ```
 
-
-
 // TODO
+
+
 
 ## Docker命令
 
