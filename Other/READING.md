@@ -103,3 +103,9 @@ Rails Spring缓存加速
 
 [Redis 为什么变慢了？](https://mp.weixin.qq.com/s/YLIW06y6f2ufgyeWUMWdYg)
 
+
+
+## 面试题
+
+[互联网大厂面试题目汇总](https://q.shanyue.tech/weekly/)
+
