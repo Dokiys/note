@@ -125,35 +125,66 @@ end
 ## 测量消耗
 
 ```ruby
-# helpers.rb
 require 'benchmark'
 
-def print_memory_usage
-  memory_before = `ps -o rss= -p #{Process.pid}`.to_i
-  yield
-  memory_after = `ps -o rss= -p #{Process.pid}`.to_i
+def measure_gc_times
+  yield && (return puts("GC: disabled")) if (ARGV[0] == "--no-gc")
 
-  puts "Memory: #{((memory_after - memory_before) / 1024.0).round(2)} MB"
+  GC.start(full_mark: true, immediate_sweep: true, immediate_mark: false)
+  c0 = GC.stat[:count]
+  yield
+  c1 = GC.stat[:count]
+
+  puts "GC: #{c1 - c0} 次"
 end
 
-def print_time_spent
+def measure_new_objects
+  c0 = ObjectSpace.count_objects[:T_OBJECT]
+  yield
+  c1 = ObjectSpace.count_objects[:T_OBJECT]
+
+  puts "new_object: #{c1 - c0}"
+end
+
+def measure_memory_usage
+  # m0 = `ps -o rss= -p #{Process.pid}`.to_i
+  m0 = `ps ax -o pid,rss | grep -E "^[[:space:]]*#{$$}"`.strip.split.map(&:to_i)[1]
+  yield
+  # m1 = `ps -o rss= -p #{Process.pid}`.to_i
+  m1 = `ps ax -o pid,rss | grep -E "^[[:space:]]*#{$$}"`.strip.split.map(&:to_i)[1]
+
+  puts("Memory: #{m1 - m0} KB")
+end
+
+def measure_time_spend
   time = Benchmark.realtime do
     yield
   end
 
-  puts "Time: #{time.round(2)}"
+  puts "Time: #{time.round(4)}"
 end
 ```
 
 ```ruby
-print_memory_usage do
-  print_time_spent do
-    p "hello work!"
+def measure(redo_times = 1)
+  measure_gc_times do
+    measure_new_objects do
+      measure_memory_usage do
+        measure_time_spend do
+          yield until (redo_times -= 1).negative?
+        end
+      end
+    end
   end
 end
-# => "hello work!"
-# => Time: 0.0
-# => Memory: 0.0 MB
+  
+measure(5) do
+  # do something...
+end
+# => Time: 5.9761
+# => Memory: 16684 KB
+# => new_object: 6389
+# => GC: 1 次
 ```
 
 
