@@ -6,7 +6,7 @@
 
 
 
-#### scp
+#### scp(secure copy)
 
 Linux命令行下可以通过`scp`命令传输文件，添加`-r`选项可以传输目录
 

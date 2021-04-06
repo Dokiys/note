@@ -197,7 +197,35 @@ mynginx      2.0                                5cc5f4f9f2c9   34 minutes ago   
  sudo yum install docker-compose
 ```
 
-// TODO
+添加`docker-compose.yml`
+
+```yaml
+version: "3.9"
+services:
+  app:
+    build: ./nginx
+    ports:
+      - 80:80
+    volumes:
+      - $PWD/nginx/html:/usr/share/nginx/html
+```
+
+```bash
+.
+├── docker-compose.yml
+└── nginx
+```
+
+运行
+
+```bash
+[root@vultr ~]# docker-compose up -d
+[root@vultr ~]# docker ps -a
+CONTAINER ID   IMAGE                                     COMMAND                  CREATED          STATUS                    PORTS                NAMES
+d904f1786a9a   docker_app                                "/docker-entrypoint.…"   39 seconds ago   Up 37 seconds             0.0.0.0:80->80/tcp   docker_app_1
+```
+
+`docker-compose.yml`文件中的配置其实就相当于`docker run`命令中的各项配置
 
 
 
