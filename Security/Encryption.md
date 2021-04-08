@@ -15,7 +15,7 @@ RSA、ECC（移动设备用）、Diffie-Hellman、El Gamal、DSA（数字签名�
 **Hash算法（摘要算法）**
 
 ```
-MD2、MD4、MD5、HAVAL、SHA、SHA-1、HMAC、HMAC-MD5、HMAC-SHA1
+MD2、MD4、MD5、HAVAL、SHA、SHA-1、HMAC、HMAC-MD5、HMAC-SHA1、bcrypt
 ```
 
 
@@ -30,7 +30,7 @@ MD2、MD4、MD5、HAVAL、SHA、SHA-1、HMAC、HMAC-MD5、HMAC-SHA1
 password_hash = hash(password, salt)
 ```
 
-加盐也只是增加了破解的复杂度，目前更常用的方法是在此基础上增加计算强度的`bcrypt`算法
+加盐也只是增加了破解的复杂度，目前更常用的方法是在此基础上增加计算强度的`bcrypt`算法，其原理是增加计算的复杂度，以提高单次解密的时间，从而使暴力方式破解密文的时间极大的增加。
 
 
 
