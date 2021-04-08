@@ -144,25 +144,3 @@ puts 'jwt:', jwt
 * `session`: key-value数据库中维护用户校验码。
 * `jwt`: 直接下发由密码盐和校验码生成的token，其中包含过期信息和校验码，验证时将payload中的校验码与服务端存放的密码盐一起用于解密token即可。
 
-
-
-# 常见加密算法
-
-**对称加密**
-
-```
-DES、3DES、DESX、Blowfish、IDEA、RC4、RC5、RC6、AES
-```
-
-**非对称加密**
-
-```
-RSA、ECC（移动设备用）、Diffie-Hellman、El Gamal、DSA（数字签名用）
-```
-
-**Hash算法（摘要算法）**
-
-```
-MD2、MD4、MD5、HAVAL、SHA、SHA-1、HMAC、HMAC-MD5、HMAC-SHA1
-```
-
