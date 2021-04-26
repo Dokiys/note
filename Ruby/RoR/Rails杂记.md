@@ -194,31 +194,6 @@ ActiveRecord::Migrator.get_all_versions
 
 
 
-## Rails 中的安全存取
-
-```ruby
-[1] pry(main)> params = {user: 2}
-{
-    :user => 2
-}
-[2] pry(main)> params[:search]
-nil
-# parmas[:search].present? => NoMethodError: undefined method for nil:NilClass
-[3] pry(main)> params[:search] ||= {}
-{}
-[4] pry(main)> params[:search].present?
-false
-[5] pry(main)> "zhangsan".presence
-"zhangsan"
-[6] pry(main)> params[:search].nil?
-false
-[7] pry(main)> params[:search].blank?
-true
-
-```
-
-
-
 ## 空检查
 
 表格内容摘自[《empty？blank？nil？傻傻分不清楚》](http://sibevin.github.io/posts/2014-11-11-103928-rails-empty-vs-blank-vs-nil)
@@ -256,169 +231,6 @@ true
 ActiveSupport.on_load(:action_controller) do
   wrap_parameters format: [:json] if respond_to?(:wrap_parameters)
 end
-```
-
-
-
-## batch_update
-
-记一个bug
-
-```ruby
-# obj.tap {|x| block }    -> obj
-# 
-# Yields self to the block, and then returns self.
-# The primary purpose of this method is to "tap into" a method chain,
-# in order to perform operations on intermediate results within the chain.
-# 
-#    (1..10)                  .tap {|x| puts "original: #{x}" }
-#      .to_a                  .tap {|x| puts "array:    #{x}" }
-#      .select {|x| x.even? } .tap {|x| puts "evens:    #{x}" }
-#      .map {|x| x*x }        .tap {|x| puts "squares:  #{x}" }
-def tap
-  # This is a stub implementation, used for type inference (actual method behavior may differ)
-  yield self; self
-end
-```
-
-`tap`会改变`self`
-
- ```ruby
-_attrs = self.attribute_names.tap { |e| e.delete self.primary_key }
-# => 会改变 self 中的 @attribute_names 值，应该使用拷贝值删减
-_attrs = self.attribute_names.dup.tap { |e| e.delete self.primary_key }
- ```
-
-**一定要注意对底层属性的更改操作，最好使用拷贝对象**
-
-
-
-### V1
-
-```ruby
-# Batch update <tt>ApplicationRecord</tt> with single SQL
-# +params+ will be filtered by current <tt>ApplicationRecord</tt>.attributes(except primary key)
-def batch_update_v2(params, relation, allow_nil = false)
-  transaction do
-    # Build condition by relation
-    where_sql = relation.try(:where_sql) || raise(StandardError.new("Illegal parameter: #{relation}"))
-    binds = relation.where_clause.binds
-
-    # Build update columns
-    params = _check_nil(params, allow_nil)
-    t = self.table_name.freeze
-    column_sql = (params.map { |k, v| "\"#{k}\" = " + (v.present? ? "'#{v}'" : "NULL") }).join(", ")
-
-    # Execute SQL
-    sql = <<~SQL
-    UPDATE #{t} SET updated_at = NOW(), #{column_sql} #{where_sql}
-    SQL
-    ActiveRecord::Base.connection.exec_query(sql, 'SQL', binds)
-    raise StandardError.new(sql)
-  end
-end
-
-# Return params with current <tt>ApplicationRecord</tt> attribute_names(except primary key).
-# If allow_nil is +true+ ,passes +nil+ value in params,
-# raise Error if no columns passed
-def _check_nil(params, allow_nil = false)
-  _attrs = self.attribute_names.dup.tap { |e| e.delete self.primary_key }
-
-  block = "lambda { |_k, _v| (_attrs.include? _k.to_s) " + (allow_nil ? "" : "&& _v.present? ") + "}"
-  params.select! &eval(block)
-  params.present? ? params : raise(StandardError.new("No columns to update!"))
-end
-```
-
-
-
-### V2
-
-```ruby
-# Batch update <tt>ApplicationRecord</tt> by <tt>ActionController::Parameters</tt>
-# The +params+ will be filtered through all attributes(except primary key) in <tt>ApplicationRecord</tt>
-# And will do nothing for blank attributes in params unless +allow_nil+ is +true+
-def batch_update(params, allow_nil = false)
-  ids = params.delete(:ids)
-
-  params = _check_nil(params, allow_nil)
-  self.where(:id => ids).update_all(params)
-end
-
-def _check_nil(params, allow_nil: false)
-  _attrs = self.attribute_names.dup.tap { |e| e.delete self.primary_key }
-
-  block = "lambda { |_k, _v| (_attrs.include? _k.to_s) #{allow_nil ? "" : "&& _v.present?"}"
-  params.select! &eval(block)
-  params.present? ? params.symbolize_keys : raise(StandardError, "No columns to update!")
-end
-```
-
-
-
-### V3
-
-```ruby
-def base_update(params, allow_nil = false)
-  transaction do
-    ids = params.require(:ids)
-    attrs = HashWithIndifferentAccess.new(check_nil(params, allow_nil))
-
-    self.where(id: ids).update_all(attrs)
-  end
-end
-
-# Return params with current <tt>ApplicationRecord</tt> attribute_names(except primary key).
-# if allow_nil is +true+ ,passes blank value in params
-def check_nil(params, allow_nil = false)
-  params = permit_attr!(params, primary_key)
-  params.reject { |_k, v| v.blank? } unless allow_nil == true
-
-  params
-end
-
-# Return +params+ instance that include only record attributes
-# and except given +args+ , no attributes permitted return {}
-def permit_attr(params, *args)
-  permit_attr!(params, args) rescue nil
-end
-
-# Performance as +permit_attr+, but raise error while illegal +params+
-def permit_attr!(params, *args)
-  params.permit(attribute_names - args.map(&:to_s))
-end
-```
-
-
-
-### `Arel`
-
-```ruby
-relation = RewardPolicy.where(:id => 27, :seq => 2)
-# a = relation.arel
-connection = ActiveRecord::Base.connection
-b = connection.combine_bind_parameters( where_clause: relation.where_clause.binds )
-result = connection.exec_params(relation.where_sql, connection.type_casted_bind(b))
-connection.exec_no_cache(relation.where_sql),
-# table = Arel::Table.new(:reward_policies)
-# sql = connection.to_sql(relation)
-p result
-# # c = Arel::Nodes::And.new(a.constraints).to_sql(Arel::Table.engine)
-# c = Arel::Nodes::SqlLiteral.new("WHERE #{Arel::Nodes::And.new(a.constraints).to_sql(Arel::Table.engine)}")
-# # b = a.where_sql
-collector = connection.collector()
-# # sql, binds = connection.visitor.compile(b)
-collected = connection.visitor.accept(a, collector)
-result = collected.compile(b.dup, connection)
-
-# connection.to_sql(c, b)
-# sql,b,c = connection.to_sql_and_binds(a, [], nil)
-# sql, binds, preparable = ActiveRecord::Base.connection.select_all(a, "SQL")
-# sql, binds, preparable = to_sql_and_binds(a, [], nil)
-# b = a.where_sql
-# c = a.constraints
-# Arel::Visitors::ToSql.new(self)
-# collector = Arel::Collectors::SQLString.new
 ```
 
 
@@ -530,7 +342,7 @@ change_column :users, :login, :string, :limit => 55
 
 
 
-## 迁移设置值
+## 迁移默认值
 
 利用迁移设置默认值和初始值：
 

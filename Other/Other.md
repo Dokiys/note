@@ -180,8 +180,12 @@ The third content...
 
 * 反撤销： Command + Shift + Z
 * Chrome检查：Command + Shift + C
+* 推出当前程序：Command + Q
+* 切换同一应用的不同窗口：Command + `
+* 重命名文件：选择到文件名的状态下 + Enter
+* 
 
-### iterm2
+### iTerm2
 
 * 新建窗口： Command + T
 * 水平分屏： Command + D
