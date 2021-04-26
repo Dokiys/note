@@ -1,6 +1,8 @@
 # CodeShow
 
-## raise_error
+## Ruby
+
+### raise_error
 
 ```ruby
 class Response
@@ -53,22 +55,7 @@ end
 
 
 
-## next
-
-```ruby
-arr = ["A","2B","3C"]
-arr = arr.inject(Array.new) do |r, e|
-  next r if (e.length == 1) && (r << e)
-  next r if is_B_end? && (r << e.slice(-1))
-
-  r
-end
-# arr => ["A","B"]
-```
-
-
-
-## 默认参数选项
+### 默认参数选项
 
 ```ruby
   def pop(timeout = 0.5, options = {})
@@ -80,17 +67,26 @@ end
 
 
 
-## 循环
+### 循环
 
 ```ruby
+# until
 do_something until true_condition
 # Example:
 #		a = 0; b = []; b << a+=1 until (a == 3) 	#	b => [1 2 3]
+  
+# next
+arr = ["A","2B","3C"]
+arr = arr.each_with_object(Array.new) do |e, r|
+  next r if (e.length == 1) && (r << e)
+  next r if is_B_end? && (r << e.slice(-1))
+end
+# arr => ["A","B"]
 ```
 
 
 
-## Catch Error
+### Catch Error
 
 ```ruby
 def io
@@ -122,7 +118,7 @@ end
 
 
 
-## 测量消耗
+### 测量消耗
 
 ```ruby
 require 'benchmark'
@@ -187,67 +183,7 @@ end
 # => GC: 1 次
 ```
 
-
-
-## 懒事务
-
-```ruby
-#
-# Transactions
-#
-def self.transactional(flag = true)
-  if flag
-    raise "Model class does not support transactions" unless @model_class.respond_to?(:transaction)
-  end
-  @transactional = !!flag
-end
-
-def self.transactional?
-  @transactional || false
-end
-
-def transactional?
-  @transactional || self.class.transactional?
-end
-
-def transaction
-  if transactional?
-    model_class.transaction { yield }
-  else
-    yield
-  end
-end
-
-private :transaction
-```
-
-
-
-## 大表添加索引
-
-```sql
--- 假设需要添加索引的表为`fea_moni_res`
--- 1. 新建与表`fea_moni_res`同结构的表
-CREATE TABLE fea_moni_res_tmp LIKE fea_moni_res;
-
--- 2. 新表上添加索引
-ALTER TABLE fea_moni_res_tmp ADD INDEX idx_index_name (col_name);
-
--- 3. *rename*新表为原表的表名，原表换新的名称
-RENAME TABLE fea_moni_res TO fea_moni_res_1, fea_moni_res_tmp TO fea_moni_res;
-
--- 4. 为原表新增索引，此步耗时较长
-ALTER TABLE fea_moni_res_1 ADD INDEX idx_index_name (col_name);
-
--- 5. 待索引创建成功后，rename原表为原来的名称，并将新表里的数据导入到原表中
-RENAME TABLE fea_moni_res TO fea_moni_res_tmp, fea_moni_res_1 TO fea_moni_res;
--- 需要根据业务来确定如果导入数据
-INSERT INTO fea_moni_res(col_name1, col_name2) SELECT col_name1, col_name2 FROM fea_moni_res_tmp;
-```
-
-
-
-## 事件回调
+### 事件回调
 
 ```ruby
 #
@@ -356,7 +292,178 @@ end
 
 
 
-## 关联替换
+### 随机等待重试
+
+```ruby
+def retries(times)
+  result = nil
+  times.times do |i|
+    yield result if block_given?
+
+    sleep_a_while i
+  end
+
+  result
+end
+```
+
+```ruby
+def sleep_a_while(i)
+  # https://www.geogebra.org/graphing?lang=zh_CN
+  # v1
+  # f(x)=0.1 (0.3 (x-9)-3)^(2) (0.3 (x-9)+3)^(2)
+  # x = i - rand
+  # y = 0.1 * ((0.3 * (x - 9) - 3) ** 2) * ((0.3 * (x - 9) + 3) ** 2)
+
+  # p "sleep #{y} seconds..."
+  # sleep y
+  
+  # todo RangeError (NaN out of Time range)
+  # v2
+  # f(x)=log(1.4,x)+(0.2)/(x)
+  # g(x)=log(1.6,x)+(0)/(x)
+  c = 1.4 + (rand / 5)
+  x = i
+  y = Math.log(x, c) + (c / x)
+
+  now = Time.now
+	p "sleep #{y} seconds..."
+  sleep y
+  p "#{Time.now - now}"
+end
+```
+
+
+
+## Rails
+
+### 懒事务
+
+```ruby
+#
+# Transactions
+#
+def self.transactional(flag = true)
+  if flag
+    raise "Model class does not support transactions" unless @model_class.respond_to?(:transaction)
+  end
+  @transactional = !!flag
+end
+
+def self.transactional?
+  @transactional || false
+end
+
+def transactional?
+  @transactional || self.class.transactional?
+end
+
+def transaction
+  if transactional?
+    model_class.transaction { yield }
+  else
+    yield
+  end
+end
+
+private :transaction
+```
+
+
+
+### 大表添加索引
+
+```sql
+-- 假设需要添加索引的表为`fea_moni_res`
+-- 1. 新建与表`fea_moni_res`同结构的表
+CREATE TABLE fea_moni_res_tmp LIKE fea_moni_res;
+
+-- 2. 新表上添加索引
+ALTER TABLE fea_moni_res_tmp ADD INDEX idx_index_name (col_name);
+
+-- 3. *rename*新表为原表的表名，原表换新的名称
+RENAME TABLE fea_moni_res TO fea_moni_res_1, fea_moni_res_tmp TO fea_moni_res;
+
+-- 4. 为原表新增索引，此步耗时较长
+ALTER TABLE fea_moni_res_1 ADD INDEX idx_index_name (col_name);
+
+-- 5. 待索引创建成功后，rename原表为原来的名称，并将新表里的数据导入到原表中
+RENAME TABLE fea_moni_res TO fea_moni_res_tmp, fea_moni_res_1 TO fea_moni_res;
+-- 需要根据业务来确定如果导入数据
+INSERT INTO fea_moni_res(col_name1, col_name2) SELECT col_name1, col_name2 FROM fea_moni_res_tmp;
+```
+
+
+
+### batch_update
+
+先记一个bug
+
+```ruby
+# obj.tap {|x| block }    -> obj
+# 
+# Yields self to the block, and then returns self.
+# The primary purpose of this method is to "tap into" a method chain,
+# in order to perform operations on intermediate results within the chain.
+# 
+#    (1..10)                  .tap {|x| puts "original: #{x}" }
+#      .to_a                  .tap {|x| puts "array:    #{x}" }
+#      .select {|x| x.even? } .tap {|x| puts "evens:    #{x}" }
+#      .map {|x| x*x }        .tap {|x| puts "squares:  #{x}" }
+def tap
+  # This is a stub implementation, used for type inference (actual method behavior may differ)
+  yield self; self
+end
+```
+
+`tap`会改变`self`
+
+ ```ruby
+attrs = self.attribute_names.tap { |e| e.delete self.primary_key }
+# => 会改变 self 中的 @attribute_names 值，应该使用拷贝值删减
+attrs = self.attribute_names.dup.tap { |e| e.delete self.primary_key }
+ ```
+
+**一定要注意对底层属性的更改操作，最好使用拷贝对象**
+
+```ruby
+def base_update(params, allow_nil = false)
+  transaction do
+    ids = params.require(:ids)
+    attrs = check_nil(params, allow_nil).deep_symbolize_keys
+
+    self.where(id: ids).update_all(attrs)
+  end
+end
+
+# Return params with current <tt>ApplicationRecord</tt> attribute_names(except primary key).
+# if allow_nil is +true+ ,passes blank value in params
+def check_nil(params, allow_nil = false)
+  params = permit_attr!(params, primary_key)
+  params.reject { |_k, v| v.blank? } unless allow_nil == true
+
+  params
+end
+```
+
+```ruby
+# Permit Record
+
+# Return +params+ instance that include only record attributes
+# and except given +args+ , no attributes permitted return {}
+def permit_attr(params, *args)
+  permit_attr!(params, args) rescue nil
+end
+
+# Performance as +permit_attr+, but raise error while illegal +params+
+def permit_attr!(params, *args)
+  params.permit(attribute_names - args.map(&:to_s))
+end
+```
+
+
+
+### 关联替换
 
 有Record如下：
 
@@ -393,11 +500,30 @@ end
 
 
 
+### 多数据源
+
+```ruby
+module OtherDB
+  class BaseModel < ActiveRecord::Base
+    self.abstract_class = true
+    establish_connection "other_#{Rails.env}".to_sym
+  end
+end
+```
+
+```ruby
+module OtherDB
+  class SomeTable < BaseModel
+    # ...
+  end
+end
+```
 
 
-# 算法
 
-## 埃拉托斯特尼筛法
+## 算法
+
+### 埃拉托斯特尼筛法
 
 Ruby实现素数筛选
 
@@ -414,7 +540,7 @@ end
 
 
 
-## 快速排序
+### 快速排序
 
 ![849589-20171015230936371-1413523412](../image/Ruby/CodeShow/849589-20171015230936371-1413523412.gif)
 
@@ -429,7 +555,7 @@ end
 
 
 
-## 机器人指令
+### 机器人指令
 
 ```ruby
 class Robot

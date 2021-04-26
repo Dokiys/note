@@ -79,6 +79,11 @@ queue.count
 queue.clear
 queue.each { |job| job.item } # hash content
 
+# Worker
+Sidekiq::Workers.new.each do |_, _, work|
+  p work['payload']['class']
+end
+
 # Redis Acess
 Sidekiq.redis { |redis| redis.keys }
  ```

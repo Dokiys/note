@@ -575,5 +575,12 @@ git branch -u o/master foo
 git branch -u o/master
 ```
 
+远程有分支更新时，本地可能没有获取新的分支，可以使用：
+
+```bash
+# 更新本地的远程仓库列表
+git fetch --all
+```
+
 
 

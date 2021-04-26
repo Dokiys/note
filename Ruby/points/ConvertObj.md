@@ -233,6 +233,22 @@ end
 
 
 
+### 嵌套安全获取
+
+```ruby
+def loop_get hsh, *args
+  v = hsh
+  args.each do |arg|
+    return unless v[arg]
+    v = v[arg]
+  end
+  v
+end
+
+data = {}
+loop_get data, :a, :b, :c # => nil
+```
+
 ## Array
 
 ### 常用方法
@@ -319,6 +335,11 @@ str = "Hello %{what}%{operator}"
 params = { what:'Work', operator:'!' }
 
 str % params		# => "Hello Work!"
+
+# 删除 /t /n 等符号
+str = "1/n2/n3/n"
+str.delete("/n")
+str.split				# => ["1", "2", "3"]
 ```
 
 ### 分组正则匹配替换
