@@ -521,6 +521,19 @@ end
 
 
 
+### 间隔下载
+
+```ruby
+Rails.cache.fetch("download_interval", expires_in: 20.minutes) do
+  # do download
+  return render_success
+end
+
+render_fail('每次下载文件需要间隔20分钟！')
+```
+
+
+
 ## 算法
 
 ### 埃拉托斯特尼筛法
