@@ -175,6 +175,7 @@ The third content...
 * 查看最近文件：Command + E
 * 复制代码位置：Command + Option +  CapsLock + C
 * 进入方法：Command  + B
+* 搜索出的内容分屏展示：Shift + Command + F 打开搜索并选中内容后，Shift + Enter
 
 ### MAC
 

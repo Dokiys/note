@@ -50,43 +50,22 @@ class Response
     response
   end
 end
-
 ```
 
 
 
-### 默认参数选项
+### rescue_error
 
 ```ruby
-  def pop(timeout = 0.5, options = {})
-    options, timeout = timeout, 0.5 if Hash === timeout
-    timeout = options.fetch :timeout, timeout
-    ...
-  end
-```
-
-
-
-### 循环
-
-```ruby
-# until
-do_something until true_condition
-# Example:
-#		a = 0; b = []; b << a+=1 until (a == 3) 	#	b => [1 2 3]
-  
-# next
-arr = ["A","2B","3C"]
-arr = arr.each_with_object(Array.new) do |e, r|
-  next r if (e.length == 1) && (r << e)
-  next r if is_B_end? && (r << e.slice(-1))
+5.times do |i|
+  if_2_raise_error rescue StandardError and next
+  log "run #{i}"
 end
-# arr => ["A","B"]
 ```
 
 
 
-### Catch Error
+### catch_error
 
 ```ruby
 def io
@@ -113,6 +92,51 @@ def write(command)
     @pending_reads += 1
     connection.write(command)
   end
+end
+```
+
+
+
+### 默认参数选项
+
+```ruby
+def pop(timeout = 0.5, options = {})
+  options, timeout = timeout, 0.5 if Hash === timeout
+  timeout = options.fetch :timeout, timeout
+  ...
+end
+```
+
+
+
+### 循环
+
+```ruby
+# until
+do_something until true_condition
+# Example:
+#		a = 0; b = []; b << a+=1 until (a == 3) 	#	b => [1 2 3]
+  
+# next
+arr = ["A","2B","3C"]
+arr = arr.each_with_object(Array.new) do |e, r|
+  next r if (e.length == 1) && (r << e)
+  next r if is_B_end? && (r << e.slice(-1))
+end
+# arr => ["A","B"]
+```
+
+
+
+### 循环缓存
+
+```ruby
+def current_trade(id)
+  return @trade_cache[id] if @trade_cache[id].present?
+  @trade_cache = {}
+  @trade_cache = trades.find { |t| t.id == id }
+
+  @trade_cache
 end
 ```
 
