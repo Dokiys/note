@@ -287,6 +287,12 @@ add_index :attachments, [:status, :is_view, :parent_id, :owner_id],
 	order:{is_view: :desc, owner_id: :asc}
 ```
 
+### 外键关联
+
+```ruby
+has_many :order_items, :class_name => 'OrderItem', primary_key: :tid, foreign_key: :tid
+```
+
 
 
 ## 不更新updated_at

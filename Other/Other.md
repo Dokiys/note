@@ -1,32 +1,17 @@
 # Other
 
-## 日常笔记
+### loki
 
-### 终端命令
+基本查询：
 
-```bash
-[root@guest ~]# source .tcshrc             # 使.tcshrc文件立即生效
-[root@guest ~]# . .tcshrc                      # 可以用'.'代替‘source'
-```
-
-
-
-### Java
-
-HelloWorld.java 文件的编译和运行
-
-```java
-public class HelloWorld {    
-  public static void main(String []args) {       
-    System.out.println("Hello World");    
-  } 
-}
-```
-
-```text
-c:\jdk\demoapp> javac HelloWorld.java
-c:\jdk\demoapp> java HelloWorld
-```
+- =: 完全匹配
+- !=: 不匹配
+- =~: 正则表达式匹配
+- !~: 正则表达式不匹配
+- |=：日志行包含的字符串
+- !=：日志行不包含的字符串
+- |~：日志行匹配正则表达式
+- !~：日志行与正则表达式不匹配
 
 
 
@@ -176,6 +161,7 @@ The third content...
 * 复制代码位置：Command + Option +  CapsLock + C
 * 进入方法：Command  + B
 * 搜索出的内容分屏展示：Shift + Command + F 打开搜索并选中内容后，Shift + Enter
+*  运行单元测试：Shift + Control + R
 
 ### MAC
 
@@ -205,6 +191,8 @@ The third content...
 
 * 全局搜索帮助：Command + Shift + P
 * 全局搜索文件：Command + P
+* 代码格式化：Option + Shift + F
+* 折叠当前代码片段：Option + Command + '['
 
 ### Postman
 
@@ -213,3 +201,7 @@ The third content...
 ### Chrome
 
 * 打开最近关闭的tab页：Comman + Shift + T
+* 聚焦光标到地址栏： Tab
+
+
+

@@ -129,3 +129,13 @@ a session ended very soon after starting.
 ```
 
 可以到`~/.ssh/knowhosts`中将对应的hosts删掉
+
+
+
+### 终端命令
+
+```bash
+[root@guest ~]# source .tcshrc             # 使.tcshrc文件立即生效
+[root@guest ~]# . .tcshrc                      # 可以用'.'代替‘source'
+```
+
