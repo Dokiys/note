@@ -63,7 +63,13 @@ git reflog show [分支名]
 删除分支：
 
 ```bash
-git branch -d
+git branch -d [分支名]
+```
+
+删除远程分支：
+
+```bash
+git push origin --delete [分支名]
 ```
 
 强制修改分支位置

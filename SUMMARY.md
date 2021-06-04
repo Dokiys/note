@@ -23,7 +23,7 @@
   * [Linux用户和组](Ops/Linux基础/Linux用户和组.md)
   * [Linux文本](Ops/Linux基础/Linux文本.md)
 * [Linux杂记](Ops/Linux杂记.md)
-* [HelloDocker.md](Ops/HelloDocker.md) 
+* [HelloDocker](Ops/HelloDocker.md) 
 
 ## Security
 
@@ -40,6 +40,7 @@
 ## Other
 
 * [Git使用](Other/Git使用.md)
+* [FrontEnd杂记](Other/FrontEnd杂记.md)
 *  [一个HTTP请求](Other/一个HTTP请求.md) 
 * [Regexp](Other/Regexp.md)
 * [Other](Other/Other.md)
