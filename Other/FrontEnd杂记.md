@@ -1,6 +1,6 @@
 # FrontEnd杂记
 
-# CSS选择器
+## CSS选择器
 
 ### 类型
 
@@ -143,7 +143,7 @@ copy_info() {
   document.body.appendChild(oInput)
   oInput.select()
   document.execCommand('Copy')
-  this.$message('复制成功！请发送给工程师并简要描述一下你的问题')
+  this.$message('复制成功！')
 },
 ```
 
