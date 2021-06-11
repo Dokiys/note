@@ -558,38 +558,6 @@ render_fail('每次下载文件需要间隔20分钟！')
 
 
 
-## 算法
-
-### 埃拉托斯特尼筛法
-
-Ruby实现素数筛选
-
-![ertosthenes](../image/Ruby/CodeShow/Sieve_of_Eratosthenes_animation.gif)
-
-```bash
-index = 0
-while primes[index]**2 <= primes.last
-  prime = primes[index]
-  primes = primes.select { |x| x == prime || x % prime != 0 }
-  index += 1
-end
-```
-
-
-
-### 快速排序
-
-![849589-20171015230936371-1413523412](../image/Ruby/CodeShow/849589-20171015230936371-1413523412.gif)
-
-```ruby
-def quick_sort(array)
-  return array if array.size <= 1
-  array.shuffle!
-  left, right = array[1..-1].partition {|n| n <= array.first}
-  quick_sort(left) + [array.first] + quick_sort(right)
-end
-```
-
 
 
 ### 机器人指令

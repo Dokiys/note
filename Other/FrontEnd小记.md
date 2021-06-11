@@ -1,4 +1,4 @@
-# FrontEnd杂记
+# FrontEnd小记
 
 ## CSS选择器
 

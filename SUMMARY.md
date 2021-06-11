@@ -6,13 +6,13 @@
 
 * [Rails](Ruby/RoR/Rails入门.md)
   *  [RailsEx](Ruby/RoR/RailsEx.md)
-  *  [Rails杂记](Ruby/RoR/Rails杂记.md) 
+  *  [Rails小记](Ruby/RoR/Rails小记.md) 
 * [Points](Ruby/points/README.md)
   * [Module引入](Ruby/points/Module引入.md)
   * [ConvertObj](Ruby/points/ConvertObj.md)
   * [StyleGuide](Ruby/points/StyleGuide.md)
 * [CodeShow](Ruby/CodeShow.md)
-* [Ruby杂记](Ruby/ruby杂记.md)
+* [Ruby小记](Ruby/ruby小记.md)
 * [Ruby元编程](Ruby/ruby元编程.md)
 * [Sidekiq相关](Ruby/Sidekiq相关.md)
 
@@ -40,7 +40,8 @@
 ## Other
 
 * [Git使用](Other/Git使用.md)
-* [FrontEnd杂记](Other/FrontEnd杂记.md)
+* [Algorithms](Other/Algorithms.md)
+* [FrontEnd小记](Other/FrontEnd小记.md)
 *  [一个HTTP请求](Other/一个HTTP请求.md) 
 * [Regexp](Other/Regexp.md)
 * [Other](Other/Other.md)
