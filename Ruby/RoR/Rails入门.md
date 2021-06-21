@@ -451,5 +451,3 @@ class Article < ApplicationRecord
                     length: { minimum: 5 }
 end
 ```
-
-# 
