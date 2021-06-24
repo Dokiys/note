@@ -342,6 +342,8 @@ KLASS_EX.hello_exm
 
 # Rails引入
 
+## concern
+
 `Rails`中的`ActiveSupport::Concern`通过其中的`append_features(base)`方法：
 
 ```ruby
@@ -400,3 +402,74 @@ Re.new.hello_base
 Re.new.hello_inm
 # => hello inm
 ```
+
+
+
+## autoload_path
+
+通过命令行调用`rails runner 'puts ActiveSupport::Dependencies.autoload_paths'`可以看到`Rails`配置的`autoload_paths`：
+
+```bash
+$ bin/rails runner 'puts ActiveSupport::Dependencies.autoload_paths'
+...
+/Users/boohee/works/ruby/polestar/app/controllers
+/Users/boohee/works/ruby/polestar/app/controllers/concerns
+/Users/boohee/works/ruby/polestar/app/jobs
+/Users/boohee/works/ruby/polestar/app/mailers
+/Users/boohee/works/ruby/polestar/app/models
+/Users/boohee/works/ruby/polestar/app/models/concerns
+/Users/boohee/works/ruby/polestar/app/services
+...
+```
+
+这些路径下的`module`将会被`Rails`自动加载，这使得我们在使用对应的`module`时不用添加表示文件结构的命名空间
+
+例如不使用`autoload_path`的情况下，在`app/modules`下添加共用的`module`:
+
+```bash
+.
+└── commons
+    └── soft_delete.rb
+```
+
+`soft_delete.rb`文件中`module`，必须添加命名空间`Commons`
+
+```ruby
+module Commons::SoftDelete
+  extend ActiveSupport::Concern
+
+  def delete
+    update(deleted_at: Time.now)
+  end
+
+  def delete!
+    update!(deleted_at: Time.now)
+  end
+end
+```
+
+在其他`Record`引入时也需要添加命名空间`Commons`：
+
+```ruby
+class User < ApplicationRecord
+  include Common::SoftDelete
+end
+```
+
+我们可以在项目根目录的`application.rb`中指定`Rails`自动将`app/modules/commons`加载，这使得我们可以省去在引入时使用命名空间：
+
+```ruby
+config.autoload_paths += Dir["#{config.root}/app/models/[a-z]*s/"] +
+  Dir[Rails.root.join("app/workers")]
+```
+
+将`app/modules/commons/soft_delete.rb`文件的`module`修改为`module SoftDelete`，`Record`的引入则可以修改为：
+
+```ruby
+class User < ApplicationRecord
+  include SoftDelete
+end
+```
+
+**注：**`autoload_paths` 在初始化过程中计算并缓存。目录结构发生变化时，要重启服务器。spring可能会缓存`autoload_paths`，即使是重启了服务，修改目录后需要暂时关闭`spring`
+

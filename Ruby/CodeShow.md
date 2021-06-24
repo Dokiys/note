@@ -395,6 +395,45 @@ private :transaction
 
 
 
+### 软删除
+
+```ruby
+module SoftDelete
+  extend ActiveSupport::Concern
+
+  def self.included(base)
+    extended(base)
+  end
+
+  def self.extended(base)
+    base.send :default_scope, -> { where(deleted_at: nil) }
+  end
+
+  def delete
+    update(deleted_at: Time.now)
+  end
+
+  def delete!
+    update!(deleted_at: Time.now)
+  end
+
+  def recovery
+    update(deleted_at: nil)
+  end
+
+  def recovery!
+    update!(deleted_at: nil)
+  end
+
+  def real_del
+    ActiveRecord::Base.connection.execute("DELETE FROM `#{self.class.name.tableize}` WHERE `cooperations`.`id` = #{id}")
+  end
+
+end
+```
+
+
+
 ### 大表添加索引
 
 ```sql
