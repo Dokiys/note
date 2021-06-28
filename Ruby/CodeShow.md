@@ -359,6 +359,31 @@ end
 
 
 
+### 向量化
+
+```ruby
+i = 0
+while i < 8 do
+  C[i] = A[i] + B[i]
+  i += 1
+end
+```
+
+```ruby
+i = 0
+while i < 8 do
+  C[i] = A[i] + B[i]
+  C[i+1] = A[i+1] + B[i+1]
+  C[i+2] = A[i+2] + B[i+2]
+  C[i+3] = A[i+3] + B[i+3]
+  i += 4
+end
+```
+
+
+
+
+
 ## Rails
 
 ### 懒事务
@@ -391,6 +416,45 @@ def transaction
 end
 
 private :transaction
+```
+
+
+
+### 软删除
+
+```ruby
+module SoftDelete
+  extend ActiveSupport::Concern
+
+  def self.included(base)
+    extended(base)
+  end
+
+  def self.extended(base)
+    base.send :default_scope, -> { where(deleted_at: nil) }
+  end
+
+  def delete
+    update(deleted_at: Time.now)
+  end
+
+  def delete!
+    update!(deleted_at: Time.now)
+  end
+
+  def recovery
+    update(deleted_at: nil)
+  end
+
+  def recovery!
+    update!(deleted_at: nil)
+  end
+
+  def real_del
+    ActiveRecord::Base.connection.execute("DELETE FROM `#{self.class.name.tableize}` WHERE `cooperations`.`id` = #{id}")
+  end
+
+end
 ```
 
 

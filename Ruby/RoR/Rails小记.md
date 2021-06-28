@@ -156,6 +156,129 @@ SELECT orders.title FROM "items" INNER JOIN "orders" ON "orders"."id" = "items".
 
 
 
+## 多态&STI
+
+### STI
+
+通常一张表对应一个类，如果两个表几乎一摸一样，则可以使用`STI(Singel Table Inheritance)单表继承`，即将一张表可以通过继承的方式，提供给多给类使用。
+
+例如我想使用`animals`表，同时保存`Cat`和`Duck`便可以使用rails提供的保留column`type` 来实现`SIT`:
+
+```ruby
+class CreateAnimals < ActiveRecord::Migration
+  create_table :animals do |t|
+    t.string :type	# type 为rails保留的字段，用于实现SIT
+  	t.integer :foot
+  end
+end
+```
+
+```ruby
+# 定义基础类
+class Animal < ActiveRecord::Base
+	def who_am_i
+  	p "I am a #{type}"
+  end
+end
+```
+
+```ruby
+# Cat子类
+class Cat < Animal
+	def miaomiao
+    p "miaomiao"
+  end
+end
+
+# Duck子类
+class Duck < Animal 
+	def gaga
+    p "gaga"
+  end
+end
+```
+
+```ruby
+tomcat = Cat.create!(name: "Tom", foot:4)
+donald = Duck.create!(name: "Donald", foot:2)
+animal = Animal.create!(name:'animal', foot: nil)
+
+tomcat.who_am_i # => "I am a Cat"
+tomcat.miaomiao # => "miaomiao"
+
+donald.who_am_i # => "I am a Duck"
+donald.gaga 	# => "gaga"
+
+animal.who_am_i # => "I am a Animal"
+animal.type   # => nil
+```
+
+### 多态
+
+当某个对象时可以同时属于多个对象同时可以使用多态关联。同时需要制定所属表的主键，和类型。
+
+例如，一只唐老鸭可以有很多`foods`，一只tomcat也可以有很多`foods`。可以创建`foods`表如下：
+
+```ruby
+class CreateFoods < ActiveRecord::Migration
+  create_table :foods do |t|
+    t.string :name	
+  	t.bigint :owner_id			# 所属对象id
+    t.string :owner_type		# 所属对象类型
+  end
+end
+```
+
+```ruby
+# 定义食物类
+class Foods < ActiveRecord::Base
+  belongs_to :owner, polymorphic: true
+end
+```
+
+```ruby
+# 添加关联关系
+class Cat < ActiveRecord::Base
+  has_many :foods, as: :owner
+end
+class Duck < ActiveRecord::Base
+  has_many :foods, as: :owner
+end
+```
+
+```ruby
+fish = Food.create!(name:'fish')
+Cat.foods = [fish]
+```
+
+共产主义的领导下，每个人都可以有很多唐老鸭和tomcat，唐老鸭和tomcat也属于每一个人，即一个多对多的关系。我们也可以将`foods`作为中间表，将动物和人做多对多关联。
+
+```ruby
+class CreateUser < ActiveRecord::Migration
+  create_table :user do |t|
+    t.string :name
+  end
+  
+  add_column :foods, :user_id, :bigint
+end
+```
+
+```ruby
+class Foods < ActiveRecord::Base
+  belongs_to :user
+  belongs_to :owner, polymorphic: true
+end
+class User < ActiveRecord::Base
+  has_many :foods
+  has_many :cats, through: :foods, :source => :owner, :source_type => Cats.name
+  has_many :ducks, through: :foods, :source => :owner, :source_type => Ducks.name
+end
+```
+
+
+
+
+
 ## 类名转换
 
 ```ruby
@@ -190,6 +313,14 @@ ApplicationRecord.connection.migration_context.get_all_versions
 # Rails 5.1.7
 ActiveRecord::Migrator.current_version
 ActiveRecord::Migrator.get_all_versions
+```
+
+
+
+## 执行SQL
+
+```ruby
+ActiveRecord::Base.connection.execute("SELECT * FROM users WHERE id = 1")
 ```
 
 
@@ -337,6 +468,15 @@ end
 #   	 :deleted_at => Fri, 26 Mar 2021 11:46:32 CST +08:00
 #	}
  ```
+
+
+
+## 复制一个Record
+
+```ruby
+#rails >= 3.1
+new_record = old_record.dup
+```
 
 
 

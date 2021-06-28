@@ -120,6 +120,25 @@ $ awk '$1>2 && $2=="Are" {print $1,$2,$3}' log.txt
 
 
 
+## 合并csv
+
+```shell
+# 先删除所有文件第一行
+for filename in `ls`
+  do
+  sed -i '' 1d `echo $filename`	# 删除第一行
+  done
+# 将所有文件拼接到指定文件
+for filename in `ls`
+  do
+  cat `echo $filename` >> ../f.csv	# 拼接文件
+  done
+```
+
+**注！：**千万不要将`f.csv`放在操作文件夹的同一级目录下，不然会出现往`f.csv`添加数据的死循环，导致内存和磁盘爆表
+
+
+
 ## knowhosts
 
 如果iterm2连接报错：

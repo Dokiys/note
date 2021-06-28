@@ -149,3 +149,10 @@ copy_info() {
 
 
 
+## JS日期
+
+```js
+new Date().toISOString()							// => "2021-06-11T07:20:06.642Z"
+new Date().toISOString().slice(0,10)  // => "2021-06-11"
+```
+

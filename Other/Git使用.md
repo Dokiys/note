@@ -183,6 +183,16 @@ git revert [提交号]
 # 例如`git revert HEAD
 ```
 
+放弃本地未提及commit，强制拉取远程仓库分支
+
+```bash
+git fetch --all
+git reset origin/master
+# reset --mixed：默认参数，保留工作目录，并重置暂存区
+# reset --hard：不保留暂存区和工作区
+# reset --soft：保留工作区，并把重置 HEAD 所带来的差异放到暂存区
+```
+
 
 
 ### cherry-pick
