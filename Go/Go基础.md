@@ -731,3 +731,541 @@ set["a"] = null
 
 ## 方法
 
+### 方法定义
+
+Go语言里面方法和函数非常相似，但在定义声明上方法比函数多了一个接收者。
+
+假设我们有结构体Cat，一个完整的方法定义应该如下：
+
+```go
+func(cat Cat) SayHello(somebody string) (err bool){
+	println(cat.name,"said: Hello",somebody)
+	return false
+}
+```
+
+其表示给结构体Cat的实例定义一个可接收`string`类型的`SayHello`方法，并返回`bool`类型
+
+可以看到，在方法中可以是使用名为`cat`的参数来获取接收者的属性
+
+此外，以上的接收者被定义为值类型，我们也可以定义为指针类型`(cat *Cat)`
+
+```go
+func(cat *Cat) Rename(name string){
+	cat.name = name
+}
+```
+
+在Cat类型的实例调用`Rename()`方法之后，其`name`，也将被改变
+
+需要注意的是：
+
+* 只能为当前包内命名类型定义⽅法
+* 参数` receiver`，不能是接⼝或指针
+* ` receiver`在方法中未被使用，可以省略参数名
+
+### 方法集
+
+每个类型都有与之关联的⽅法集：
+
+* 类型 T ⽅法集包含全部 receiver T ⽅法。 
+* 类型 *T ⽅法集包含全部 receiver T + *T ⽅法。 
+* 如类型 S 包含匿名字段 T，则 S ⽅法集包含 T ⽅法。 
+* 如类型 S 包含匿名字段 *T，则 S ⽅法集包含 T + *T ⽅法。 
+* 不管嵌⼊ T 或 *T，*S ⽅法集总是包含 T + *T ⽅法。
+
+
+
+方法根据调用者不同可以分为两种表现形式：
+
+```go
+instance.method(args...)			// method value
+<type>.func(instance, args...)		// method expression。
+```
+
+如以上定义的Cat结构体中添加`WhoAmI()`，方法后可以使用如下两种方式调用：
+
+```go
+func (cat *Cat) WhoAmI(){
+	fmt.Printf("I am %v\n",cat.name)
+}
+
+func MethodMethod() {
+	cat := &Cat{"Tomcat"}
+	cat.WhoAmI()
+	(*Cat).WhoAmI(cat)
+}
+```
+
+
+
+## 接口
+
+### 接口定义
+
+Go中的接口是一个或多个方法签名的集合：
+
+```go
+type Heller interface {		// 通常接口以er结尾
+	SayHello(string)
+}
+```
+
+切类型实现接口无需显示添加声明，只需要实现该接口的所有方法即可：
+
+```go
+type Cat struct {
+	name string
+}
+
+func (cat Cat) SayHello(somebody string) {
+	fmt.Printf("Hello, %v\n",somebody)
+}
+
+func InfMethods(){
+	var tomcat = Cat{"Tomcat"}
+	var heller Heller = tomcat
+    // var heller Heller = Cat{"Tomcat"}
+	heller.SayHello("Work!")
+}
+```
+
+接⼝对象由接⼝表`Itab`指针和数据指针`data`组成，其中接口表包括括接⼝类型、动态类型，以及实现接⼝的⽅法指针，数据指针持有的则是目标对象的只读复制：
+
+```go
+tomcat.name = "Jack"
+fmt.Println(heller.(Cat).name)		// => Tomcat
+fmt.Println(tomcat.name)			// => Jack
+```
+
+接口还可以作为变量类型，或结构成员：
+
+```go
+type Pet struct {
+	h Heller
+}
+func InfMethods(){
+	var miao = Cat{"miao"}
+	var pet = Pet{h:miao}
+	pet.h.SayHello("Work!")
+}
+```
+
+此外Go中接口还有以下特点：
+
+* 可在接⼝中嵌⼊其他接⼝
+* 类型可实现多个接⼝
+* 超集接⼝对象可转换为⼦集接⼝，反之则报错
+
+### 接口转换
+
+空接口`interface{}`没有任何方法签名，即所有类型都实现了空接口。所以可以使用空接口来传递任意返回值以及返回值。
+
+```go
+cat := Cat{"Tomcat"}
+var vi, pi interface{} = cat, &cat
+```
+
+此时需要获取`Cat`的`name`属性则需要将参数转换成原有类型：
+
+```go
+fmt.Printf("%v\n", vi.(Cat).name)
+fmt.Printf("%v\n", pi.(*Cat).name)
+```
+
+同时，接⼝转型返回临时对象时，只有使⽤指针才能修改其状态：
+
+```go
+// vi.(Cat).name = "Jack" // Error: cannot assign to vi.(Cat).name
+pi.(*Cat).name = "Jack"
+```
+
+利⽤类型推断，可判断接⼝对象是否某个具体的接⼝或类型：
+
+```go
+if i, ok := vi.(Heller); ok {
+    fmt.Println(i)
+}
+```
+
+```go
+switch v := vi.(type) {
+case nil: // vi == nil
+    fmt.Println("nil")
+case Heller: // interface
+    v.SayHello("Work!")
+case func() string: // func
+    fmt.Println(v())
+case Cat: // struct
+    fmt.Printf("struct name: %v\n", v.name)
+case *Cat: // *struct
+    fmt.Printf("*struct name: %v\n", v.name)
+default:
+    fmt.Println("unknown")
+}
+```
+
+
+
+## 内存布局
+
+**Number**
+
+![number](../image/Go/Go%E5%9F%BA%E7%A1%80/number.png)
+
+**string**
+
+![string](../image/Go/Go%E5%9F%BA%E7%A1%80/string.png)
+
+**struct**
+
+![struct](../image/Go/Go%E5%9F%BA%E7%A1%80/struct.png)
+
+**slice**
+
+![slice](../image/Go/Go%E5%9F%BA%E7%A1%80/slice.png)
+
+**interface**
+
+![interface](../image/Go/Go%E5%9F%BA%E7%A1%80/interface.png)
+
+**new**
+
+![new](../image/Go/Go%E5%9F%BA%E7%A1%80/new.png)
+
+**make**
+
+![make](../image/Go/Go%E5%9F%BA%E7%A1%80/make.png)
+
+
+
+## 反射
+
+当一个对象转换成接口时，会在该接口的`Itab`中存储与该类型相关的信息，标准库中的`reflect`包则是根据这些信息来操作对象的
+
+### Type
+
+假设有如下结构体：
+
+```go
+type Cat struct {
+	Animal
+	owner string `field:"onwer" type:"varchar(20)"`
+}
+
+type Animal struct {
+	name string `field:"a_name" type:"varchar(20)"`
+	Foot int    `field:"foot" type:"integer(4)"`
+}
+```
+
+`Type`是`reflect`包中的一个接口，用于表示Go中的类型。通过`reflect.TypeOf()`方法可以返回对象的类型`(reflect.Type)`：
+
+```go
+var tomcat Cat
+//tomcat := Cat{
+//	"zhangsan",
+//	Animal{"Jack",4},
+//}
+t := reflect.TypeOf(tomcat)
+```
+
+通过`reflect.Type`可以获取到对象的各字段：
+
+```go
+// 遍历， 通过下标获取
+t := reflect.TypeOf(tomcat)
+for i, n := 0, t.NumField(); i < n; i++ {
+    f := t.Field(i)					
+    fmt.Println(f.Name, f.Type)
+}
+```
+
+```go
+// 通过名称获取，会自动查找嵌套字段
+if f, ok := t.FieldByName("name"); ok {
+    fmt.Println(f.Name, f.Type)		
+}
+```
+
+```go
+// 多级序号访问
+// []int{0, 2} panic: Field index out of bounds
+f := t.FieldByIndex([]int{0, 1}) 	
+fmt.Println(f.Name, f.Type)
+```
+
+字段上自定义的标签可以通过`tag`名来获取对应的值：
+
+```go
+f, _ = t.FieldByName("name")
+fmt.Println(f.Tag)					// => field:"a_name" type:"varchar(20)"
+fmt.Println(f.Tag.Get("field"))		// => a_name
+fmt.Println(f.Tag.Get("type"))		// => varchar(20)
+```
+
+指针本身是没有任何字段的，所以反射指针对象时，需要通过`Elem()`将其转换成基本类型：
+
+```go
+jack := new(Cat)
+//jack := &Cat{
+//	"zhangsan",
+//	Animal{"Jack",4},
+//}
+
+// value-interface 和 pointer-interface 也会导致⽅法集存在差异
+// ptr elem
+t2 := reflect.TypeOf(jack)
+// It panics if the type's Kind is not Array, Chan, Map, Ptr, or Slice.
+t2 = t2.Elem() 
+for i, n := 0, t2.NumField(); i < n; i++ {
+    f := t2.Field(i)
+    fmt.Println(f.Name, f.Type)
+}
+```
+
+当然也可以通过基本类型生成复合类型：
+
+```go
+i := reflect.TypeOf(0)
+str := reflect.TypeOf("")
+
+c := reflect.ChanOf(reflect.SendDir, str)
+fmt.Println(c)					// => chan<- string
+m := reflect.MapOf(str, i)	
+fmt.Println(m)					// => map[string]int
+s := reflect.SliceOf(i)
+fmt.Println(s)					// => []int
+st := struct{ Name string }{}
+p := reflect.PtrTo(reflect.TypeOf(st))
+fmt.Println(p)					// => *struct { Name string }
+```
+
+在创建结构体时，内存分配可能会被Go优化，我们可以通过`reflect`中的`Size()`、`Align`等方法来查看结构体在内存中的对其信息：
+
+```go
+type Data struct {
+    b byte
+    i int32
+}
+var d Data
+td := reflect.TypeOf(d)
+fmt.Println(td.Size(), td.Align()) 	// => 8 4
+```
+
+`FildAlign()`可以查看字段在结构体中的对齐信息：
+
+```go
+fd, _ := td.FieldByName("b")
+fmt.Println(fd.Type.FieldAlign()) 	// => 1
+```
+
+此外`reflect.Type`还提供了`Implements()`来判断是否实现了某接口、`AssignableTo()`用于赋值、`ConvertibleTo()`用于转换判断
+
+
+
+### Value
+
+`reflect`包中提供的`Value`相关的方法跟`Type`相关的方法相当类似，只不过改成了获取字段的值：
+
+```go
+tomcat := Cat{
+    Animal{"Tomcat", 4},
+    "zhangsan",
+}
+v := reflect.ValueOf(tomcat)
+fmt.Println(v.FieldByName("owner").String())		// => "zhangsan"
+fmt.Println(v.FieldByName("Foot").Int())			// => 4
+fmt.Println(v.FieldByIndex([]int{0, 0}).String())	// => "Tomcat"	 
+```
+
+如果未找到值会返回一个`invalid Value`
+
+```go
+fmt.Println(v.FieldByName("none").String())			// => <invalid Value>
+```
+
+对于导出字段（首字母大写的字段）可以使用`Interface()`获取值
+
+```go
+f := v.FieldByName("Foot")
+if f.CanInterface() {
+    fmt.Println(f.Interface())	// => 4
+    i := f.Interface()
+    fmt.Printf("%T\n",i)		// => int
+}
+```
+
+复合类型值获取：
+
+```go
+// slice、array
+v2 := reflect.ValueOf([]int{1, 2, 3})
+for i := 0; i < v2.Len(); i++ {
+    fmt.Println(v2.Index(i).Int())
+}
+```
+
+```go
+// map
+v3 := reflect.ValueOf(map[string]int{"a": 1, "b": 2, "c": 3})
+for i, k := range v3.MapKeys() { // 遍历顺序是不一定的
+    fmt.Printf("%v: %v => %v\n", i, k, v3.MapIndex(k))
+}
+```
+
+此外`Kind()`方法可以获取`reflect.Value`的类型，`IsNil()`可以判断`reflect.Value`对象是否为空，需要注意的是，基本类型拥有默认值均不为空，所以不适用于该方法
+
+`ValueOf()` 会返回一个新的实例，且该实例只读，但是如果这是一个指针的实例，且是导出字段则可以对指向的目标进行修改：
+
+```go
+v5 := reflect.ValueOf(&tomcat)
+fmt.Println(v5.CanSet())	// => false
+v5.Elem().FieldByName("Foot").SetInt(3)
+fmt.Println(v5)				// => &{{Tomcat 3} zhangsan}
+```
+
+如果是非导出字段，则可以获取其地址改变其值：
+
+```go
+v6 := reflect.ValueOf(&tomcat)
+f6 := v6.Elem().FieldByName("owner")
+fmt.Println(f6.CanAddr())	// => true
+if f6.CanAddr() {
+    owner := (*string)(unsafe.Pointer(f6.UnsafeAddr()))
+    // owner := (*string)(unsafe.Pointer(f.Addr().Pointer())) // 等同
+    *owner = "lisi"
+}
+fmt.Println(v6)		// => &{{Tomcat 3} lisi}
+```
+
+复合类型值修改：
+
+```go
+// slice
+s := make([]int, 0, 5)
+// 反射指针才能修改值，通过Elem()获取指针指向的对象
+v7 := reflect.ValueOf(&s).Elem()
+v7.SetLen(1)
+v7.Index(0).SetInt(1)
+v7 = reflect.Append(v7, reflect.ValueOf(2))		// append 生成新的底层数组
+v7 = reflect.AppendSlice(v7, reflect.ValueOf([]int{3, 4}))
+fmt.Println(v7, s)		// => [1 2 3 4] [1]
+```
+
+```go
+// map
+m := map[string]int{"a":0}
+v8 := reflect.ValueOf(&m).Elem()
+v8.SetMapIndex(reflect.ValueOf("a"), reflect.ValueOf(1))	// update
+v8.SetMapIndex(reflect.ValueOf("b"), reflect.ValueOf(2))	// create
+fmt.Println(v8, m)		// => map[a:1 b:2] map[a:1 b:2]
+```
+
+
+
+### Method
+
+通过反射还可以获取方法的入参，返回值等信息：
+
+```go
+type Data struct{}
+
+func (*Data) Add(x, y int) int {
+	return x + y
+}
+
+func (*Data) Sum(x int, s ...int) int {
+	for _, v := range s {
+		x += v
+	}
+	return x
+}
+```
+
+```go
+info := func(m reflect.Method) {
+    fmt.Printf("%v", m.Name)
+    t := m.Type
+    for i := 0; i < t.NumIn(); i++ {
+        fmt.Printf(" in[%d] %v\n", i, t.In(i))
+    }
+    for i := 0; i < t.NumOut(); i++ {
+        fmt.Printf(" out[%d] %v\n", i, t.Out(i))
+    }
+}
+d := new(Data)
+t := reflect.TypeOf(d)		// TypeOf
+
+typeAdd := t.Method(0)
+info(typeAdd)
+if sum, ok := t.MethodByName("Sum"); ok {
+    info(sum)
+}
+```
+
+输出：
+
+```go
+Add in[0] *ref.Data
+ in[1] int
+ in[2] int
+ out[0] int
+Sum in[0] *ref.Data
+ in[1] int
+ in[2] []int
+ out[0] int
+```
+
+不仅如此，通过方法类型的`reflect.Value`还可以直接调用方法：
+
+```go
+v := reflect.ValueOf(d)		// ValueOf
+in := []reflect.Value{
+    reflect.ValueOf(1),
+    reflect.ValueOf(2),
+}
+valueAdd := v.MethodByName("Add")
+out := valueAdd.Call(in)
+for i, v := range out {
+    fmt.Printf("out[%v]: %v\n", i, v)		// => out[0]: 3
+}
+```
+
+方法中的可变参数可以通过`reflect.Value`类型的`slice`传入，并通过`CallSlice()`方法调用：
+
+```go
+v2 := reflect.ValueOf(d)
+in2 := []reflect.Value{
+    reflect.ValueOf(1),
+    reflect.ValueOf([]int{2, 3, 4}),
+}
+valueSum := v2.Method(1)
+out2 := valueSum.CallSlice(in2)
+for i, v := range out2 {
+    fmt.Printf("out[%v]: %v\n", i, v)		// => out[0]: 10
+}
+```
+
+
+
+### Make
+
+`reflect`包提供的一系列`Make`方法可以动态创建各引用类型的数据结构，甚至包括`func`。这里以动态创建`func`为例子，`MakeSlice`、`MakeMap()`、`MakeChan()`等方法可以自行查看`reflce`中的源码：
+
+```go
+hello := func(args []reflect.Value) (result []reflect.Value) {
+    for _, v := range args {
+        fmt.Printf("Hello, %v", v.Interface())
+    }
+    return
+}
+
+var f func(string)
+valueFuncPtr := reflect.ValueOf(&f)			// 取指针才能修改
+// 等同reflect.ValueOf(&f).Elem()
+valueFunc := reflect.Indirect(valueFuncPtr) // 获取指针指向的对象
+valueFunc.Set(reflect.MakeFunc(valueFunc.Type(), hello))
+
+f("Work!")		// => Hello, Work!
+```
