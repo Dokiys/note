@@ -181,10 +181,10 @@ The third content...
 * 切换标签页： Command +  &lt;-
 * 清屏：Ctrl + L
 * 复制字符串：双击添加到粘贴板 or 选中 + Command + 鼠标拖动到指定位置
+* 光标跳转下/上一个单词： Esc + F/B
 * 光标跳转行首：Ctrl + a
 * 光标跳转行尾：Ctrl + e
 * 从光标删除到命令行尾：Ctrl + k
-* 光标处和命令行首切换：Ctrl + x x
 * 在当前目录打开Finder：键入`open .`
 
 ### VsCode
@@ -200,8 +200,9 @@ The third content...
 
 ### Chrome
 
-* 打开最近关闭的tab页：Comman + Shift + T
-* 聚焦光标到地址栏： Tab
+* 打开最近关闭的tab页：Command + Shift + T
+* 聚焦光标到地址栏： Command + L
+* 强制刷新(不走304缓存)：Shift + Command + R
 
 
 
