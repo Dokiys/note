@@ -1269,3 +1269,278 @@ valueFunc.Set(reflect.MakeFunc(valueFunc.Type(), hello))
 
 f("Work!")		// => Hello, Work!
 ```
+
+
+
+# 测试
+
+之所以将测试单独写一章，就是为了表明测试的重要性。
+
+
+
+## 单元测试
+
+单元测试是用来测试一部分代码的函数。单元测试的是确认目标在给定的场景下有没有按照预期工作。
+
+根据测试框架的的约定：
+
+* 测试文件的文件名必须以`_test`结尾。
+* 测试函数必须以`Test`开头，并且必须接收一个`testing.T`类型的指针，且无返回值。
+
+我们先再编写一个计算Fibnacci数列和的函数，然后再编写测试：
+
+```go
+func Fib(i int) (result int) {
+	if i <= 2 {
+		return 1
+	}
+
+	return Fib(i-1) + Fib(i-2)
+}
+```
+
+然后在**同一个包**下创建测试文件`fib_test.go`
+
+```go
+func TestUnit(t *testing.T) {
+	t.Log("Unit Test")
+	result := Fib(2)
+	if result != 1 {
+		t.Fatalf("Run fib(2) expect return: 1, but got %v", result)
+	}
+}
+```
+
+然后在文件同级目录下，运行命令`go test -v`：
+
+```bash
+go test -v
+=== RUN   TestUnit
+    unit_test.go:14: Unit Test
+--- PASS: TestFib (0.00s)
+PASS
+ok      hellogo/test    0.100s
+```
+
+如果不添加`-v`参数，将不会输出`t.Log()`中的内容。
+
+让我们修改一下函数的内容，使得返回一个错误的结果，在运行测试：
+
+```go
+func Fib(i int) (result int) {
+	if i <= 2 {
+		//return 1
+		return 2
+	}
+
+	return Fib(i-1) + Fib(i-2)
+}
+```
+
+```bash
+>go test
+--- FAIL: TestUnit (0.00s)
+    unit_test.go:15: Unit Test
+    unit_test.go:18: Run fib(2) expect return: 1, but got 2
+FAIL
+exit status 1
+FAIL    hellogo/test    0.107s
+```
+
+如果执行`t.Fatalf()`将会直接停止当前测试函数的运行，如果希望抛出错误并且继续运行函数可以使用`t.Errorf()`
+
+通过简单的修改函数，我们还可以同时对一组结果进行测试：
+
+```go
+func TestTable(t *testing.T) {
+	datas := []struct {
+		name string
+		i      int
+		result int
+	}{
+		{"Test fib(1)",1, 1},
+		{"Test fib(2)",2, 1},
+		{"Test fib(3)",3, 2},
+		{"Test fib(4)",4, 3},
+	}
+
+	t.Log("Table Group Test")
+	for _, v := range datas {
+		t.Run(v.name, func(t *testing.T){
+			result := Fib(v.i)
+			if result != v.result {
+				t.Fatalf("Run fib(%v) expect return: %v, but got %v", v.i, v.result, result)
+			}
+		})
+	}
+}
+```
+
+此时如果我们指向运行`TestTable()`可以添加`-run`参数，后面赋值对应需要的方法：
+
+```go
+>go test -v -run="TestTable"
+=== RUN   TestTable
+    unit_test.go:35: Table Group Test
+=== RUN   TestTable/Test_fib(1)
+=== RUN   TestTable/Test_fib(2)
+=== RUN   TestTable/Test_fib(3)
+=== RUN   TestTable/Test_fib(4)
+--- PASS: TestTable (0.00s)
+    --- PASS: TestTable/Test_fib(1) (0.00s)
+    --- PASS: TestTable/Test_fib(2) (0.00s)
+    --- PASS: TestTable/Test_fib(3) (0.00s)
+    --- PASS: TestTable/Test_fib(4) (0.00s)
+PASS
+ok      hellogo/test    0.147s
+```
+
+此外`-run`还可以赋值正则表达式。
+
+如果测试文件中包含`TestMain(m *testing.M)`，那么生成的测试将调用 `TestMain(m *testing.M)`，而不是直接运行测试。我们可以将此利用，在`TestMain(m *testing.M)`做一些共有的操作：
+
+```go
+func TestMain(m *testing.M) {
+	fmt.Println("Start Test")
+	code := m.Run()
+	fmt.Println("End Test")
+	os.Exit(code)
+}
+```
+
+```go
+>go test -v
+Start Test
+=== RUN   TestUnit
+    unit_test.go:18: Unit Test
+--- PASS: TestUnit (0.00s)
+=== RUN   TestTable
+    unit_test.go:37: Table Group Test
+=== RUN   TestTable/Test_fib(1)
+=== RUN   TestTable/Test_fib(2)
+=== RUN   TestTable/Test_fib(3)
+=== RUN   TestTable/Test_fib(4)
+--- PASS: TestTable (0.00s)
+    --- PASS: TestTable/Test_fib(1) (0.00s)
+    --- PASS: TestTable/Test_fib(2) (0.00s)
+    --- PASS: TestTable/Test_fib(3) (0.00s)
+    --- PASS: TestTable/Test_fib(4) (0.00s)
+PASS
+End Test
+ok      hellogo/test    0.129s
+```
+
+
+
+## 基准测试
+
+基准测试用于测试代码性能。与单元测试一样，基准测试的文件名也必须以`_test.go`结尾。且测试函数必须以`Benchmark`开头，并且必须接收一个`testing.B`类型的指针，且无返回值。再次测试`Fib()`：
+
+```go
+func BenchmarkFib(b *testing.B) {
+	// do something...
+	b.ResetTimer()				// 重置计算时间
+
+	for i:=0 ;i <b.N; i++{		// 循环统计
+		Fib(5)
+	}
+}
+```
+
+进行基准需要添加`-bench="Bench*"`。为了避免运行前面的单元测试，我们添加选项`-run="none"`
+
+```go
+>go test -run="none" -bench="Bench*"
+Start Test
+goos: windows
+goarch: amd64
+pkg: hellogo/test
+cpu: Intel(R) Core(TM) i5-5257U CPU @ 2.70GHz
+BenchmarkFib-4          57981378                20.44 ns/op
+PASS
+End Test
+ok      hellogo/test    1.316s
+```
+
+我们可以看到程序在`1.316s`内运行了`57981378`次
+
+还可以通过`-benchtime`选项来设置最短运行时间：
+
+```go
+t>go test -run="none" -bench="Bench*" -benchtime="3s"
+Start Test
+goos: windows
+goarch: amd64
+pkg: hellogo/test
+cpu: Intel(R) Core(TM) i5-5257U CPU @ 2.70GHz
+BenchmarkFib-4          176971278               20.27 ns/op
+PASS
+End Test
+ok      hellogo/test    5.755s
+```
+
+此外添加`-benchmem`可以打印出每次操作分配的内存，以及分配内存的次数：
+
+```go
+>go test -run="none" -bench="Bench*" -benchtime="3s" -benchmem
+Start Test
+goos: windows
+goarch: amd64
+pkg: hellogo/test
+cpu: Intel(R) Core(TM) i5-5257U CPU @ 2.70GHz
+BenchmarkFib-4          167322406               24.38 ns/op            0 B/op          0 allocs/op
+PASS
+End Test
+ok      hellogo/test    6.368s
+
+```
+
+由于`Fib()`函数直接在栈上调用，所有内存分配为0
+
+
+
+## Mock
+
+// TODO
+
+
+
+## 测试覆盖
+
+通过`go test -cover`可以查看测试的覆盖率：
+
+```bash
+t>go test -cover
+Start Test
+PASS
+coverage: 100.0% of statements
+End Test
+ok      hellogo/test    0.107s
+```
+
+通过命令：
+
+```bash
+>go test -v -coverprofile=cover.out
+```
+
+可以将覆盖率信息保存到`cover.out`文件，然后再通过`cover`工具，可以查看当前包下各函数的覆盖率：
+
+```bash
+>go tool cover -func=cover.out
+hellogo/test/fib.go:3:  Fib             100.0%
+total:                  (statements)    100.0%
+```
+
+通过`-html`选项会直接浏览器中打开测试内容的覆盖情况：
+
+```bash
+>go tool cover -html=cover.out
+```
+
+
+
+
+
+
+
