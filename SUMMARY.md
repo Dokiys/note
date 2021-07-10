@@ -2,6 +2,11 @@
 
 * [Preface](README.md)
 
+## Go
+
+* [Go基础](Go/Go基础.md)
+* [Concurrency in Go](Go/ConcurrencyInGo.md)
+
 ## Ruby
 
 * [Rails](Ruby/RoR/Rails入门.md)
@@ -40,6 +45,7 @@
 ## Other
 
 * [Git使用](Other/Git使用.md)
+* [Elasticsearch](Other/Elasticsearch.md)
 * [Algorithms](Other/Algorithms.md)
 * [FrontEnd小记](Other/FrontEnd小记.md)
 *  [一个HTTP请求](Other/一个HTTP请求.md) 
