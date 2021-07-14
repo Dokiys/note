@@ -34,7 +34,7 @@ Work Work Work Work
 
 ## Go语言并发组件
 
-### `goroutine`
+### goroutine
 
 `goroutine`是Go语言中最基本的组织单位之一。它们是一种被称为`协程`的对线程更高级的抽象。不同于OS线程和有语言运行时管理的绿色线程，`goroutine`与Go语言运行时深度集成，由`GMP`统一管理。`main()`函数也是由一个`goroutine`运行（`main goroutine`）
 
@@ -60,7 +60,7 @@ for _, v := range [...]string{"Hello", "World", "Hello", "Work"} {
 
 
 
-### `sync`包
+### sync包
 
 `sync`包中包含了对内存同步访问最有用的并发原语。
 
@@ -626,7 +626,7 @@ for v := range c{
 
 
 
-### Select
+### select
 
 `select`语句将`channel`于诸如取消、超时、等待和默认值之类的概念结合起来。`select`可以阻塞并等待多个`channel`直到某个`channel`可以使用。用法很类似`switch`语句，但`select`中的`case`没有顺序，即使不满足任何一个`case`执行也不会失败。
 
@@ -736,6 +736,122 @@ fmt.Printf("cycle times: %v", i)
 ```go
 select {}
 ```
+
+
+
+### context包
+
+`context`包是Go1.7版本引入的。假设我们将一个`goroutine`称为父`goroutine`，其创建的其他`goroutine`称为子`goroutine`，`context`为我们在父`goroutine`**单向**的同步信号，以及传递信息提供了极大的便利。
+
+此外，`context`还允许各子`goroutine`在父`goroutine`的控制下，采用各自不同的控制程序的方式。
+
+`context`包相当简单：
+
+```go
+var Canceled = errors.New("context canceled")
+var DeadlineExceeded error = deadlineExceededError{}
+
+type CancelFunc func()
+type Context interface {}
+```
+
+```go
+func Background() Context
+func TODO() Context
+
+func WithCancel(parent Context) (ctx Context, cancel CancelFunc)
+func WithDeadline(parent Context, d time.Time) (Context, CancelFunc)
+func WithTimeout(parent Context, timeout time.Duration) (Context, CancelFunc)
+func WithValue(parent Context, key, val interface{}) Context
+```
+
+除了定义的常量和类型，`Background()`和`TODO()`都是用来返回一个空的`Context`类型的实例。
+`Context`可以用来承载一个，deadline，取消的信号，或者其他值。
+`WithValue()`可以将一个键值对存入新返回的`Context`实例。
+其余三个`With`前缀的方法除了都接收一个`Context`类型的参数，然后返回一个`Context`的实例和一个可以取消该返回`Context`的`CancelFunc`类型的方法。`WithDeadline()`和`WithTimeout()`则还额外设置了返回的`Context`的取消时间。
+
+我们可以在`Context`接口的定义中看到，取消一个`Context`有什么用：
+
+```go
+type Context interface {
+	Deadline() (deadline time.Time, ok bool)
+    // Done returns a channel that's closed when work done on behalf of this
+	// context should be canceled.
+	Done() <-chan struct{}
+	Err() error
+	Value(key interface{}) interface{}
+}
+```
+
+`Done()`方法返回一个当`Context`被取消时，将会关闭的通道。再扒一下`cancel()`的代码：
+
+```go
+func (c *cancelCtx) cancel(removeFromParent bool, err error) {
+	// ...
+	if c.done == nil {
+		c.done = closedchan
+	} else {
+		close(c.done)
+	}
+	for child := range c.children {
+		child.cancel(false, err)
+	}
+	// ...
+}
+```
+
+当调用`cancel()`时，关闭了`done`通道，随后调用了`children`的`cancel()`。这里的`children`即是通过`WithCancel()`等方法返回的`Context`实例对应的`cancelCtx`。
+
+所以说`context`是单向同步信号的，因为衍生的`Context`可以其原有的`Context`取消，而不能取消原有的`Context`。
+
+![ctx_cancel](../image/Go/ConcurrencyInGo/ctx_cancel.jpg)
+
+ 以下是一个使用`context`启用多个`goroutine`搜索切片中某个值的简单例子：
+
+```go
+func Search(slice []int, target int) (bool, error) {
+	done := make(chan bool)		// 由子goroutine向上传递完成信号
+    ctx := context.Background()	// 获取一个根Context
+	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)	// 设置超时
+	defer cancel()
+
+	length := len(slice)
+	index := length/2 + 1
+	go gSearch(ctx, done, slice[:index], target)
+	go gSearch(ctx, done, slice[index:], target)
+
+	select {
+	case <-ctx.Done():	// 超时或被取消时将会返回关闭的通道
+		return false, ctx.Err()
+	case <-done:		// goroutine 完成所返回的信号
+		cancel()		// 向所有子goroutine发送取消信号
+		return true, nil
+	}
+}
+```
+
+```go
+func gSearch(ctx context.Context, done chan<- bool, slice []int, target int) {
+	var count int
+BEGIN:
+	for _, v := range slice {
+		select {
+		case <-ctx.Done():	// 接收到取消信号将结束搜索
+			fmt.Println(ctx.Err())
+			break BEGIN
+		default:
+			if v == target {
+				done <- true	// 搜索到将会返回完成信号
+				break BEGIN
+			}
+		}
+		count++
+	}
+	fmt.Println("goroutine find: ", count, "times")
+}
+```
+
+
 
 
 
