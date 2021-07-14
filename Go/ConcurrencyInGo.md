@@ -756,6 +756,13 @@ type Context interface {}
 ```
 
 ```go
+type emptyCtx int
+type cancelCtx struct {}
+type timerCtx struct {}
+type valueCtx struct {}
+```
+
+```go
 func Background() Context
 func TODO() Context
 
@@ -765,10 +772,19 @@ func WithTimeout(parent Context, timeout time.Duration) (Context, CancelFunc)
 func WithValue(parent Context, key, val interface{}) Context
 ```
 
-除了定义的常量和类型，`Background()`和`TODO()`都是用来返回一个空的`Context`类型的实例。
+除了定义的常量和类型，四个以`Ctx`为后缀的类型除了`emptyCtx`以外，都是对`Context`的封装。`Background()`和`TODO()`都是用来返回一个空的`Context`类型的实例。
+
 `Context`可以用来承载一个，deadline，取消的信号，或者其他值。
-`WithValue()`可以将一个键值对存入新返回的`Context`实例。
-其余三个`With`前缀的方法除了都接收一个`Context`类型的参数，然后返回一个`Context`的实例和一个可以取消该返回`Context`的`CancelFunc`类型的方法。`WithDeadline()`和`WithTimeout()`则还额外设置了返回的`Context`的取消时间。
+`WithValue()`可以将一个键值对存入新返回的`valueCtx`实例
+`WithCancel`返回一个`cancelCtx`
+`WithDeadline()`和`WithTimeout()`都会返回一个`timerCtx`
+![context](../image/Go/ConcurrencyInGo/context.png)
+
+其余三个`With`前缀的方法除了都接收一个`Context`类型的参数，然后返回一个`Context`的实例和一个可以取消该返回`Context`的`CancelFunc`类型的方法。
+
+除了`emptyCtx`，其余的`Context`创建都是基于一个`Context`创建。通常用`Background()`来获取一个根`Context`，基于这个`Context`来衍生出其他的`Context`。而衍生出来的`Context`将被添加到原有`Context`的`children`字段中。基于每个`Context`可以创建多个`Context`，由此形成一棵树：
+
+![context_tree](Z:/note/image/Go/ConcurrencyInGo/context_tree.png)
 
 我们可以在`Context`接口的定义中看到，取消一个`Context`有什么用：
 
@@ -806,7 +822,43 @@ func (c *cancelCtx) cancel(removeFromParent bool, err error) {
 
 ![ctx_cancel](../image/Go/ConcurrencyInGo/ctx_cancel.jpg)
 
- 以下是一个使用`context`启用多个`goroutine`搜索切片中某个值的简单例子：
+`valueCtx`通过封装`Context`并添加额外键值对的方式来存储数据：
+
+```go
+type valueCtx struct {
+	Context
+	key, val interface{}
+}
+```
+
+其寻找数据的规则也可以通过`Value()`方法看到：
+
+```go
+func (c *valueCtx) Value(key interface{}) interface{} {
+	if c.key == key {		// 首先在自己保存的数据中找
+		return c.val
+	}
+	return c.Context.Value(key) 	// 然后在父Context中找
+}
+```
+
+此外`Context`的数据流动是单项的，所以不是试图修改`valueCtx`里的值。
+我们还可以看到，`valueCtx`只能存一对值，并且父`Context`无法查找子`Context`的值。而且如果父子`Context`的`key`冲突时，无法获取到父`Context`的值。所以建议使用自定义类型作为key：
+
+```go
+type keyctxa string
+type keyctxb string
+ctx := context.Background()
+var k1 keyctxa = "KeyA"
+ctxA := context.WithValue(ctx, k1, 1)
+var k2 keyctxb = "KeyA"
+ctxB := context.WithValue(ctxA, k2, 2)
+
+fmt.Println(ctxA.Value(k1))
+fmt.Println(ctxB.Value(k2))
+```
+
+最后是一个使用`context`启用多个`goroutine`搜索切片中某个值的简单例子：
 
 ```go
 func Search(slice []int, target int) (bool, error) {
