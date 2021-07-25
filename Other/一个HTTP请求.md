@@ -398,7 +398,9 @@ WebSocket协议允许服务器主动向客户端推送信息，其连接的建�
 
 SSL 是指安全套接字层，用于加密通信过程中的传输内容。TLS（传输层安全）是更为安全的 SSL。HTTPS是通过TLS/SSL加密通道加密的HTTP协议。
 
-大致运作方式就是通过非对称加密在Client和Server之间获取一个双方都知道的密钥（Premaster secret），在每次数据传输时使用该密钥对称加密传输内容。其中，Server返回的公钥及其他信需要有CA的证书，以确保Server的正确身份。
+大致运作方式就是通过非对称加密在
+
+Client和Server之间获取一个双方都知道的密钥（Premaster secret），在每次数据传输时使用该密钥对称加密传输内容。其中，Server返回的公钥及其他信需要有CA的证书，以确保Server的正确身份。
 
 **RSA加密方式：**
 
@@ -410,7 +412,7 @@ SSL 是指安全套接字层，用于加密通信过程中的传输内容。TLS�
 
 Diffie-Hellman密钥交换原理（[离散对数问题](https://zh.wikipedia.org/wiki/%E7%A6%BB%E6%95%A3%E5%AF%B9%E6%95%B0)）：
 
-![Diffie-Hellman](../image/Other/一个HTTP请求/400px-Diffie-Hellman-Schlüsselaustausch.svg.png)
+![Diffie-Hellman](../image/Other/%E4%B8%80%E4%B8%AAHTTP%E8%AF%B7%E6%B1%82/400px-Diffie-Hellman-Schl%C3%BCsselaustausch.svg.png)
 
 
 

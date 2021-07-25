@@ -6,6 +6,7 @@
 
 * [Go基础](Go/Go基础.md)
 * [Concurrency in Go](Go/ConcurrencyInGo.md)
+* [Go语言设计](Go/Go语言设计.md)
 
 ## Ruby
 
@@ -46,6 +47,7 @@
 
 * [Git使用](Other/Git使用.md)
 * [Elasticsearch](Other/Elasticsearch.md)
+* [RabbitMQ](Other/RabbitMQ.md)
 * [Algorithms](Other/Algorithms.md)
 * [FrontEnd小记](Other/FrontEnd小记.md)
 *  [一个HTTP请求](Other/一个HTTP请求.md) 

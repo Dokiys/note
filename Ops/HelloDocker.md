@@ -202,7 +202,7 @@ mynginx      2.0                                5cc5f4f9f2c9   34 minutes ago   
 ```yaml
 version: "3.9"
 services:
-  app:
+ app:
     build: ./nginx
     ports:
       - 80:80
