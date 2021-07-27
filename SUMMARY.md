@@ -28,7 +28,7 @@
   * [Linux文件](Ops/Linux基础/Linux文件.md)
   * [Linux用户和组](Ops/Linux基础/Linux用户和组.md)
   * [Linux文本](Ops/Linux基础/Linux文本.md)
-* [Linux杂记](Ops/Linux杂记.md)
+* [Linux小记](Ops/Linux小记.md)
 * [HelloDocker](Ops/HelloDocker.md) 
 
 ## Security
