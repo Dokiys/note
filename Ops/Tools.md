@@ -42,6 +42,29 @@ $ envsubst 'ADD' <temp.yml> add.yml
 
 
 
+## zip
+
+用于压缩制定的文件， `-r`选项可以递归压缩目录下的文件：
+
+```bash
+zip -r myfile.zip 1.txt 2.txt Dir
+```
+
+`-m`和`-d`分别用于向某压缩文件添加/删除某文件
+
+```bash
+zip -m myfile.zip 3.txt
+zip -m myfile.zip 2.txt
+```
+
+`unzip`可以将压缩文件解压缩，`-d`用于制定解压路径：
+
+```bash
+unzip -d ./doc myfile.zip
+```
+
+
+
 # 使用实例
 
 ## 处理多行文本：

@@ -170,6 +170,7 @@ The third content...
 * 推出当前程序：Command + Q
 * 切换同一应用的不同窗口：Command + `
 * 重命名文件：选择到文件名的状态下 + Enter
+* 全屏窗口：Command + Contorl + F
 
 
 
