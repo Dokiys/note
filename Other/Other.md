@@ -170,7 +170,9 @@ The third content...
 * 推出当前程序：Command + Q
 * 切换同一应用的不同窗口：Command + `
 * 重命名文件：选择到文件名的状态下 + Enter
-* 
+* 全屏窗口：Command + Contorl + F
+
+
 
 ### iTerm2
 
@@ -201,8 +203,11 @@ The third content...
 ### Chrome
 
 * 打开最近关闭的tab页：Command + Shift + T
+* 切换tab：Command + Option + <- / ->
+* 放回上/下一页：Command + <- / ->
 * 聚焦光标到地址栏： Command + L
 * 强制刷新(不走304缓存)：Shift + Command + R
+* 普通刷新：Command + R
 
 
 

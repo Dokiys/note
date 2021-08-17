@@ -1540,7 +1540,42 @@ total:                  (statements)    100.0%
 
 
 
+# 环境配置
+
+Windows环境和MacOS，Linux的设置环境变量稍有区别：
+
+```bash
+go env -w [环境变量名]=[环境变量值]							// Windows
+export [环境变量名]=[环境变量值]								// MacOS,Linux
+```
+
+查看环境变量：
+
+```bash
+go env [环境变量名]													 // Windows
+echo $[环境变了名]														 // MacOS，Linux
+```
 
 
 
+
+
+## GOPROXY
+
+从Go1.13开始，GOPROXY随着go module引入，用来控制go module的下载源。
+
+```bash
+GOPROXY=proxy.example.com
+```
+
+
+
+## GOPRIVATE 
+
+GOPRIVATE 用来控制go命令执行时的识别指定的私有仓库，私有仓库将会跳过proxy server和检验检查。
+可以通过逗号分隔开来填写多个值。
+
+```bash
+GOPRIVATE=*.4399.com,baidu.com/private
+```
 

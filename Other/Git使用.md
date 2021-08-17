@@ -600,6 +600,28 @@ git fetch --all
 
 
 
+## Git配置
+
+### 用户信息
+
+ 修改用户名和邮箱
+
+```bash
+git config user.name 用户名
+git config user.email 邮箱
+```
+
+全局修改添加`--gloabl`参数：
+
+```bash
+git config  --global user.name 用户名
+git config  --global user.email 邮箱名
+```
+
+此外还可以在`~/.gitconfig`文件中直接修改
+
+
+
 ## Git统计
 
 统计某用户提交：
