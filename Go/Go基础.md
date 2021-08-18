@@ -911,31 +911,31 @@ default:
 
 **Number**
 
-![number](../image/Go/Go%E5%9F%BA%E7%A1%80/number.png)
+![number](../assert/Go/Go%E5%9F%BA%E7%A1%80/number.png)
 
 **string**
 
-![string](../image/Go/Go%E5%9F%BA%E7%A1%80/string.png)
+![string](../assert/Go/Go%E5%9F%BA%E7%A1%80/string.png)
 
 **struct**
 
-![struct](../image/Go/Go%E5%9F%BA%E7%A1%80/struct.png)
+![struct](../assert/Go/Go%E5%9F%BA%E7%A1%80/struct.png)
 
 **slice**
 
-![slice](../image/Go/Go%E5%9F%BA%E7%A1%80/slice.png)
+![slice](../assert/Go/Go%E5%9F%BA%E7%A1%80/slice.png)
 
 **interface**
 
-![interface](../image/Go/Go%E5%9F%BA%E7%A1%80/interface.png)
+![interface](../assert/Go/Go%E5%9F%BA%E7%A1%80/interface.png)
 
 **new**
 
-![new](../image/Go/Go%E5%9F%BA%E7%A1%80/new.png)
+![new](../assert/Go/Go%E5%9F%BA%E7%A1%80/new.png)
 
 **make**
 
-![make](../image/Go/Go%E5%9F%BA%E7%A1%80/make.png)
+![make](../assert/Go/Go%E5%9F%BA%E7%A1%80/make.png)
 
 
 
@@ -1578,4 +1578,21 @@ GOPRIVATE 用来控制go命令执行时的识别指定的私有仓库，私有�
 ```bash
 GOPRIVATE=*.4399.com,baidu.com/private
 ```
+
+
+
+# 命令行工具
+
+## build
+
+Go提供的命令行工具`build`可包涵`main`函数的文件统计目录生成可执行文件。
+
+## install
+
+`install`工具可以将当前执行目录下的`main`函数的文件，在`$GOPATH/bin`目录下生成可执行文件。
+
+## clean
+
+`clean`可以用于清理`build`命令生成的文件。
+添加`-i`选项，可以将`install`命令在`$GOPATH/bin`目录下生成的文件一并删除。
 

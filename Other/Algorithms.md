@@ -4,7 +4,7 @@
 
 Ruby实现素数筛选
 
-![ertosthenes](../image/Other/Algorithms/Sieve_of_Eratosthenes_animation.gif)
+![ertosthenes](../assert/Other/Algorithms/Sieve_of_Eratosthenes_animation.gif)
 
 ```bash
 index = 0
@@ -21,7 +21,7 @@ end
 
 #### 快速排序
 
-![849589-20171015230936371-1413523412](../image/Other/Algorithms/849589-20171015230936371-1413523412.gif)
+![849589-20171015230936371-1413523412](../assert/Other/Algorithms/849589-20171015230936371-1413523412.gif)
 
 ```ruby
 def quick_sort(array)

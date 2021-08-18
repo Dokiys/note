@@ -182,3 +182,137 @@ method_def <<
 
 
 
+# Gem
+
+
+
+## gemfile
+
+```ruby
+source 'http://nexus.boohee.com/repository/gems-all/'
+ruby '2.6.6'
+
+gem 'rails', '~> 5.2.5'
+gem 'annotate', '2.7.4'
+
+group :development, :test do
+  gem 'factory_bot_rails', '~> 4.8.2'
+  gem 'pry-byebug'
+end
+
+group :development do
+# Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
+  gem 'spring'
+  gem 'spring-watcher-listen', '~> 2.0.0'
+
+  gem 'capistrano-sidekiq', require: false,
+      git: 'git@git.test.cn:ruby/capistrano-sidekiq.git',
+      branch: 'v1.0.2-test-1'
+end
+
+# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
+gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+```
+
+```ruby
+* = Equal To "=1.0"
+* != Not Equal To "!=1.0"
+* > Greater Than ">1.0"
+* < Less Than "<1.0"
+* >= Greater Than or Equal To ">=1.0"
+* <= Less Than or Equal To "<=1.0"
+* ~> Pessimistically Greater Than or Equal To "~>1.0"
+```
+
+# Sidekiq
+
+## start
+
+引入`Sidekiq::worker`重写`perform`方法
+
+```ruby
+class RewardPolicyWorkers::ExportListWorker
+	# 引入
+  include Sidekiq::Worker
+
+  sidekiq_options queue: queue_name, retry: 2, dead: false, backtrace: true
+
+  def perform(params)
+    # do something hither...
+  end
+
+end
+```
+
+`sidekicks_options`中的`queue`选项可在`sidekiq.yml`的`:queues:`设置并选择
+
+调用时传入的`params`将会被序列化，传入的对象需要重新实例化：
+
+```ruby
+RewardPolicyWorkers::ExportListWorker.perform_async(params.to_json)
+```
+
+```ruby
+def perform(params)
+  # Init params
+  params = ActionController::Parameters.new(JSON.parse(params))
+  # do something hither...
+end
+```
+
+
+
+## Debug
+
+对`Worker`里的方法进行断点调试，可以在 Rubymine 中启动 `sidekiq`：
+
+1. Rubymine `Edit Configuration` => ➕ => `Gem Commend`
+2. `Configuration` 中设置 `Gem name: sidekiq`，并设置`Executable name: sidekiq`
+3. `Bundler` 中勾选 `Run the script in context of the bundle (bundle exec)`
+4. `Apply`
+
+
+
+## Monitor
+
+ ```ruby
+require 'sidekiq/api'
+
+# 1. Clear retry set
+Sidekiq::RetrySet.new.clear
+
+# 2. Clear scheduled jobs 
+scheduled_queue = Sidekiq::ScheduledSet.new
+scheduled_queue.clear
+
+# 3. Clear 'Processed' and 'Failed' jobs
+Sidekiq::Stats.new.reset
+
+# 3. Clear 'Dead' jobs statistics
+Sidekiq::DeadSet.new.clear
+
+# Stats
+stats = Sidekiq::Stats.new
+stats.queues
+# {"production_mailers"=>25, "production_default"=>1}
+stats.enqueued
+stats.processed
+stats.failed
+
+# Queue
+queue = Sidekiq::Queue.new('queue_name')
+queue.count
+queue.clear
+queue.each { |job| job.item } # hash content
+
+# Worker
+Sidekiq::Workers.new.each do |_, _, work|
+  p work['payload']['class']
+end
+
+# Redis Acess
+Sidekiq.redis { |redis| redis.keys }
+ ```
+
+
+

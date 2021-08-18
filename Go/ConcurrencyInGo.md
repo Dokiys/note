@@ -778,13 +778,13 @@ func WithValue(parent Context, key, val interface{}) Context
 `WithValue()`可以将一个键值对存入新返回的`valueCtx`实例
 `WithCancel`返回一个`cancelCtx`
 `WithDeadline()`和`WithTimeout()`都会返回一个`timerCtx`
-![context](../image/Go/ConcurrencyInGo/context.png)
+![context](../assert/Go/ConcurrencyInGo/context.png)
 
 其余三个`With`前缀的方法除了都接收一个`Context`类型的参数，然后返回一个`Context`的实例和一个可以取消该返回`Context`的`CancelFunc`类型的方法。
 
 除了`emptyCtx`，其余的`Context`创建都是基于一个`Context`创建。通常用`Background()`来获取一个根`Context`，基于这个`Context`来衍生出其他的`Context`。而衍生出来的`Context`将被添加到原有`Context`的`children`字段中。基于每个`Context`可以创建多个`Context`，由此形成一棵树：
 
-![context_tree](Z:/note/image/Go/ConcurrencyInGo/context_tree.png)
+![context_tree](Z:/note/assert/Go/ConcurrencyInGo/context_tree.png)
 
 我们可以在`Context`接口的定义中看到，取消一个`Context`有什么用：
 
@@ -820,7 +820,7 @@ func (c *cancelCtx) cancel(removeFromParent bool, err error) {
 
 所以说`context`是单向同步信号的，因为衍生的`Context`可以其原有的`Context`取消，而不能取消原有的`Context`。
 
-![ctx_cancel](../image/Go/ConcurrencyInGo/ctx_cancel.jpg)
+![ctx_cancel](../assert/Go/ConcurrencyInGo/ctx_cancel.jpg)
 
 `valueCtx`通过封装`Context`并添加额外键值对的方式来存储数据：
 
@@ -919,7 +919,7 @@ BEGIN:
 
 其关系如下图所示：
 
-![gmp](../image/Go/ConcurrencyInGo/GMP.png)
+![gmp](../assert/Go/ConcurrencyInGo/GMP.png)
 
 有一点需要提到，通过`runtime.GOMAXPROCS()`方法可以设置Go语言运行时的上下文数量。在1.5版本之前默认为1，通常通过：
 

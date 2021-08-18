@@ -156,7 +156,7 @@ Linux下可以通过`man 7 regex`查看相关帮助。
 ^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$
 ```
 
-![邮箱](../image/Other/Regexp/regexpmail.svg)
+![邮箱](../assert/Zoo/Regexp/regexpmail.svg)
 
 
 
@@ -452,5 +452,4 @@ Linux下可以通过`man 7 regex`查看相关帮助。
 ```regex
 ^(-([1-9]\d*\.\d*|0\.\d*[1-9]\d*))|0?\.0+|0$
 ```
-
 

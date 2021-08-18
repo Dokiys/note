@@ -454,7 +454,7 @@ operator:x:11:0:operator:/root:/sbin/nologin
 
 模式间的相互转化：
 
-![vim_mode](../../image/Ops/Linux基础/Linux文本/vim_mode.png)
+![vim_mode](../assert/Linux/Linux基础/Linux文本/vim_mode.png)
 
 命令模式 => 插入模式
 

@@ -337,15 +337,15 @@ try {
 
 TCP协议报文格式
 
-![img](../image/Java/Java网络编程/1806965-20191129103945139-344813675.png)
+![img](../assert/Zoo/Java网络编程/1806965-20191129103945139-344813675.png)
 
 通过“**三次握手**”建立点对点，**可靠**连接，形成传输数据通道。
 
-![img](../image/Java/Java网络编程/v2-08a83a15cf9060013484ffc688528829_720w.jpg)
+![img](../assert/Zoo/Java网络编程/v2-08a83a15cf9060013484ffc688528829_720w.jpg)
 
 传输完毕通过”**四次挥手**“释放以建立的连接。
 
-![img](../image/Java/Java网络编程/v2-3c3fdb98363aa7418b49cf8e0868af8d_720w.jpg)
+![img](../assert/Zoo/Java网络编程/v2-3c3fdb98363aa7418b49cf8e0868af8d_720w.jpg)
 
 **UDP协议**
 

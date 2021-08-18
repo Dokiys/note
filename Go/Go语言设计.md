@@ -32,7 +32,7 @@ func A(){
 
 每个`goroutine`在运行时都会有一个对应的结构体`runtime.g`。其中有一个字段指向`_defer`链表头，其指向的是一个个`_defer`结构体。新注册的`defer`，会添加在该链表的头部。执行时也会从头开始执行注册的`_defer`：
 
-![defer链表](../image/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_wQFGPO3XOj.png)
+![defer链表](../assert/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_wQFGPO3XOj.png)
 
 所以，我们后注册的`defer`会先被调用。
 
@@ -62,7 +62,7 @@ type _defer struct {
 
 在Go1.13中，在编译阶段会增加一些局部变量：
 
-![1.13](../image/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_q0FJ2l3pRV.png)
+![1.13](../assert/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_q0FJ2l3pRV.png)
 
 将`defer` 信息保存到当前函数栈帧的局部变量中，然后通过`runtime.deferprocStack()`将这个`_defer()`注册到`g._defer`中。以减少`defer`在堆上的分配。对于如下的代码：
 
@@ -77,7 +77,7 @@ for i:=0; i<n; i++ {
 
 在Go1.14中采用了一种叫做`open coded defer`的方式，直接在编译时将`defer`调用函数的参数使用局部变量保存，然后根据`df`变量在函数返回之前确定是否需要被调用。
 
-![1.14](Z:/note/image/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_OirJhw4DUZ.png)
+![1.14](Z:/note/assert/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_OirJhw4DUZ.png)
 
 这种方式将`defer`直接展开再调用函数内，从而不需要创建`_defer`结构体，而且不需要注册在`g._defer`链表中。
 但和1.13版本一样，对于一些需要在运行时确定参数的`defer`注册，还是需要采用1.12中的方式调用`defer`。
@@ -222,23 +222,23 @@ func B1(){
 
 当执行到`1`时，会调用`gopanic()`在当前`goroutine`的`_defer`链已经添加了`B2()`和`B1()`，同时将`panicA`也添加到了当前`goroutine`的`_panic`链中：
 
-![panicA](../image/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_KEpz0G2gad.png)
+![panicA](../assert/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_KEpz0G2gad.png)
 
 然后由于调用了`panic`，结束之后代码的执行，即`2`处的代码不会被执行。然后转而调用`goroutine`的`_defer`链，即调用`A2()`。在`A2()`中又在当前`goroutine`的`_defer`链中添加了`B1()`，然后再次调用`gopanic()`，将`panicA2`添加到了当前`goroutine`的`_panic`链中：
 
-![panicA2](../image/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_0TDtunoJEz.png)
+![panicA2](../assert/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_0TDtunoJEz.png)
 
 此时开始执行`B1()`，`recover()`将`_panic`链中的第一个`panic`标记为恢复，然后打印输出：
 
-![recovered](../image/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_QpkklaBluz.png)
+![recovered](../assert/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_QpkklaBluz.png)
 
 当`B1()`执行完，返回到上一次的`panic`触发位置，即`3`。此时会去检查`B2()`在`_panic`中创建的`panicB2`，发现已经被恢复，将其从`_panic`中移除：
 
-![aborted](../image/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_A4uxt82ZKK.png)
+![aborted](../assert/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_A4uxt82ZKK.png)
 
 此时`A2()`也执行完，返回到`A()`中的`1`处，继续执行`_defer`链中的`A1()`：
 
-![remove](../image/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_f0rjtvOkcU.png)
+![remove](../assert/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_f0rjtvOkcU.png)
 
 最后遍历当前`goroutine`中的`_panic`，输出`panic`信息。
 

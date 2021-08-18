@@ -65,6 +65,25 @@ unzip -d ./doc myfile.zip
 
 
 
+## pbcopy
+
+`pbcopy`可以将输出重定向到剪切板：
+
+```bash
+cat 1.txt | pbcopy
+```
+
+对应还有`pbpaste`从剪切板输出：
+
+```bash
+# 粘贴重定向到文件流
+pbpaste>1.txt
+# 追加到文件末尾
+pbpaste>>1.txt
+```
+
+
+
 # 使用实例
 
 ## 处理多行文本：

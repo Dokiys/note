@@ -44,7 +44,7 @@ Elasticsearch 还在Lucene 的基础上新增了**类型**的概念。有点类�
 
 ### 数据结构图
 
-![数据结构](../image/Other/Elasticsearch/数据结构.jpg)
+![数据结构](../assert/Zoo/Elasticsearch/数据结构.jpg)
 
 
 
@@ -83,13 +83,13 @@ Elasticsearch 使用动态更新索引的方式实现了**近实时更新**。�
 
 Lucene 中引入了**按段搜索**这个概念，每个段本身也是一个倒排索引。而Elasticsearch 中的索引在**段**的概念之上添加了提交点（Commit point）的概念—— 一个列出了所有已知段的文件。新的文档提交时会先将包含新文档的Lucene 索引存入内存缓存中：
 
-![缓存文档](../image/Other/Elasticsearch/%E7%BC%93%E5%AD%98%E6%96%87%E6%A1%A3.png)
+![缓存文档](../assert/Zoo/Elasticsearch/%E7%BC%93%E5%AD%98%E6%96%87%E6%A1%A3.png)
 
 值得注意的是，这里新建的段并没有被直接保存在磁盘上。磁盘上的保存才能使数据持久化，但是如果直接将新建的段保存在磁盘上，需要一个 [`fsync`](http://en.wikipedia.org/wiki/Fsync) 来确保段被物理性地写入磁盘，这将极大的影响性能。
 
 Lucene 允许其包含的文档在未进行一次完整提交时便对搜索可见。所以Elasticsearch 采用的做法是再内存缓存于磁盘之间添加文件系统缓存。而待提交的段则是被存储于文件系统缓存。
 
-![未提交的段](../image/Other/Elasticsearch/%E6%9C%AA%E6%8F%90%E4%BA%A4%E7%9A%84%E6%AE%B5.png)
+![未提交的段](../assert/Zoo/Elasticsearch/%E6%9C%AA%E6%8F%90%E4%BA%A4%E7%9A%84%E6%AE%B5.png)
 
 这个写入和打开一个新段的轻量的过程叫被叫做`refresh`，默认情况下每个分片会每秒自动刷新一次。
 
@@ -101,19 +101,19 @@ Lucene 允许其包含的文档在未进行一次完整提交时便对搜索可�
 
 1. 新的文档被添加到内存缓冲区并且被追加到了事务日志
 
-   ![新文档添加](../image/Other/Elasticsearch/%E6%96%B0%E6%96%87%E6%A1%A3%E6%B7%BB%E5%8A%A0.png)
+   ![新文档添加](../assert/Zoo/Elasticsearch/%E6%96%B0%E6%96%87%E6%A1%A3%E6%B7%BB%E5%8A%A0.png)
 
 2. 刷新（refresh）完成后, 缓存被清空但是事务日志不会
 
-   ![记录日志](../image/Other/Elasticsearch/%E8%AE%B0%E5%BD%95%E6%97%A5%E5%BF%97.png)
+   ![记录日志](../assert/Zoo/Elasticsearch/%E8%AE%B0%E5%BD%95%E6%97%A5%E5%BF%97.png)
 
 3. 更多的文档被添加
 
-   ![日志累积](../image/Other/Elasticsearch/%E6%97%A5%E5%BF%97%E7%B4%AF%E7%A7%AF.png)
+   ![日志累积](../assert/Zoo/Elasticsearch/%E6%97%A5%E5%BF%97%E7%B4%AF%E7%A7%AF.png)
 
 4. 全量提交被执行，一个新的 translog 被创建。
 
-   ![flush提交](../image/Other/Elasticsearch/flush%E6%8F%90%E4%BA%A4.png)
+   ![flush提交](../assert/Zoo/Elasticsearch/flush%E6%8F%90%E4%BA%A4.png)
 
    全量提交执行以下步骤：
 
@@ -139,9 +139,9 @@ Lucene 允许其包含的文档在未进行一次完整提交时便对搜索可�
 
 1.  索引时刷新（refresh）操作会创建新的段并将段打开以供搜索。
 2. 并进程会在不中断索引和搜索的请空下，选择一小部分大小相似的段，并且在后台将它们合并到更大的段中。
-   ![段合并](../image/Other/Elasticsearch/%E6%AE%B5%E5%90%88%E5%B9%B6.png)
+   ![段合并](../assert/Zoo/Elasticsearch/%E6%AE%B5%E5%90%88%E5%B9%B6.png)
 3. 新的段被刷新（flush）到了磁盘，写入一个新的提交点，新段打开，老段删除。
-   ![段删除](../image/Other/Elasticsearch/%E6%AE%B5%E5%88%A0%E9%99%A4.png)
+   ![段删除](../assert/Zoo/Elasticsearch/%E6%AE%B5%E5%88%A0%E9%99%A4.png)
 
 
 
@@ -159,17 +159,17 @@ Elasticsearch 的主旨是随时可用和按需扩容，其天生就是**分布�
 
 拥有两个节点的集群示意图如下：
 
-![两节点](../image/Other/Elasticsearch/%E4%B8%A4%E8%8A%82%E7%82%B9.png)
+![两节点](../assert/Zoo/Elasticsearch/%E4%B8%A4%E8%8A%82%E7%82%B9.png)
 
 当对集群进行水平扩容时，`Node 1` 和 `Node 2` 上各有一个分片被迁移到了新的 `Node 3` 节点，现在每个节点上都拥有2个分片：
 
-![水平扩容](../image/Other/Elasticsearch/%E6%B0%B4%E5%B9%B3%E6%89%A9%E5%AE%B9.png)
+![水平扩容](../assert/Zoo/Elasticsearch/%E6%B0%B4%E5%B9%B3%E6%89%A9%E5%AE%B9.png)
 
 扩容后每个节点的硬件资源（CPU, RAM, I/O）将被更少的分片所共享，每个分片的性能将会得到提升，所以提高副本数量也能够提升Elasticsearch 性能。
 
 当关闭一个节点后，将会自动重新选择主节点：
 
-![缩容](../image/Other/Elasticsearch/%E7%BC%A9%E5%AE%B9.png)
+![缩容](../assert/Zoo/Elasticsearch/%E7%BC%A9%E5%AE%B9.png)
 
 
 
@@ -185,7 +185,7 @@ shard = hash(routing) % number_of_primary_shards
 
 新建、索引和删除等**写操作**请求会现在主分片上完成，然后再复制到相关的副本分片：
 
-![写操作](../image/Other/Elasticsearch/%E5%86%99%E6%93%8D%E4%BD%9C.png)
+![写操作](../assert/Zoo/Elasticsearch/%E5%86%99%E6%93%8D%E4%BD%9C.png)
 
 1. 客户端向 `Node 1` 发送新建、索引或者删除请求。
 2. 节点通过文档的 `_id` 确定文档属于分片 0 。请求被转发到 `Node 3`。
@@ -193,7 +193,7 @@ shard = hash(routing) % number_of_primary_shards
 
 局部更新文档时于新建、索引和删除等操作类似。但考虑到并发更新的情况，如果去判断文档是否被另一个进程修改，并重新尝试，直到超过的`retry_on_conflict`次数。如下图中步骤3：
 
-![局部更新](../image/Other/Elasticsearch/%E5%B1%80%E9%83%A8%E6%9B%B4%E6%96%B0.png)
+![局部更新](../assert/Zoo/Elasticsearch/%E5%B1%80%E9%83%A8%E6%9B%B4%E6%96%B0.png)
 
 同时，对于文档的更新Elasticsearch 并不会转发更新请求，而是直接转发更新成功的新版本文档，以防止网络延迟等原因使得更新请求以错误的顺序到达其他节点从而导致脏数据产生。
 
@@ -237,7 +237,7 @@ GET /_search
 
 查询阶段的过程如图：
 
-![查询阶段](../image/Other/Elasticsearch/%E6%9F%A5%E8%AF%A2%E9%98%B6%E6%AE%B5.png)
+![查询阶段](../assert/Zoo/Elasticsearch/%E6%9F%A5%E8%AF%A2%E9%98%B6%E6%AE%B5.png)
 
 1. 客户端发送一个 `search` 请求到 `Node 3` ， `Node 3` 会创建一个大小为 `from + size` 的空优先队列。
 2. `Node 3` 将查询请求转发到索引的每个主分片或副本分片中。每个分片在本地执行查询并添加结果到大小为 `from + size` 的本地有序优先队列中。
@@ -247,7 +247,7 @@ GET /_search
 
 在收集到各分片的数据后，协调节点会根据**排序值**进行排序，然后最终选出需要的**文档ID**，然后向对应的分片获取文档：
 
-![取回阶段](../image/Other/Elasticsearch/%E5%8F%96%E5%9B%9E%E9%98%B6%E6%AE%B5.png)
+![取回阶段](../assert/Zoo/Elasticsearch/%E5%8F%96%E5%9B%9E%E9%98%B6%E6%AE%B5.png)
 
 1. 协调节点整理之后，向相关的分片提交多个 `GET` 请求取回需要的文档。
 2. 每个分片加载文档，并返回给协调节点。
