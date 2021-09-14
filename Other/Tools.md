@@ -65,6 +65,23 @@ unzip -d ./doc myfile.zip
 
 
 
+## tar
+
+```bash
+tar -czvf [文件名].tar.gz	1.txt 2.txt	#压缩
+tar -xzvf [文件名].tar.gz							#解压缩
+```
+
+**-c** ：create、**-x** ：打开归档文件、**-z** ：压缩、**-v** ：view
+**-f** ：归档文件名，应用在最后一个参数，后直接跟归档文件名，再跟需要归档的文件
+如果打包的没有采用**-z**压缩，则还可以添加 **-r** 选项来追加文件：
+
+```bash
+tar -rvf [文件名].tar [被追加的文件名]
+```
+
+
+
 ## pbcopy
 
 `pbcopy`可以将输出重定向到剪切板：

@@ -261,3 +261,16 @@ docker logs [OPTIONS] CONTAINER											# 查看容器日志
 docker cp FILE CONTAINER_ID:CONTAINER_PATH					# 将宿主机中的文件复制到容器中
 docker cp CONTAINER_ID:CONTAINER_FILE PATH					# 将容器中的文件复制到宿主机中
 ```
+
+
+
+## Docker-compose命令
+
+```bash
+docker-compose up			# 启动服务
+docker-compose up	-d	# 后台启动服务
+docker-compose stop		# 停止服务
+docker-compose down		# 停止并删除容器
+docker-compose -f [文件路径]	[COMMAND] # 制定文件路径
+```
+

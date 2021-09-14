@@ -376,6 +376,7 @@ git diff <版本号码1(old)> <版本号码2(new)> # 比较指定文件指定版
 git diff <版本号码1(old)> <版本号码2(new)> --stat # 比较指定版本有哪些文件修改
 git diff --cached # 比较暂存区的代码和当前分支head的代码
 git diff . ":(exclude)<文件/正则>" # 比较时排除指定文件
+git diff <版本号码1(old)> <版本号码2(new)> --stat  ":(exclude)<文件/正则>"	# 比较版本排除制定文件修改
 ```
 
 比较本地 `ahead` 远程的提交
@@ -383,6 +384,15 @@ git diff . ":(exclude)<文件/正则>" # 比较时排除指定文件
 ```ruby
 git cherry -v	# 查看当前分支ahead对应远程分支的提交及描述
 git log <分支名> ^origin/<分支名> 	# 查看指定分支 ahead 指定的远程的提交详情
+```
+
+
+
+### Untracked文件
+
+```bash
+git clean -f		# 清除untracked文件
+git clean -fd		# 清除untracked文件以及目录
 ```
 
 
@@ -623,7 +633,9 @@ git config  --global user.email 邮箱名
 
 
 
-## Git统计
+## Git日志
+
+### 统计提交
 
 统计某用户提交：
 
@@ -641,6 +653,12 @@ git log --author="$(git config --get user.name)" --since='2021-04-01' --until='2
 
 ```bash
 git log --format='%aN' | sort -u | while read name; do echo -en "$name\t"; git log --author="$name" --pretty=tformat: --numstat | awk '{ add += $1; subs += $2; loc += $1 - $2 } END { printf "added lines: %s, removed lines: %s, total lines: %s\n", add, subs, loc }' -; done
+```
+
+### 文件变更记录
+
+```bash
+git log -- [filepath]
 ```
 
 
