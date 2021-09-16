@@ -70,6 +70,17 @@ cmd := exec.CommandContext(ctx, command, args...)
 反射执行方法：
 
 ```go
+type Worker struct {}
+```
+
+```go
+func (self *Worker)HelloJob() bool {
+  log.Info("Hello Work!")
+	return true
+}
+```
+
+```go
 // 通过flag获取选项参数
 var mStr string
 flag.StringVar(&mStr, "m", "", "执行方法名") // 定义可接受的选项
@@ -88,6 +99,10 @@ ok := value[0].Bool()
 if ok {
   print("OK!")
 }
+```
+
+```go
+go run dojob.go -m "HelloJob"
 ```
 
 

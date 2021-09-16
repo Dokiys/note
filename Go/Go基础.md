@@ -1585,6 +1585,20 @@ GOPRIVATE=*.4399.com,baidu.com/private
 
 Go提供的命令行工具`build`可包涵`main`函数的文件统计目录生成可执行文件。
 
+修改环境变量可以生成不同平台的可执行程序：
+
+```bash
+GOOS=linux GOARCH=amd64 go build main
+```
+
+`-o`参数可以指定生成的文件路径和文件名：
+
+```bash
+go build -o ./lalala main
+```
+
+
+
 ## install
 
 `install`工具可以将当前执行目录下的`main`函数的文件，在`$GOPATH/bin`目录下生成可执行文件。
