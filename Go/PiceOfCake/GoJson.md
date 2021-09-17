@@ -48,7 +48,7 @@ func TestMarshalJson(t *testing.T) {
 
 
 
-## JsonMap
+## Map
 
 Go中对Json中的map处理：
 
@@ -72,6 +72,23 @@ func TestUnmarshalMap(t *testing.T) {
 
 	_ = json.Unmarshal([]byte(str), &m)
 	t.Log(m)		// map[1:a 2:b 3:c]
+}
+```
+
+
+
+## Slice
+
+Go中解析解析切片时需要注意，`make`和未赋值的切片变量的解析：
+
+```go
+func TestArr(t *testing.T) {
+  //arr := []string{}						// []
+  //arr := make([]string, 2)		// ["",""]
+  var arr []string							// null
+  bytes, _ := json.Marshal(arr)
+
+  t.Log(string(bytes))
 }
 ```
 

@@ -372,7 +372,7 @@ git stash clear # 清除list中所有 stash
 git diff <版本号码1(old)> <版本号码2(new)>
 git diff 	# 比较所有文件
 git diff <文件路径> #比较指定文件
-git diff <版本号码1(old)> <版本号码2(new)> # 比较指定文件指定版本的不同
+git diff <版本号码1(old)> <版本号码2(new)> <文件路径> # 比较指定文件指定版本的不同
 git diff <版本号码1(old)> <版本号码2(new)> --stat # 比较指定版本有哪些文件修改
 git diff --cached # 比较暂存区的代码和当前分支head的代码
 git diff . ":(exclude)<文件/正则>" # 比较时排除指定文件

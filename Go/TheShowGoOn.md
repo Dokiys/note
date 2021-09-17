@@ -83,8 +83,10 @@ func (self *Worker)HelloJob() bool {
 ```go
 // 通过flag获取选项参数
 var mStr string
-flag.StringVar(&mStr, "m", "", "执行方法名") // 定义可接受的选项
-flag.Parse()	// 解析命令行选项到指定的参数中
+
+//  https://pkg.go.dev/flag
+flag.StringVar(&mStr, "m", "", "执行方法名")
+flag.Parse()
 
 // 反射获取对应方法
 workerValue := reflect.ValueOf(&worker.Worker{})
