@@ -614,6 +614,37 @@ fmt.Println(data)
 // [8 9 2 3 4 5 6 7 8 9]
 ```
 
+切片和数组的遍历均可以使用一个或者两个参数接收：
+
+```go
+for index := range slice {}
+for index, value := range slice {}
+```
+
+每次遍历的`value`会由一个单独的内存空间来存储，所以如果对`value`取地址都将会获得同一个地址：
+
+```go
+type A struct { Id int }
+slice := []A{{Id: 1}, {Id: 2}}
+
+for _, v := range slice {
+  t.Logf("%p", &v)
+}
+```
+
+```bash
+ 0xc000130140
+ 0xc000130140
+```
+
+所以如果需要更改原切片中的值需要采用以下方式：
+
+```go
+for i := range slice {
+		slice[i] = i+1
+}
+```
+
 
 
 ### Map
@@ -629,7 +660,14 @@ m2 := make(map[int]string, 1000)	// make申请内存来创建map
 fmt.Println("len: \v", len(m2))		// 可以使用len方法来查看map的长度
 ```
 
-通常情况下为了避免`map`频繁的扩容，应该使用`make`提前预估`map`长度来创建
+需要注意的是没有分配内存的`map`是不能存取键值对的：
+
+```go
+var m map[string]int
+m["1"] = 1		// panic: assignment to entry in nil map
+```
+
+此外通常情况下为了避免`map`频繁的扩容，应该使用`make`提前预估`map`长度来创建：
 
 ```go
 fmt.Printf("%v\n",m1[1])		// 获取值
@@ -641,14 +679,33 @@ for k, v := range m1 {	// 遍历
 }
 ```
 
+当插入的键值对数量大于`make`分配的长度时，并不会出现类似数组下标越界的情况，而是会自动扩容：
+
+```go
+m := make(map[int]struct{}, 1)
+m[1] = struct{}{}
+m[2] = struct{}{}
+t.Log(m)		// map[1:{} 2:{}]
+```
+
 需要注意的是，使用`for`语句遍历`map`的时候，不能保证迭代的返回次序。
 
 此外，遍历的是复制值，如果需要替换`value`的话，可以通过以下方式，或者让`value`保存变量指针：
 
 ```go
-for k,v := range m1 {
+for k, v := range m1 {
     m1[k] = v + v
 }
+```
+
+当用两个参数来接收`map`的值时，可以判断`key`是否存在：
+
+```go
+m := make(map[int]struct{}, 1)
+m[1] = struct{}{}
+v, ok := m[1]
+t.Log(v)		// {}
+t.Log(ok)		// true
 ```
 
 
@@ -1267,6 +1324,8 @@ valueFunc.Set(reflect.MakeFunc(valueFunc.Type(), hello))
 
 f("Work!")		// => Hello, Work!
 ```
+
+
 
 
 
