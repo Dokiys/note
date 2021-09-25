@@ -156,3 +156,42 @@ new Date().toISOString()				// => "2021-06-11T07:20:06.642Z"
 new Date().toISOString().slice(0,10)  // => "2021-06-11"
 ```
 
+
+
+## Postman
+
+手动设置`Authorization`认证`token`
+
+```js
+// set request params
+const postRequest = {
+  url: 'http://localhost:5450/oauth/token.json?',	//请求token的接口
+  method: 'POST',
+  header: {
+    'Content-Type': 'application/json'
+  },
+  body: {
+    mode: 'raw',
+    raw: JSON.stringify({
+        client_id:"2642d4c1ebed62755b352d2b6a42c9096372450370b387c56f158423e6612552",
+        client_secret:"17ec1e2ead9b396da8463723b979664d8b2d8d0e7712fafcc97f154c7f0b5d41",
+        grant_type:"client_credentials",
+        scope: "" 
+    })
+  }
+};
+
+pm.sendRequest(postRequest, (error, response) => {
+    error ? console.log(error) : setUserSessionKey(response)
+});
+
+// set user_session_key
+function setUserSessionKey(response){
+    var result = response.json()
+    pm.request.headers.add({
+        key:"Authorization",
+        value: "Bearer "+result.access_token
+    })
+}
+```
+
