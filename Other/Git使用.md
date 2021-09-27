@@ -341,6 +341,12 @@ git stash
 git stash save 'test'	# 对保存内容添加注释信息
  ```
 
+`git stash`默认会将所有的文件变动暂存起来。如果只想要部分文件可以使用：
+
+```bash
+git stash push <file1> <file2>
+```
+
 `git stash list`可以查看保存的所有进度
 
 ```bash
