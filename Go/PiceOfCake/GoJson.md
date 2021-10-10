@@ -92,3 +92,18 @@ func TestArr(t *testing.T) {
 }
 ```
 
+
+
+## Copy
+
+利用json解析还可以做安全的数据拷贝
+
+```go
+func Copy(source interface{}, target interface{}) error {
+	bytes, _ := json.Marshal(source)
+
+	err = json.Unmarshal(bytes, target)
+	return errors.Wrap(err, "数据拷贝失败！")
+}
+```
+

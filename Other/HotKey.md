@@ -35,6 +35,27 @@
 
 
 
+**命令行**
+
+* 整理启动台
+
+  ```bash
+  defaults write com.apple.dock ResetLaunchPad -bool tru
+  ```
+
+* 图标显示异常
+
+  ```bash
+  sudo find /private/var/folders/ \( -name com.apple.dock.iconcache -or -name com.apple.iconservices \) -exec rm -rfv {} \;
+  sudo rm -rf /Library/Caches/com.apple.iconservices.store;
+  killall Dock
+  killall Finder
+  ```
+
+  
+
+
+
 ## iTerm2
 
 * 新建窗口： Command + T
