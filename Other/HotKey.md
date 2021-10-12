@@ -58,6 +58,7 @@
 
 ## iTerm2
 
+* 全屏窗口： Command + Enter
 * 新建窗口： Command + T
 * 水平分屏： Command + D
 * 垂直分屏： Command + Shift + D

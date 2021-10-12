@@ -251,6 +251,7 @@ docker start 容器名称			 # 启动某个容器
 docker stop 容器名称			 # 停止某个容器
 docker stop $(docker ps -qa)			# 停止所有容器
 docker rm $(docker ps -qa)				# 删除所有容器
+docker rmi $(docker images | grep "lalal" | awk '{print $3}') # 删除名称带'lalal'的镜像
 docker restart $(docker ps -qa)		# 重启所有容器
 docker rm 容器id					 # 删除某个容器
 docker stats							# 查看容器内存占用
