@@ -43,3 +43,168 @@ Docker也不关心运行的环境。就像集装箱在火车上，轮船上，Do
 
 ## Docker入门
 
+网络上有很多文章来介绍如何安装Docker程序，这里就不再做介绍。在安装好Docker后，可以通过以下命令来查看其运行情况：
+
+```bash
+$ docker info
+```
+
+正如之前我们的介绍，Docker基于是C/S架构的。所以如果Docker正常运行，我们可以在返回的信息中看到Client的信息和Server的信息。
+
+### 运行第一个容器
+
+让我们通过Docker提供的命令行工具来向守护进程发送运行容器的指令，来运行我们的第一个容器：
+
+```bash
+$ docker run -i -t ubuntu /bin/bash
+Unable to find image 'ubuntu:latest' locally
+latest: Pulling from library/ubuntu
+f3ef4ff62e0d: Pull complete
+Digest: sha256:a0d9e826ab87bd665cfc640598a871b748b4b70a01a4f3d174d4fb02adad07a9
+Status: Downloaded newer image for ubuntu:latest
+root@f4ccf6b2b6f7:/#
+```
+
+`docker run`命令可以用来运行一个容器；`-i`参数使得运行的容器中`STDIN`是开启的；`-t`参数则会给创建的容器分配一个伪tty终端，以使得新容器能够提供一个交互式shell；`ubuntu`表示基于名称为`ubuntu`的镜像来运行容器；最后启动后的容器将会运行`/bin/bash`命令启动一个Bash shell。
+我们还可以看到，首先Docker在本地没有检查到`ubuntu`的镜像，于是到Docker官方维护的仓库中去找该镜像并保存到本地。`library`则是Docker Hub上Docker官方的用户名。最后便进入到了容器内部的shell。
+
+### 重新启动容器
+
+该容器是一个完整的Ubuntu系统，可以用来做任何Ubuntu系统上能做的事情。在shell中输入`exit`可以返回到宿主机中，容器也随之停止。但是容器依然存在，`docker ps`命令会列出运行的容器，添加`-a`选项则可以查看所有的容器：
+
+```bash
+CONTAINER ID   IMAGE    COMMAND       CREATED   STATUS  PORTS  NAMES
+f4ccf6b2b6f7   ubuntu   "/bin/bash"   A minut   Exited 	       ecstatic_agnesi
+```
+
+容器名称和ID都可以用来指定唯一的容器，`ecstatic_agnesi`启动容器时Docker随机生成的名称，也可以在`docker run`命令中添加`--name`来设置名称：
+
+```bash
+$ docker run --name my_ubuntu -i -t ubuntu /bin/bash
+root@67cf6a654b21:/# exit
+```
+
+此时我们可以通过`docker start`来指定名称或者ID来运行已经停止的容器，也可以通过`docker restart`来重启一个容器，或者`docker create`来创建，但不运行一个容器：
+
+```bash
+$ docker start my_ubuntu
+my_ubuntu
+```
+
+Docker容器重新启动时会沿用`docker run`指定的参数来运行，因此重启时容器会创建一个新的会话shell。此时可以通过`docker attach`命令指定名称或者ID来重新链接到某容器的会话上：
+
+```bash
+$ docker attach my_ubuntu
+root@67cf6a654b21:/#
+```
+
+### 创建守护式容器
+
+通过`docker start`我们是使停止的容器重新在后台启动了起来。同时我们也可以在`docker run`命令中添加`-d`选项来让容器在后台启动。为了使创建的容器便于验证，我们额外添加`-c`选项来指定一个在容器创建后执行的脚本：
+
+```bash
+$ docker run --name deamon_dave -d ubuntu /bin/bash -c "while true;do echo hello world;sleep 1;done"
+5346fe34abd8b853dbfb6871b0a5f9da84bf80e228b0b8319eb0d0976e6bffa0
+```
+
+此时名称为deamon_dave的容器正在后台运行，我们可以通过提到的`docker ps`来查看正在运行的容器。
+
+默认情况下如果容器创建失败是不会自动重试的，通过`--restart`选项，可以检查容器的推出代码，并判断是否需要重启容器：
+
+```bash
+$ docker run --restart=always --name deamon_dave -d ubuntu /bin/bash
+```
+
+如此以来，在容器退出的时候总会自动重启该容器。除了`always`还有`on-failure`可供选择，并且`on-failure`还可以接受一个重启次数的参数：
+
+```bash
+--restart=on-failure:2
+```
+
+### 容器日志
+
+由于在 `-c`选项中，我们让容器启动后便循环输向`STDOUT`输出`hello world`，所以我们可以通过`docker log`命令来查看容器的输出：
+
+```bash
+$ docker logs deamon_dave
+hello world
+hello world
+hello world
+...
+```
+
+`docker log`和`tail`命令一样，也可以添加`-f`选项来跟踪容器内部的标准输出。还可以添加`--tail`选项来指定读取的最后几行内容，两条命令可以同时使用，来最终最新的日志输出；此外`-t`参数还可以为输出添加时间戳：
+
+```bash
+$ docker logs --tails 0 -f deamon_dave
+$ docker logs -ft deamon_dave
+```
+
+自Docker1.6开始，可以通过`--log-driver`来选择日志驱动。除了默认的`json-file`还可以选择`syslog`来将日志输出重定向到`Syslog`；以及`none`来禁用容器中的日志输出。
+
+### 容器内部进程
+
+通过`docker exec`可以在容器内部启动一个新的进程：
+
+```bash
+$ docker exec -d deamon_dave touch /etc/new_config_file
+```
+
+`-d`表示在后台启动进程，之后紧跟的是需要执行的容器以及执行的命令。`touch`命令将会创建一个新的名为`/etc/new_config_file`的文件夹。从Docker1.7之后还允许添加`-u`来为执行的命令指定一个用户所属。
+此外，通过`-t`和`-i`命令，还可以为我们执行进程创建tty并捕捉`STDIN`:
+
+```bash
+$ docker exec -it deamon_dave /bin/bash
+```
+
+此外`docker top`可以查看运行的容器内进程，`docker stat`可以查看容器的统计信息。
+
+### 容器信息
+
+除了之前提到的`docker ps`以外，`docker inspect`可以查看更加详细的容器信息：
+
+```bash
+docker inspect deamon_dave
+[
+    {
+        "Id": "5346fe34abd8b853dbfb6871b0a5f9da84bf80e228b0b8319eb0d0976e6bffa0",
+        "Created": "2021-10-17T21:41:53.586701741Z",
+        "Path": "/bin/bash",
+        "Args": [
+            "-c",
+            "while true;do echo hello world;sleep 1;done"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+...
+```
+
+`docker inspcet`命令还支持同时查看多个容器的信息，并且可以通过`--fomat`来选定查看结果，该选项支持任何完整的Go语言模版：
+
+ ```bash
+ $ docker inspect --format '{{ .ID.Created }}' deamon_dave deamon_dave2
+ ```
+
+### 删除守护式容器
+
+删除容器之前必须先停止容器。`docker stop`命令将会向Docker容器发`SIGTERM`信息，停止容器。还可以使用`docker kill`发送`SIGKILL`信号来停止容器，然后通过`docker rm`删除已经停止运行的容器：
+
+```bash
+$ docker stop deamon_dave
+deamon_dave
+$ docker rm deamon_dave
+deamon_dave
+```
+
+从Docker1.6,2开始，可以添加`-f`参数来强制删除正在运行的容器。目前还没办法一次删除所有的容器，不过可以通过以下命令来实现：
+
+```bash
+$ docker rm `docker ps -a -q`
+```
+
+`-q`选项只会返回容器的ID。
+
+
+
+## Docker镜像和仓库

@@ -158,7 +158,7 @@ Go提供了`recover`来恢复`panic`，然后在执行完当前`goroutine`的`_d
 ```go
 func A()  {
 	defer A1()
-    defer A2()
+  defer A2()
 	panic("panicA1")
 	fmt.Println("A")
 }
