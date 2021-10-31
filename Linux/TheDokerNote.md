@@ -2,7 +2,7 @@
 
 ## 简介
 
-至于为什么要使用Docker网络上有很多文章都有讲道，这里就不赘述了。这里主要基于 James Turnbull 的《第一本Docker书》做一些简单的笔记。但在入门之前还是有必要先了解一下Docker的轮廓。
+至于为什么要使用Docker网络上有很多文章都有讲到，这里就不赘述了。这里主要基于 James Turnbull 的《第一本Docker书》做一些简单的笔记。但在入门之前还是有必要先了解一下Docker的轮廓。
 
 **Docker引擎**
 Docker是一个[Client-server](https://zh.wikipedia.org/wiki/%E4%B8%BB%E5%BE%9E%E5%BC%8F%E6%9E%B6%E6%A7%8B)架构的程序。Docker客户端只需向Docker服务器或守护进程来发送请求，服务器或守护进程将完成所有工作并返回结果。这在我们的编程实践中通常表现为，通过命令行工具`docker`来完成操作对容器的操作。
@@ -208,3 +208,102 @@ $ docker rm `docker ps -a -q`
 
 
 ## Docker镜像和仓库
+
+### Docker镜像
+
+Docker镜像是由文件系统叠加而成的。在Docker里，root文件系统永远只能是读状态， 并且利用[联合加载](https://en.wikipedia.org/wiki/Union_mount)技术，在root文件系统层上加载更多的只读文件。利用联合加载将各层文件系统叠加在一起，最终的文件系统会包含所有底层的文件和目录，Docker将这样的文件称为镜像。
+一个镜像可以基于另外一个镜像创建，最底部的镜像被称为基础镜像。当从一个镜像启动容器时，Docker会在镜像的最顶层加载一个读写文件系统。第一次启动该容器时，该读写文件系统是空的，当文件系统发生变化时，对应发生变化的文件会先从该读写层下吗的只读层复制到该读写层，然后这些变化都会应用在当前层上。这种机制通常被称为写时复制。
+写时复制使得每一层Docker镜像生成之后都是只读到，并且之后也不会发生变化。利用Docker镜像的分层架构，加上容器可以修改并持有自己状态的特点，用户可以快速构建包含我们自己应用程序的容器。
+
+### 获取镜像
+
+镜像保存在仓库中，可以从仓库下载下来。仓库存在于Registry中，默认的Registry是Docker Hub，有Docker公司运营。Docker的Registry跟Git仓库很相似，用于保存包括镜像、层以及关于镜像的元数据。
+
+在上一章中我们通过`docker run`自动拉取并运行了`ubuntu`的镜像。现在我们可以通过以下命令来拉取指定版本的镜像：
+
+```bash
+$ docker pull ubuntu:12.04
+```
+
+我们拉取了版本为12.04的`ubuntu`镜像，其中的版本被称为`tag`。在通过镜像启动容器时也可以指定镜像的tag：
+
+```bash
+$ docker run -it --name new_ubuntu ubuntu:12.04 /bin/bash
+```
+
+如果在运行`docker pull`或者`docker run`命令时没有指定`tag`，则默认使用的是`lates`标签。然后可以通过以下任意一条命令列出所有的已经下载到本地的镜像，添加镜像名还可以指定查看某些镜像：
+
+```bash
+$ docker images <镜像名>
+$ docker image list <镜像名>
+```
+
+通过以下命令还可以在Docker Hub上查找公共的可用镜像：
+
+```bash
+$ docker search <镜像名>
+```
+
+### 构建镜像
+
+正如之前提到的，通常构建镜像并不是真的创建镜像，而是基于一些镜像构建新的镜像。构建镜像有以下两种方式：
+
+* 使用`docker commit`命令
+* 使用`docker build`和`Dockerfile`文件构建
+
+首先我们需要在Docker Hub创建账号并通过命令登录：
+
+```bash
+$ docker login
+Login with your Docker ID to push and pull images from Docker Hub. If you don't have a Docker ID, head over to https://hub.docker.com to create one.
+Username: xxx
+Password:
+```
+
+**使用docker commit构建镜像**
+
+首先我们需要基于一个镜像启动的容器，并对容器进行修改：
+
+```bash
+$ docker run -it --name my_image ubuntu:12.04 /bin/bash
+root@0a7004b5ec7a:/# apt-get -yqq update
+root@0a7004b5ec7a:/# apt-get -y install apache2
+```
+
+如此一来我们便运行了一个容器并在容器中安装了Apache。然后退出容器并提交定制容器：
+
+```bash
+root@0a7004b5ec7a:/# exit
+$ docker commit -m "My First Image" -a "Dokiy" my_image dokiy/my_apache:webserver 
+```
+
+`-m`用来指定提交的备注信息；`-a`指定作者；随后跟的是提交的容器名称；最后指定了镜像的用户名和仓库并添加了一个标签。
+通过`docker commit`命令来构建镜像的弊端在于，构建的过程并没有行程配置。不能快速直观的再次构建一个类似的镜像。通常不推荐此种做法，使用最多的是通过`Dockerfile`和`docker build`命令来构建镜像。
+
+#### **Dockerfile构建镜像**
+
+`Dockerfile`使用基本DSL（Domain Specific Language）语法指令来构建镜像，这使得镜像的构建过程更具备可重复性，透明性以及幂等性。
+
+让我们用`Dockerfile`的方式来重新构建一下刚才的镜像。首先创建一个文件夹，并在其中创建一个`Dockerfile`文件：
+
+```bash
+$ mkdir my_apache2 && cd my_apache2 && touch Dockerfile
+```
+
+然后在`Dockerfile`文件中添加一下内容：
+
+```dockerfile
+# Version: 0.0.1
+FROM ubuntu:12.04
+MAINTAINER Dokiy "dokiy@4399.com"
+RUN apt-get -ypp update && apt-get -y install apache2
+```
+
+最后在`Dockerfile`同级目录执行`docker build`命令：
+
+```bash
+$ docker build -t="dokiy/my_apache:webserver2" .
+```
+
+其中`-t`选项指定用户名和仓库以及标签；命令最后的是所执行的路径，也就是`Dockerfile`所在的路径。并且该文件路径可以通过`-f`选项来指定。
+

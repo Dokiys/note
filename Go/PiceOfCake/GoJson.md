@@ -102,7 +102,7 @@ func TestArr(t *testing.T) {
 func Copy(source interface{}, target interface{}) error {
 	bytes, _ := json.Marshal(source)
 
-	err = json.Unmarshal(bytes, target)
+  err := json.Unmarshal(bytes, target)
 	return errors.Wrap(err, "数据拷贝失败！")
 }
 ```

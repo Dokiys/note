@@ -563,10 +563,18 @@ gpsup='git push --set-upstream origin $(git_current_branch)'
 
 如果不指定`<source>的话会将远程仓库的分支删除
 
-```
+```bash
 git push origin :foo
 //提交空到远程分支foo，即删除远程仓库的foo分支
 ```
+
+删除远程分支还可以使用：
+
+```bash
+git push origin --delete <分支名>
+```
+
+
 
 
 

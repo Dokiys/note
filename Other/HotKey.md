@@ -20,6 +20,8 @@
 * 代码移行：Shift + Option + 方向上/下
 * 定位到当前文件位置：Option + F1，然后数字1
 * 查找代码：Command + F，然后Esc可以关闭查找窗口
+* 向上一行插入空行：Command + Option + Enter
+* 向下一行插入空行：Shift + Enter
 
 
 
