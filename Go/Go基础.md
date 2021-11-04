@@ -1662,6 +1662,8 @@ go build -o ./lalala main
 
 `install`工具可以将当前执行目录下的`main`函数的文件，在`$GOPATH/bin`目录下生成可执行文件。
 
+
+
 ## clean
 
 `clean`可以用于清理`build`命令生成的文件。

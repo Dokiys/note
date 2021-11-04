@@ -146,3 +146,127 @@ func distinct(s interface{}, f interface{}) interface{} {
 }
 ```
 
+
+
+## Builder Pattern
+
+建造者模式通常用于复杂对象的构建，可以隐藏掉大量的构建函数代码，使实际的逻辑代码更简洁。
+
+```go
+type Student struct {
+	Id    int
+	Name  string
+	Email string
+}
+```
+
+```go
+type StudentBuilder struct {
+	student *Student
+}
+
+func Init() *StudentBuilder {
+	return &StudentBuilder{
+		student: &Student{
+			Id:    0,
+			Name:  "",
+			Email: "",
+		},
+	}
+}
+
+func (self *StudentBuilder)Id(id int) *StudentBuilder {
+	self.student.Id = id
+	return self
+}
+
+func (self *StudentBuilder)Name(name string) *StudentBuilder {
+	self.student.Name = name
+	return self
+}
+
+func (self *StudentBuilder)Email(email string) *StudentBuilder {
+	self.student.Email = email
+	return self
+}
+
+func (self *StudentBuilder)Build() Student {
+	return *self.student
+}
+```
+
+```go
+func TestBuilder(t *testing.T) {
+	stu := Init().Id(1).Name("zhangsan").Email("zhangsan@4399.com").Build()
+	t.Logf("Student: %v", stu)
+}
+```
+
+
+
+还有一种此模式上的演变，经常使用在配置的加载中。其中添加了Opt作为配置项参数作为构建的抽象：
+
+```go
+type Student2 struct {
+	Id    int
+	Name  string
+	Email string
+}
+
+type StudentBuilder2 struct {
+	student *Student2
+	opts     []Opt
+}
+
+type Opt func(*StudentBuilder2)
+```
+
+```go
+
+func Init2() *StudentBuilder2 {
+	return &StudentBuilder2{
+		student: &Student2{
+			Id:    0,
+			Name:  "",
+			Email: "",
+		},
+		opts:    []Opt{},
+	}
+}
+
+func (self *StudentBuilder2) Id(id int) *StudentBuilder2 {
+	self.opts = append(self.opts, func(builder *StudentBuilder2) {
+		builder.student.Id = id
+	})
+	return self
+}
+
+func (self *StudentBuilder2) Name(name string) *StudentBuilder2 {
+	self.opts = append(self.opts, func(builder *StudentBuilder2) {
+		builder.student.Name = name
+	})
+	return self
+}
+
+func (self *StudentBuilder2) Email(email string) *StudentBuilder2 {
+	self.opts = append(self.opts, func(builder *StudentBuilder2) {
+		builder.student.Email = email
+	})
+	return self
+}
+
+func (self *StudentBuilder2) Build() Student2 {
+	for _, opt := range self.opts {
+		opt(self)
+	}
+	return *self.student
+}
+```
+
+```go
+func TestBuilder2(t *testing.T) {
+	stu := Init2().Id(1).Name("zhangsan").Email("zhangsan@4399.com").Build()
+	t.Logf("Student: %v", stu)
+}
+```
+
