@@ -29,8 +29,34 @@
 
 
 
+## 命令行
 
-## 执行命令行
+### 命令行管道符输入
+
+```go
+var v1 = flag.String("v1", "init_value", "参数1")
+var v2 = flag.int("v2", 0, "参数2")
+
+func main() {
+	flag.Parse()
+	if *v1 != "init_value" {
+		doSomething(*v1, *v2)
+		return
+	}
+
+  // 不断的从控制台接收输入
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		*v1 = scanner.Text()
+		doSomething(*v1, *v2)
+	}
+}
+```
+
+
+
+
+### 执行命令行
 
 通过`exec`包可以在go中执行命令行命令：
 

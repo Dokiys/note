@@ -260,7 +260,7 @@ Username: xxx
 Password:
 ```
 
-**使用docker commit构建镜像**
+#### 使用docker commit构建镜像
 
 首先我们需要基于一个镜像启动的容器，并对容器进行修改：
 
@@ -306,4 +306,43 @@ $ docker build -t="dokiy/my_apache:webserver2" .
 ```
 
 其中`-t`选项指定用户名和仓库以及标签；命令最后的是所执行的路径，也就是`Dockerfile`所在的路径。并且该文件路径可以通过`-f`选项来指定。
+
+
+
+
+
+# 常用命令
+
+## log
+
+```bash
+$ docker logs [OPTIONS] CONTAINER
+  Options:
+      --details        Show extra details provided to logs
+  -f, --follow         Follow log output
+      --since string   显示某时间之后的日志(e.g. 2013-01-02T13:23:37Z) or (e.g. 42m for 42 minutes)
+  -n, --tail string    显示最后N行的日志，默认为显示所有
+  -t, --timestamps     显示时间戳
+      --until string   显示某时间之前的日志(e.g. 2013-01-02T13:23:37Z) or (e.g. 42m for 42 minutes)
+```
+
+查看某时间段段日志：
+
+```bash
+$ docker logs -t --since="2018-02-08T13:23:37" --until "2018-02-09T12:23:37" CONTAINER_ID
+$ docker logs -t --since="42m" CONTAINER_ID
+```
+
+查看后100行日志：
+
+```bash
+$ docker -n=100
+$ docker --tail=100
+```
+
+跟踪最新日志输出：
+
+```bash
+$ docekr -n=0 -f
+```
 

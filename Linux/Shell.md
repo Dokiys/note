@@ -25,3 +25,8 @@ cat: 1.txt: No such file or directory
 1.txt 2.txt
 ```
 
+
+
+## 默认确认
+
+有些命令在执行时需要键入Y/n进行确认，在执行命令时添加`-y`参数，可以默认进行确认

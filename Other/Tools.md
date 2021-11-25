@@ -1,4 +1,4 @@
-# 命令行常用工具
+# 常用工具
 
 ## scp
 
@@ -97,6 +97,45 @@ cat 1.txt | pbcopy
 pbpaste>1.txt
 # 追加到文件末尾
 pbpaste>>1.txt
+```
+
+
+
+## expect
+
+expect可以对程序输出做出回应，以达到用脚本实现一些交互式命令的使用：
+
+```bash
+echo '#!/usr/bin/expect
+set timeout -1
+spawn apt-get -y --no-install-recommends install libreoffice
+expect {
+"Geographic area:" {exp_send "6\r";exp_continue}
+"Time zone:" {exp_send "70\r"}
+"Processing triggers for libc-bin (2.34-0ubuntu3) ..." {}
+}
+expect eof' > libreoffice.exp
+```
+
+
+
+## libreoffice
+
+[Libreoffice](https://www.libreoffice.org/)是一个免费开源的办公套件，其提供的命令行工具`soffice`可以用于文档对`pdf`、`html`、`txt`甚至图片的转换，以下是在ubuntu系统下安装libreoffice的Dockerfile文件和使用示例：
+
+```dockerfile
+FROM ubuntu:jammy-20211029
+WORKDIR ~/
+RUN apt-get update \
+	&& apt-get -y --no-install-recommends install libreoffice
+RUN mkdir -p /data/file
+VOLUME ["/data/file"]
+```
+
+```bash
+$ build -t libreoffice .
+$ docker run -it -v /Users/admin/dokiy/test/file:/data/file libreoffice /bin/bash
+root@a316d1f6e778:soffice --headless --convert-to html --outdir /data/file /data/file/1.xlsx
 ```
 
 

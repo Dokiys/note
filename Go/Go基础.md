@@ -1656,6 +1656,12 @@ GOOS=linux GOARCH=amd64 go build main
 go build -o ./lalala main
 ```
 
+指定main函数的文件，可以生成同名的可执行文件：
+
+```bash
+go build lalala.go
+```
+
 
 
 ## install
