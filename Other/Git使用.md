@@ -370,6 +370,22 @@ git stash drop stash@{0} # 删除序号为0的 stash
 git stash clear # 清除list中所有 stash
 ```
 
+stash`drop`或`clear`之后的找回：
+
+````bash
+git fsck --lost-found 	# 列出丢失的记录
+Checking object directories: 100% (256/256), done.
+Checking objects: 100% (14550/14550), done.
+dangling commit 19003a7aeb006c634a37706ab85fab86ef30756d
+dangling blob 2b00b5e5ddff1d6d5abe7b47fac695ad9612df37
+dangling blob 66009b9a39d86c8fda20d8c2cb7c2e91732b5fe7
+dangling blob 7402cf89cc2b61838e9d913b516b2b13298a7549
+dangling commit b403f38c84926422785ce461b01d46ba77582866
+git show [COMMIT_ID]		# 查看丢失提交的详细信息
+# 找到对应的体检后
+git merge [COMMIT_ID] 	# 合并提交的信息
+````
+
 
 
 ### diff 比较文件

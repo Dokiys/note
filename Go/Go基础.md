@@ -1650,13 +1650,13 @@ Go提供的命令行工具`build`可包涵`main`函数的文件统计目录生�
 GOOS=linux GOARCH=amd64 go build main
 ```
 
-`-o`参数可以指定生成的文件路径和文件名：
+默认情况下编译器只会加载`main.go`文件，其他文件需要手动添加。`-o`参数可以指定生成的文件路径和文件名，其后的第一个用于指定生成的可执行文件名称：
 
 ```bash
-go build -o ./lalala main
+go build -o ./lalala ./main.go ./utils.go
 ```
 
-指定main函数的文件，可以生成同名的可执行文件：
+如果直接通过文件构建，可以生成同名的可执行文件：
 
 ```bash
 go build lalala.go
