@@ -1675,3 +1675,67 @@ go build lalala.go
 `clean`可以用于清理`build`命令生成的文件。
 添加`-i`选项，可以将`install`命令在`$GOPATH/bin`目录下生成的文件一并删除。
 
+
+
+## mod
+
+`mod`是1.11版本引入的官方包管理工具，相较于之前的`GOPATH`的引入方式，更具简洁。
+`Gomod`引入依赖的方式很简单，首先需要使用`go mod init`进入到项目根目录对项目进行初始化：
+
+```bash
+go mod init [项目名]
+```
+
+初始化完成后，会在目录下生成一个`go.mod`的文件来记录依赖。
+此时需要再引入外部工具包的话，可以直接在`go.mod`的同级目录执行：
+
+```bash
+go get [包名]
+```
+
+如果引入的包较多，还可以直接更改`go.mod`文件，然后运行`go mod tidy`，来自动下载依赖。以下是一个修改过的简单示例：
+
+```go
+module go_test
+go 1.16
+
+require (
+	github.com/xuri/excelize/v2 v2.4.2-0.20211201164820-4ca1b305fe5b
+  golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
+	golang.org/x/text v0.3.7 // indirect
+	gopkg.in/yaml.v2 v2.4.0
+)
+```
+
+其中包含了被注释了`// indirect`的间接引入的包。
+如果引入的包符合`gomod`的命名规范，将会附带版本号，如`gopkg.in/yaml.v2 v2.4.0`。
+否则就会自动生成一个版本号其中包含提交时间和提交的hash值，如：`golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect`
+
+**引用分支**
+
+`mod`还可以指定引入依赖的分支，如上引入的`github.com/xuri/excelize/v2 v2.4.2-0.20211201164820-4ca1b305fe5b`包，则是指定了分支的结果。在执行`go mod tidy`之前，`go.mod`文件的该行内容为：
+
+```go
+github.com/xuri/excelize/v2 master
+```
+
+**引用本地包**
+
+通过在`go.mod`中指定`replace`可以将某依赖，替换为另外的依赖，以实现引入本地已经通过`go mod init`包：
+
+```go
+module go_test
+go 1.16
+
+require (
+	gopkg.in/yaml.v2 v2.4.0
+)
+replace gopkg.in/yaml.v2 v2.4.0 => [本地mod包]
+```
+
+此外还可以通过列出当前项目包名以及所有依赖到的包：
+
+```bash
+go list -m all
+```
+

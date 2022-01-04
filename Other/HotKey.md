@@ -22,6 +22,7 @@
 * 查找代码：Command + F，然后Esc可以关闭查找窗口
 * 向上一行插入空行：Command + Option + Enter
 * 向下一行插入空行：Shift + Enter
+* 批量修改某参数名：光标选中变量后Shift+F6
 
 
 
@@ -110,10 +111,11 @@
 
 ## vim
 
-* vim中跳转行首：Home 或 Shift + ^
-* vim中跳转行尾：End 或 Shift + $
-* vim中跳转到指定行：[行号] + gg / G 或者 :12
-* vim中查找：normal模式下键入 `'/'`，n 查找下一个，N 查找上一个
+* 跳转行首：Home 或 Shift + ^
+* 跳转行尾：End 或 Shift + $
+* 跳转到指定行：[行号] + gg / G 或者 :12
+* 查找：normal模式下键入 `'/'`，n 查找下一个，N 查找上一个
+* 插入新行：normal模式下键入 `'o'`
 
 
 

@@ -251,7 +251,7 @@ fish = Food.create!(name:'fish')
 Cat.foods = [fish]
 ```
 
-共产主义的领导下，每个人都可以有很多唐老鸭和tomcat，唐老鸭和tomcat也属于每一个人，即一个多对多的关系。我们也可以将`foods`作为中间表，将动物和人做多对多关联。
+每个人都可以有很多唐老鸭和tomcat，唐老鸭和tomcat也属于每一个人，即一个多对多的关系。我们也可以将`foods`作为中间表，将动物和人做多对多关联。
 
 ```ruby
 class CreateUser < ActiveRecord::Migration
