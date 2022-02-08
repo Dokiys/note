@@ -23,6 +23,8 @@
 * 向上一行插入空行：Command + Option + Enter
 * 向下一行插入空行：Shift + Enter
 * 批量修改某参数名：光标选中变量后Shift+F6
+* 查找文件：点击Project导航框，直接输入关键字
+* 打开Terminal： Option + F12
 
 
 
@@ -116,6 +118,22 @@
 * 跳转到指定行：[行号] + gg / G 或者 :12
 * 查找：normal模式下键入 `'/'`，n 查找下一个，N 查找上一个
 * 插入新行：normal模式下键入 `'o'`
+
+
+
+## Alfred
+
+* 使用指定应用打开某文件：
+
+  ```
+  1. Alt + Space 打开Alfred搜索栏
+  2. 输入 find [文件名] 搜索到对应文件
+  3. Ctrl 进入到操作页面，并选择 Open 使用默认应用打开文件 
+  ```
+
+  
+
+  
 
 
 

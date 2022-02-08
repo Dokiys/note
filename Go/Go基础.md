@@ -1327,7 +1327,80 @@ f("Work!")		// => Hello, Work!
 
 
 
+## IO
 
+经常遇到io相关的问题就有点摸不着头脑，故此将IO单独整理写到基础里面以供查阅。
+
+IO最主要的就是理解三个东西：`Reader`、`Writer`和`[]byte`。
+几乎所有通用的包的`Reader`、`Writer`，都是为了实现`io.Reader`和`io.Writer`接口，以对外提供方法。并且对应的`struct`底层都会对应一个`[]byte`。
+而`Reader`的`Read()`方法，和`Writer`的`Write()`都是相对于这个底层`[]byte`来说的。即分别从这个`[]byte`读取数据和向这个`[]byte`写入数据。我们可以看一下`Reader`读取数据的例子：
+
+```go
+	reader := bytes.NewReader([]byte("1234567890"))
+
+	for {
+		b := make([]byte, 6)
+		n, err := reader.Read(b)
+		if err != nil {
+			if err == io.EOF {
+				t.Log("Read Finished")	// 读取完成需要返回
+				break
+			}
+			t.Fatal("Read错误：",err)
+		}
+
+		t.Log(string(b[:n]))				// 需要根据Read到的实际数据进行输出
+	}
+```
+
+```bash
+io_test.go:63: 123456
+io_test.go:63: 7890
+io_test.go:57: Read Finished
+```
+
+关于`Writer`的例子会稍微难理解一点：
+
+```go
+// writer
+b := []byte{}
+buf := bytes.NewBuffer(b)
+_, err := buf.Write([]byte("1234567890a"))
+assert.NoError(t, err)
+t.Log(b)
+t.Log(buf)
+```
+
+```bash
+io_test.go:74: []
+io_test.go:75: 1234567890a
+```
+
+在这里`buf`才是重点。我们通过`bytes`包提供的方法根据一个空的`[]byte`生成一个`Buffer`类型的变量`buf`。但是从输出的结果可以看到，这里传入的`[]byte`并不是`Write()`方法操作的byte数组。如果进入该方法的源码可以看到，这里的`b`仅仅作为`buf`的初始内容，`buf`中单独维护了一个可变长度的`[]`byte。
+
+从`Writer`的例子可以看到，通常`Write`并不是向调用者所提供的`[]byte`中写入数据，而是向该`Writer`内部提供的`[]byte`写入数据。甚至更常见的情况是，直接进行系统调用，向文件写入数据：
+
+```go
+file, err := os.Create("write_test.txt")
+assert.NoError(t, err)
+_, err = file.Write([]byte("test write to file"))
+assert.NoError(t, err)
+```
+
+频繁的写入少量数据，会导致频繁的访问本地磁盘的文件，造成大量的开销。`bufio`包提供了中间的缓冲，当缓冲区数据装满时才会调用创建时提供的`Writer`进行写数据：
+
+```go
+file, err := os.Create("bufio_write_test.txt")
+assert.NoError(t, err)
+writer := bufio.NewWriterSize(file, 1000)					// 根据file创建bufio，并设置缓冲区大小为1000
+_, err = writer.Write([]byte("test bufio write to file1"))
+_, err = writer.Write([]byte("test bufio write to file2"))
+_, err = writer.Write([]byte("test bufio write to file3"))
+assert.NoError(t, err)
+writer.Flush()
+```
+
+我们多次写入的数据并没有装满缓冲区，但最后通过`Flush()`方法，仍然可以将数据强制写出，这里则是进行系统调用，将数据写入文件。
 
 # 测试
 
@@ -1637,6 +1710,15 @@ GOPRIVATE=*.4399.com,baidu.com/private
 ```
 
 
+
+## 切换GO版本
+
+```bash
+$ go version # 检查go版本
+$ brew install go@1.1x # 安装指定版本
+$ brew unlink go	# 取消链接当前版本
+$ brew link --force go@1.1x 	# 链接到新版本
+```
 
 # 命令行工具
 
