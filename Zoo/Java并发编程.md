@@ -374,7 +374,7 @@ t1.interrupt();
 
 **操作系统层面**
 
-![img](../assert/Zoo/Java并发编程/20200521154901316.png)
+![img](../asset/Zoo/Java并发编程/20200521154901316.png)
 
 * 初始状态: 线程刚刚创建, 这个时候它只是对象, 没有执行start函数
 * 可运行状态: 线程执行了start函数, 但是还未获得时间片
@@ -384,7 +384,7 @@ t1.interrupt();
 
 
 
-![1584714702390](../assert/Zoo/Java并发编程/1584714702390.png)
+![1584714702390](../asset/Zoo/Java并发编程/1584714702390.png)
 
 **Java线程状态**
 
@@ -631,7 +631,7 @@ class ThreadSafeSubClass extends ThreadSafe{
 
 Monitor结构：
 
-![Monitor结构](../assert/Zoo/Java并发编程/20200228204321403.png)
+![Monitor结构](../asset/Zoo/Java并发编程/20200228204321403.png)
 
 * Thread-2执行`synchronized(obj)`时就会成为`obj`关联的`Monitor`唯一的`Owner`。
 
@@ -661,7 +661,7 @@ Monitor结构：
   * 如果是自己执行了 synchronized 锁重入，那么再添加一条 Lock Record 作为重入的计数
 
 
-![轻量级锁](../assert/Zoo/Java并发编程/20200228205623460.png)
+![轻量级锁](../asset/Zoo/Java并发编程/20200228205623460.png)
 
 #### 锁膨胀
 
@@ -671,7 +671,7 @@ Monitor结构：
 
   * 然后自己进入 Monitor 的 `EntryList` BLOCKED
 
-![锁膨胀](../assert/Zoo/Java并发编程/20200228210522580.png)
+![锁膨胀](../asset/Zoo/Java并发编程/20200228210522580.png)
 
 #### 自旋优化 
 
@@ -1052,7 +1052,7 @@ LockSupport.unpark(t1);     //恢复t1线程
 
 ### Java线程间的相互转换
 
-![1584714702390](../assert/Zoo/Java并发编程/1584714702391.png)
+![1584714702390](../asset/Zoo/Java并发编程/1584714702391.png)
 
 假设有线程 `Thread t`
 

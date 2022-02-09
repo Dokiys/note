@@ -22,8 +22,11 @@
 * [Git使用](Other/Git使用.md)
 * [HotKey](Other/HotKey.md)
 * [Tools](Other/Tools.md)
-* [Algorithms](Other/Algorithms.md)
 * [FrontEnd小记](Other/FrontEnd小记.md)
+
+## Logs
+
+* [Go的错误处理](Logs/HandleGoError.md)
 
 ## Zoo
 

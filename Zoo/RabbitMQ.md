@@ -11,7 +11,7 @@ RabbitMQ被看作为消息的代理人，其抽象出虚拟连接`channel`在消
 * 通过在发送方将`channel`连接到`exchange`(交换机)，交换机路由(routing)消息到队列。
 * 而队列需要在消费方声明，并且绑定到对应的交换机上，然后消费方从队列中接收消息。
 
-![broker](../assert/Zoo/RabbitMQ/hello-world-example-routing.png)
+![broker](../asset/Zoo/RabbitMQ/hello-world-example-routing.png)
 
 这里需要注意的是，在发送方连接的交换机将同一条消息路由到多个队列，而对于消费方而言始终只能从一个队列中获取消息。这也是所有消息队列的通病。通常的解决方案是通过`topic`来将多个消息分配到同一个队列。
 
@@ -21,7 +21,7 @@ RabbitMQ被看作为消息的代理人，其抽象出虚拟连接`channel`在消
 
 以下将展示使用RabbitMQ的Go客户端将一条消息同时发送给两个接收者，并分别输出。结构图如下：
 
-![PublishSubscribe](../assert/Zoo/RabbitMQ/PublishSubscribe.png)
+![PublishSubscribe](../asset/Zoo/RabbitMQ/PublishSubscribe.png)
 
 ### Producer
 
@@ -399,7 +399,7 @@ err = ch.QueueBind(
 
 `Direct exchange`会通过`binding key`来匹配发送消息的`routing key`，然后将消息放到对应的队列中被消费方消费。需要注意的是，消息的`routing key`需要在发送的时候指定。结构图如下：
 
-![direct-exchange](../assert/Zoo/RabbitMQ/direct-exchange.png)
+![direct-exchange](../asset/Zoo/RabbitMQ/direct-exchange.png)
 
 #### Producer
 
@@ -671,7 +671,7 @@ func main() {
 
 例如如下的绑定：
 
-![topic-exchange](../assert/Zoo/RabbitMQ/topic-exchange.png)
+![topic-exchange](../asset/Zoo/RabbitMQ/topic-exchange.png)
 
 Q1队列将接收所有橙色的动物，Q2队列将会接收所有懒惰的动物，以及所有兔子。
 
@@ -901,7 +901,7 @@ RabbitMQ还经常用于实现RPC。客户端通过向一个队列发送一条消
 
 让我们使用RabbitMQ实现一个简单RPC调用，其架构图如下：
 
-![rpc](../assert/Zoo/RabbitMQ/rpc.png)
+![rpc](../asset/Zoo/RabbitMQ/rpc.png)
 
 * 客户端需要创建一个接收消息的队列，供服务端返回消息
 * 客户端请求时需要将唯一的`correlation_id`发送到队列，并且附上接收返回的队列名称
@@ -1308,7 +1308,7 @@ RabbitMQ允许将死信发送到指定队列，这些队列称之为”死信队
 
 让我们来实现一个系统，实现客户端发送消息通知服务端进行某操作。如果有死信的产生，则将死信转发到死信队列，并由专门的服务器发出预警。其结构图如下：
 
-![dead-letter](../assert/Zoo/RabbitMQ/dead-letter.png)
+![dead-letter](../asset/Zoo/RabbitMQ/dead-letter.png)
 
 ### Producer
 
