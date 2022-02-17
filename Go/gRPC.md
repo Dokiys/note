@@ -291,3 +291,539 @@ protoc-gen-gogoslick (same as gogofaster, but with generated string, gostring an
 
 # gRPC
 
+>RPC 全称 (Remote Procedure Call)，远程过程调用，指的是一台计算机通过网络请求另一台计算机的上服务，RPC 是构建在已经存在的协议（TCP/IP，HTTP 等）之上的，RPC 采用的是客户端，服务器模式。
+
+> gRPC 是一款能运行在多平台上开源高效的RPC框架，可以有效地连接数据中心和跨数据中心的服务，支持负载均衡、链路跟踪、心跳检查和身份验证等特点。
+
+## Hello gRPC
+
+gRPC利用proto文件，在服务器和客户端之间定义请求的方法和参数，并通过protobuf序列化和反序列化数据。
+![grpc_proto](../asset/Go/gRPC/grpc_proto.png)
+
+让我们定义一个最简单的proto文件来实现gRPC调用。首先我们需要安装protocl插件：
+
+```bash
+$ go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.26
+$ go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.1
+```
+
+然后定义名为`hellogrpc.proto`的文件，内容如下：
+
+```protobuf
+syntax = "proto3";
+
+package helloworld;
+
+option go_package = "grpc/hellogrpc";
+
+// The greeting service definition.
+service Greeter {
+  // Sends a greeting
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+}
+
+// The request message containing the user's name.
+message HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings
+message HelloReply {
+  string message = 1;
+}
+```
+
+编译生成文件：
+
+```bash
+$ protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative hellogrpc.proto
+
+$ tree -L 1  
+.
+├── hellogrpc.pb.go
+├── hellogrpc.proto
+├── hellogrpc_grpc.pb.go
+```
+
+可以看到，除了生成了我们熟知的`helogrpc.pb.go`文件，还生成了`hellogrpc_grpc.pb.go`文件。
+
+接下来，在服务端我们需要实现定义的方法，然后将其注册为grpc服务。我们可以引入生成的文件包`"grpc/hellogrpc"`并继承其中的`UnimplementedGreeterServer`接口体，然后实现`SayHello()`方法：
+
+```go
+type Server struct {
+	Addr string
+	UnimplementedGreeterServer
+}
+
+// SayHello implements hellogrpc.GreeterServer
+func (s *Server) SayHello(ctx context.Context, in *HelloRequest) (*HelloReply, error) {
+	log.Printf("Received: %v", in.GetName())
+	return &HelloReply{Message: s.Addr + ":Hello " + in.GetName()}, nil
+}
+```
+
+然后我们需要初始化一个grpc服务，并为其注册我们的server实现，然后绑定监听端口：
+
+```go
+const addr = "localhost:50055"
+func TestGrpcServer(t *testing.T) {
+	var s *grpc.Server
+	// Create the insecure server
+	{
+		s = grpc.NewServer()
+	}
+	pb.RegisterGreeterServer(s, &Server{})
+	
+	lis, _ := net.Listen("tcp", addr)
+
+	log.Printf("server listening at %v", lis.Addr())
+	s.Serve(lis)
+}
+```
+
+在客户端这边，我们需要创建一个grpc链接，并通过`hellogrpc_grpc.pb.go`中提供的代码生成一个grpc客户端：
+
+```go
+const addr = "localhost:50055"
+func TestGrpcClient(t *testing.T) {
+	var conn *grpc.ClientConn
+	var err error
+  
+	//Set up a connection to the server.
+	{
+		conn, _ = grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	}
+	c := pb.NewGreeterClient(conn)
+
+	// Contact the server and print out its response.
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	const name = "zhangsan"
+	r, _ := c.SayHello(ctx, &pb.HelloRequest{Name: name})
+	log.Printf("Greeting: %s", r.GetMessage())
+}
+```
+
+可以看到，gRPC的调用非常简单。
+
+## 流式调用
+
+得益于http2.0的流式响应，除了上面例子中的简单调用，gRPC还有提供了三种流式调用*server-side streaming RPC*、*client-side streaming RPC*、*bidirectional streaming RPC*。让我们直接看一个*bidirectional streaming RPC*的例子。
+
+首先我们在刚才`hellogrpc.proto`文件的基础上添加一个新的方法，并执行编译：
+
+```protobuf
+// The greeting service definition.
+service Greeter {
+  // Sends a greeting
+  rpc SayHello (HelloRequest) returns (HelloReply) {}
+  // Sends more greetings
+  rpc SayMoreHello (stream HelloRequest) returns (stream HelloReply) {}
+}
+```
+
+然后在服务端实现`SayMoreHello()`方法：
+
+```go
+// SayMoreHello implements hellogrpc.GreeterServer
+func (s *server) SayMoreHello(stream pb.Greeter_SayMoreHelloServer) error {
+	for {
+		in, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+
+		log.Printf("Received: %v", in.GetName())
+		reply := &pb.HelloReply{Message: "Hello " + in.GetName()}
+		for i := 0; i < 3; i++ {
+			if err := stream.Send(reply); err != nil {
+				return err
+			}
+			time.Sleep(time.Second)
+		}
+	}
+}
+```
+
+客户端也需要相应的修改为流式调用的方式：
+
+```go
+func TestGrpcClient2(t *testing.T) {
+	//Set up a connection to the server.
+	conn, _ := grpc.Dial(addr, grpc.WithInsecure())
+	c := pb.NewGreeterClient(conn)
+
+	// Contact the server and print out its response.
+	stream, _ := c.SayMoreHello(context.Background())
+
+	waitc := make(chan struct{})
+	go func() {
+		for {
+			in, err := stream.Recv()
+			if err == io.EOF {
+				// read done.
+				close(waitc)
+				return
+			}
+			if err != nil {
+				log.Fatalf("could not greet: %v", err)
+			}
+			log.Printf("Greeting: %s", in.GetMessage())
+		}
+	}()
+
+	names := []string{"zhangsan", "lisi", "wangwu"}
+	for _, name := range names {
+		if err := stream.Send(&pb.HelloRequest{Name: name}); err != nil {
+			log.Fatalf("Failed to send a req: %v", err)
+		}
+		time.Sleep(time.Second)
+	}
+	stream.CloseSend()
+	<-waitc
+}
+```
+
+
+
+## gRPC插件
+
+gRPC还提供了完备的插件接口，可以通过下图看到：
+
+![grpc](../asset/Go/gRPC/grpc.png)
+
+gRPC默认使用protobuf作为数据传输格式，并采用gzip进行数据压缩。我们可以通过`google.golang.org/grpc/encoding`包下的`proto`和`gzip`的`init()`方法中看到：
+
+```go
+package proto
+...
+func init() {
+	encoding.RegisterCodec(codec{})
+}
+```
+
+```go
+package gzip
+...
+func init() {
+	c := &compressor{}
+	...
+	encoding.RegisterCompressor(c)
+}
+```
+
+在`ServerOption`和`DialOption`中也提供了方法，设置我们自定义的编码和压缩方式：
+
+```go
+// ServerOption
+func ForceServerCodec(codec encoding.Codec) ServerOption
+func RPCCompressor(cp Compressor) ServerOption 
+
+// DialOption
+func WithCodec(c Codec) DialOption
+func WithCompressor(cp Compressor) DialOption
+```
+
+当然其他的插件gRPC也提供了一系列接口，提供我们自己去实现，接下来让我们自己来实现一些常用的接口。
+
+
+
+## 服务发现 & 负载均衡
+
+常用的方式有两种，一种是集中式LB方案，Consumer直接请求代理服务器，由代理服务器去处理服务发现逻辑，并根据负载均衡策略转发请求到对应的ServiceProvider：
+
+![centralizedLB](../asset/Go/grpc/centralizedLB.jpg)
+
+Consumer和ServiceProvider通过LB解藕，通常由运维在LB上配置注册所有服务的地址映射，并为LB配置一个DNS域名，提供给Consumer发现LB。当收到来自Consumer的请求时，LB根据某种策略（比如Round-Robin）做负载均衡后，将请求转发到对应的ServiceProvider。
+这种方式的缺点就在于，单点的LB成了系统的瓶颈，如果对LB做分布式处理，部署多个实例会增加系统的维护成本。
+
+另一种是进程内LB方案，将处理服务发现和负载均衡的策略交由Consumer处理：
+
+![in-processLB](../asset/Go/grpc/in-processLB.jpg)
+
+这种方式下，需要有一个额外的服务注册中心，ServiceProvider的启动，需要主动到ServiceRegistry注册。并且，ServiceRegistry需要时时的向Consumer推送，ServiceProvider的服务节点列表。Consumer发送请求时，根据从ServiceRegistry获取到的服务列表，然后使用某种配置做负载均衡后请求到对应的ServiceProvider。
+
+gRPC的服务发现和负载均衡可以通过下图看到，使用的是第二种方式：
+
+![grpcLB](../asset/Go/grpc/grpcLB.jpg)
+
+其基本实现原理如下：
+
+> 1、当服务端启动的时候，会向注册中心注册自己的IP地址等信息
+> 2、客户端实例启动的时候会通过Name Resolver将连接信息，通过设置的策略获取到服务端地址
+> 3、客户端的LB会为每一个返回的服务端地址，建立一个channel
+> 4、当进行rpc请求时会根据LB策略，选择其中一个channel对服务端进行调用，如果没有可用的服务，请求将会被阻塞
+
+### Resolver
+
+首先我们来看一下，gRPC的服务发现，让我们定位到`google.golang.org/grpc/resolver`包下的`resolver.go`文件，看一看gRPC提供的接口。其中最核心的两个接口如下：
+
+```go
+type Builder interface {
+	Build(target Target, cc ClientConn, opts BuildOptions) (Resolver, error)
+	Scheme() string
+}
+
+// Resolver watches for the updates on the specified target.
+// Updates include address updates and service config updates.
+type Resolver interface {
+	ResolveNow(ResolveNowOptions)
+	Close()
+}
+```
+
+`Builder`可用根据在客户端`Dial()`方法传入的`target`和一些配置信息创建一个`Resolver`，`Resolver`用于监听和更新服务节点的变化，并在处理完相应逻辑以后，将得到一个`target`所对应的IP地址上报给`ClientConn`。
+进入`ClientConn`接口，可以看到其中有一个`UpdateState(State) `方法，就是用于上报地址状态的。如果我们的服务发现是静态的话，可以直接在`Builder`的`Build()`方法中直接配置一套规则，并通过`ClientConn`上报。
+让我看看一个静态`Resolver`的简单实现：
+
+```go
+/*
+	Server discovery
+*/
+const scheme = "myresolve"
+
+// Implement ResolveBuilder
+type MyResolveBuilder struct{}
+
+func (self *MyResolveBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
+	// 发现服务
+	var state resolver.State
+	if target.Endpoint == "mytarget" {
+		state = resolver.State{
+			Addresses: []resolver.Address{{Addr: "localhost:50055"}, {Addr: "localhost:50056"}},
+		}
+	}
+	err := cc.UpdateState(state)
+	if err != nil {
+		cc.ReportError(errors.Wrapf(err, "更新State失败："))
+	}
+	return &MyResolver{}, nil
+}
+func (self *MyResolveBuilder) Scheme() string { return scheme }
+
+// Implement Resolver
+type MyResolver struct{}
+
+func (self *MyResolver) ResolveNow(resolver.ResolveNowOptions) {}
+func (self *MyResolver) Close()                                {}
+```
+
+使用的时候我们需要将其注册到grpc中，并在建立客户端连接到时候指定`target`的`schema`：
+
+```go
+func init() {
+	resolver.Register(&MyResolveBuilder{})
+}
+
+func main() {
+	var conn *grpc.ClientConn
+	var err error
+
+	conn, _ = grpc.Dial("myresolve:///mytarget",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	c := hellogrpc.NewGreeterClient(conn)
+	r, _ := c.SayHello(context.Background(), &hellogrpc.HelloRequest{Name: "zhangsan"})
+	log.Printf("Greeting: %s", r.GetMessage())
+}
+```
+
+这里`target`到解析规则，可以在`google.golang.org/grpc/clientconn`包中的`parseTarget()`方法查看。我们将原来的`Server`相关代码稍作修改单独作为一个包下面的main函数启动起来，并启动：
+
+```go
+var addr = flag.String("addr", "localhost:50055", "http service address")
+
+func main() {
+	flag.Parse()
+	var s *grpc.Server
+  s = grpc.NewServer()
+  hellogrpc.RegisterGreeterServer(s, &hellogrpc.Server{Addr: *addr})
+
+	lis, _ := net.Listen("tcp", *addr)
+	log.Printf("server listening at %v", lis.Addr())
+	s.Serve(lis)
+}
+```
+
+```bash
+$ go build .
+$ ./server
+```
+
+然后运行客户端代码，即可看到调用返回的信息：
+
+```bash
+$ go build .
+$ ./client
+2022/02/17 18:01:53 Greeting: localhost:50055:Hello zhangsan
+```
+
+
+
+### Load Balancer
+
+gRPC负载均衡相关的代码在`google.golang.org/grpc/balancer`包下，其中最关键的两个接口：
+
+```go
+type Picker interface {
+	Pick(info PickInfo) (PickResult, error)
+}
+type Balancer interface {
+	UpdateClientConnState(ClientConnState) error
+	ResolverError(error)
+	UpdateSubConnState(SubConn, SubConnState)
+	Close()
+}
+```
+
+和`Resolver`一样，`Balancer`也是由`Builder`创建。进入`LientConnState`结构体我们可以看到有两个参数，其中`ResolverState`正是我们上一节中根据`target`去解析的`resolver.State`。进入这个接口方法的`baseBalancer`实现，我们可以看到：
+
+```go
+for _, a := range s.ResolverState.Addresses {
+		addrsSet.Set(a, nil)
+		if _, ok := b.subConns.Get(a); !ok {
+			// a is a new address (not existing in b.subConns).
+			sc, err := b.cc.NewSubConn([]resolver.Address{a}, balancer.NewSubConnOptions{HealthCheckEnabled: b.config.HealthCheck})
+			...
+			sc.Connect()
+		}
+	}
+```
+
+每一个`ResolverState`中的`Address`都被建立了连接。`UpdateSubConnState()`方法顾名思义就是每个连接状态变化时，用于上报的方法。
+
+`Picker`接口则是用于真正去实现负载均衡算法的接口。我们进入`baseBalancer`可以看到，其`Build()`方法的实现中，成员变量`picker`定义成了一个`ErrPicker`，并且在`baseBuilder`中有个接口类型的成员变量`pickerBuilder`。找到该接口我们可以发现，这个接口是用于创建`Picker`的。
+所以关于自定义LB我们只需要实现Picker接口并将其用于创建一个`baseBuilder`即可。
+
+首先，我们需要实现`Picker`, 这里就做一个简单的轮训。需要两个字段，一个是当前所有连接的数组，一个是下一次应该被请求的index：
+
+```go
+// Implement Picker
+type MyPicker struct {
+	subConns []balancer.SubConn
+	next     int
+}
+
+func (self *MyPicker) Pick(_ balancer.PickInfo) (balancer.PickResult, error) {
+	sc := self.subConns[self.next]
+	self.next = (self.next + 1) % len(self.subConns)
+	return balancer.PickResult{SubConn: sc}, nil
+}
+```
+
+`balancer.SubConn`我们可以根据接口`PickerBuilder`的`Build()`方法如参得到。
+然后，我们需要实现`PickerBuilder`即可：
+
+```go
+// Implement PickerBuilder
+type MyPickerBuilder struct{}
+
+func (self *MyPickerBuilder) Build(info base.PickerBuildInfo) balancer.Picker {
+	scs := make([]balancer.SubConn, 0, len(info.ReadySCs))
+	for sc := range info.ReadySCs {
+		scs = append(scs, sc)
+	}
+	return &MyPicker{subConns: scs}
+}
+```
+
+让我们来试验一下。为了验证，我们在之前的`MyResolverBuilder`中，添加两个`Address`：
+
+```go
+func (self *MyResolveBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
+	// 发现服务
+	//state = resolver.State{
+	//	Addresses: []resolver.Address{{Addr: addrM[target.Endpoint]}},
+	//}
+	var state resolver.State
+	if target.Endpoint == "mytarget" {
+		state = resolver.State{
+			Addresses: []resolver.Address{{Addr: "localhost:50055"}, {Addr: "localhost:50056"}},
+		}
+	}
+	err := cc.UpdateState(state)
+	if err != nil {
+		cc.ReportError(errors.Wrapf(err, "更新State失败："))
+	}
+	return &MyResolver{}, nil
+}
+```
+
+之后我们启动两个Server分别监听以上两个端口：
+
+```bash
+$ ./server -addr="localhost:50055"
+$ ./server -addr="localhost:50056"
+```
+
+在客户端，我们首先需要将自定义的`baseBalancer`注册到grpc中：
+
+```go
+const lbName = "mybalancer"
+
+func init() {
+	resolver.Register(&MyResolveBuilder{})
+	balancer.Register(newMyBalanceBuilder())
+}
+func newMyBalanceBuilder() balancer.Builder {
+	return base.NewBalancerBuilder(lbName, &MyPickerBuilder{}, base.Config{HealthCheck: true})
+}
+```
+
+然后在建立grpc客户端连接到时候，需要指定Balancer：
+
+```go
+	conn, err = grpc.Dial("myresolve:///mytarget",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy":"mybalancer"}`),
+		//grpc.WithBalancerName("mybalancer"),			// same as above
+	)
+```
+
+完整客户端代码如下：
+
+```go
+func init() {
+	resolver.Register(&MyResolveBuilder{})
+	balancer.Register(newMyBalanceBuilder())
+}
+func main() {
+	var conn *grpc.ClientConn
+	var err error
+
+	conn, err = grpc.Dial("myresolve:///mytarget",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithDefaultServiceConfig(`{"loadBalancingPolicy":"mybalancer"}`),
+		//grpc.WithBalancerName("mybalancer"),			// same as above
+	)
+	if err != nil {
+		log.Fatalf("failed to Dial: %v", err)
+	}
+	c := hellogrpc.NewGreeterClient(conn)
+
+	for i := 0; i < 5; i++ {
+		r, err := c.SayHello(context.Background(), &hellogrpc.HelloRequest{Name: "zhangsan"})
+		if err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("Greeting: %s", r.GetMessage())
+	}
+}
+```
+
+启动之后可以看到两个服务返回的消息：
+
+```go
+2022/02/17 20:22:17 Greeting: localhost:50055:Hello zhangsan
+2022/02/17 20:22:17 Greeting: localhost:50056:Hello zhangsan
+2022/02/17 20:22:17 Greeting: localhost:50055:Hello zhangsan
+2022/02/17 20:22:17 Greeting: localhost:50056:Hello zhangsan
+2022/02/17 20:22:17 Greeting: localhost:50055:Hello zhangsan
+```
+
+其实，以上的`Balancer`就是`google.golang.org/grpc/balancer`包下`roundrobin` 的简易版。
+

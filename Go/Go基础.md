@@ -1594,10 +1594,11 @@ ok      hellogo/test    1.316s
 
 我们可以看到程序在`1.316s`内运行了`57981378`次
 
-还可以通过`-benchtime`选项来设置最短运行时间：
+还可以通过`-benchtime`选项来设置最短运行时间或运行次数：
 
 ```go
-t>go test -run="none" -bench="Bench*" -benchtime="3s"
+>go test -run="none" -bench="Bench*" -benchtime="100000x" // 设置最少运行次数
+>go test -run="none" -bench="Bench*" -benchtime="3s"			// 设置最少运行时间
 Start Test
 goos: windows
 goarch: amd64
