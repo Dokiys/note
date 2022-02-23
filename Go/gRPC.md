@@ -827,3 +827,84 @@ func main() {
 
 其实，以上的`Balancer`就是`google.golang.org/grpc/balancer`包下`roundrobin` 的简易版。
 
+
+
+## 拦截器
+
+除此之外，gRPC还在客户端和服务端都提供了拦截器的接口，使得我们可以对发送/接收的请求做统一处理。
+gRPC分别提供了单一请求的拦截器和流式调用的拦截器，可以通过以下方法添加到gRPC配置中：
+
+```go
+// 添加单一请求到拦截器
+func UnaryInterceptor(i UnaryServerInterceptor) ServerOption
+// 添加单一请求多个拦截器
+func ChainUnaryInterceptor(interceptors ...UnaryServerInterceptor) ServerOption
+// 添加流式调用拦截器
+func StreamInterceptor(i StreamServerInterceptor) ServerOption
+// 添加流式调用多个拦截器
+func ChainStreamInterceptor(interceptors ...StreamServerInterceptor) ServerOption 
+```
+
+当然客户端也提供了对应方法，方法名在此基础上添加了`With`前缀，并接收`UnaryClientInterceptor`，这里只使用服务端作为例子，具体可以在`google.golang.org/grpc/dialoptions`包下查看。
+
+让我们在之前的基础上定义一个拦截器，使得调用方法前后分别输出一些信息。
+首先，我们需要根据`UnaryServerInterceptor`定义一个拦截器，进入这个类型，我们可以看到，其实就是一个方法：
+
+```go
+type UnaryServerInterceptor func(ctx context.Context, req interface{}, info *UnaryServerInfo, handler UnaryHandler) (resp interface{}, err error)
+```
+
+其中`UnaryHandler`则是真正执行grpc调用的方法。所有我们需要先实现一个`UnaryServerInterceptor`：
+
+```go
+interceptor := func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+  // 前置处理
+  fmt.Printf("Before RPC handling. Info: %+v", info)
+  // 调用方法
+  resp, err := handler(ctx, req)
+  fmt.Printf("After RPC handling. resp: %+v", resp)
+  // 后置处理
+  return resp, err
+}
+```
+
+然后通过`grpc.UnaryInterceptor()`或者`grpc.ChainUnaryInterceptor()`传入Server配置即可：
+
+```go
+s = grpc.NewServer(grpc.UnaryInterceptor(interceptor))
+```
+
+
+
+每次重新启动我们都需要再手动输入两次命令来启动服务端，我们可以使用[`goreman`](https://github.com/mattn/goreman)这样的工具来管理多进程。具体使用可以参阅[《Goreman 基本用法》](https://ifun.dev/post/goreman/)。
+首先我们定义Procfile文件：
+
+```Procfile
+server55: ./server -addr="localhost:50055"
+server56: ./server -addr="localhost:50056"
+```
+
+然后在命令行启动：
+
+```bash
+$  goreman start
+15:45:40 server55 | Starting server55 on port 5000
+15:45:40 server56 | Starting server56 on port 5100
+15:45:40 server56 | 222/02/23 15:45:40 server listening at 127.0.0.1:50056
+15:45:40 server55 | 2022/02/23 15:45:40 server listening at 127.0.0.1:50055
+```
+
+然后启动客户端请求，查看服务端控制台输出：
+
+```go
+15:45:54 server56 | Before RPC handling. Info: &{Server:0xc000126618 FullMethod:/helloworld.Greeter/SayHello}2022/02/23 15:45:54 Received: zhangsan
+15:45:54 server55 | Before RPC handling. Info: &{Server:0xc0000ae618 FullMethod:/helloworld.Greeter/SayHello}2022/02/23 15:45:54 Received: zhangsan
+15:45:54 server56 | After RPC handling. resp: message:"localhost:50056:Hello zhangsan"Before RPC handling. Info: &{Server:0xc000126618 FullMethod:/helloworld.Greeter/SayHello}2022/02/23 15:45:54 Received: zhangsan
+15:45:54 server55 | After RPC handling. resp: message:"localhost:50055:Hello zhangsan"Before RPC handling. Info: &{Server:0xc0000ae618 FullMethod:/helloworld.Greeter/SayHello}2022/02/23 15:45:54 Received: zhangsan
+15:45:54 server56 | After RPC handling. resp: message:"localhost:50056:Hello zhangsan"Before RPC handling. Info: &{Server:0xc000126618 FullMethod:/helloworld.Greeter/SayHello}2022/02/23 15:45:54 Received: zhangsan
+15:45:54 server55 | After RPC handling. resp: message:"localhost:50055:Hello zhangsan"
+15:45:54 server56 | After RPC handling. resp: message:"localhost:50056:Hello zhangsan"
+```
+
+
+

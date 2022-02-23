@@ -42,6 +42,36 @@ $ envsubst 'ADD' <temp.yml> add.yml
 
 
 
+## goreman
+
+[Goreman](https://github.com/mattn/goreman) 是一个[Foreman](https://github.com/ddollar/foreman)的Go语言的克隆版本，一般在开发过程中的调试多个进程时使用。
+安装：
+
+```bash
+$ go get github.com/mattn/goreman
+```
+
+Goreman基于命令行同级目录下的`Procfile`文件来运行，采用`[进程名]:[shell脚本]`的格式：
+
+```procfile
+server1: ./server -name="S1"
+server1: ./server -name="S2"
+```
+
+常用命令：
+
+```bash
+goreman check				# 检查Procfile配置
+goreman start				# 运行
+goreman -f myprocfile start				# 通过指定文件运行(默认为Procfile)
+goreman run status	# 查看状态
+goreman run stop PROCESS_NAME			# 停止某个进程
+goreman run start PROCESS_NAME		# 启动某个进程
+goreman run restart PROCESS_NAME	# 重启某个进程
+```
+
+
+
 ## libreoffice
 
 [Libreoffice](https://www.libreoffice.org/)是一个免费开源的办公套件，其提供的命令行工具`soffice`可以用于文档对`pdf`、`html`、`txt`甚至图片的转换，以下是在ubuntu系统下安装libreoffice的Dockerfile文件和使用示例：
@@ -142,7 +172,7 @@ Linux命令行下可以通过`scp`命令传输文件，添加`-r`选项可以传
 
 
 
-## tar
+## tar & zip
 
 ```bash
 tar -czvf [文件名].tar.gz	1.txt 2.txt	#压缩
@@ -159,9 +189,7 @@ tar -rvf [文件名].tar [被追加的文件名]
 
 
 
-## zip
-
-用于压缩制定的文件， `-r`选项可以递归压缩目录下的文件：
+zpi 用于压缩制定的文件， `-r`选项可以递归压缩目录下的文件：
 
 ```bash
 zip -r myfile.zip 1.txt 2.txt Dir

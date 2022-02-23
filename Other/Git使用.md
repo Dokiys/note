@@ -30,46 +30,16 @@ git commit --amend
 
 Git 的分支也非常轻量。它们只是简单地指向某个提交纪录。即使创建再多分的支也不会造成储存或内存上的开销，并且按逻辑分解工作到不同的分支要比维护那些特别臃肿的分支简单多了。
 
-创建分支：
-
 ```bash
-git branch [分支名]
-```
-
-切换分支：
-
-```bash
-git checkout [分支名]
-```
-
-切换同时创建分支：
-
-```bash
-git checkout -b [分支名]
-```
-
-重命名：
-
-```bash
-git branch -m [分支名old] [分支名new]
-```
-
-查看分支来源：
-
-```bash
-git reflog show [分支名]
-```
-
-删除分支：
-
-```bash
-git branch -d [分支名]
-```
-
-删除远程分支：
-
-```bash
-git push origin --delete [分支名]
+git branch [分支名]					// 创建分支
+git checkout [分支名]				// 切换分支
+git checkout -b [分支名]			// 切换同时创建分支
+git branch -m [分支名old] [分支名new]		//重命名
+git reflog show [分支名]			// 查看分支来源
+git branch -d [分支名]				// 删除分支
+git push origin --delete [分支名]			// 删除远程分支
+git branch | xargs git branch \-d			// 删除处当前分支的所有分支
+git branch | grep 'dev*' | xargs git branch \-d	// 删除包含dev的所有分支
 ```
 
 强制修改分支位置
