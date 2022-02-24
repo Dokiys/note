@@ -908,3 +908,133 @@ $  goreman start
 
 
 
+# gRPC-Gateway
+
+除了gRPC，有时候我们也需要进行RESTful调用，gRPC-Gateway就是一个用于解决这个问题的工具。其会根据proto文件，生成对应的代码，反向代理来自RESTful的请求，并转换成gRPC调用。上一张官网的经典图：
+
+![grpc_gateway](../asset/Go/gRPC/grpc_gateway.svg)
+
+首先我们需要安装gRPC-Gateway：
+
+```go
+$ go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
+```
+
+然后修改原来的proto文件：
+
+```protobuf
++import "google/api/annotations.proto";
+
+// The greeting service definition.
+service Greeter {
+  // Sends a greeting
+-  rpc SayHello (HelloRequest) returns (HelloReply) {}
++  rpc SayHello (HelloRequest) returns (HelloReply) {
++    option (google.api.http) = {
++      post: "/v1/say_hello"
++      body: "*"
++    };
++  }
+}
+```
+
+Makefile添加执行命令生成相关代码：
+
+```bash
+# gRPC Gateway
+PROTO_GRPC_FILES=$(shell find ./gateway/* -name *.proto)
+proto_gateway:
+	protoc --go_out=. --go_opt=paths=source_relative \
+		--go-grpc_out=. --go-grpc_opt=paths=source_relative \
+		--grpc-gateway_out ./ \
+        --grpc-gateway_opt logtostderr=true \
+        --grpc-gateway_opt paths=source_relative \
+        --grpc-gateway_opt generate_unbound_methods=true \
+        $(PROTO_GRPC_FILES)
+```
+
+这里需要注意的是，在proto文件中，我们添加了引入`import "google/api/annotations.proto";`，protoc默认会从执行命令的路径查找引入，所以我们需要从[googleapis](https://github.com/googleapis/googleapis/tree/master/google/api)上下载对应的文件到执行命令的目录，然后再执行protoc命令：
+
+```go
+$ tree -L 3
+.
+├── Makefile
+├── gateway
+│   └── hellogrpc.proto
+├── go.mod
+├── go.sum
+└── google
+    └── api
+        ├── annotations.proto
+        ├── gogo.proto
+        ├── http.proto
+        └── httpbody.proto
+```
+
+执行完之后我们可以看到生成了四个文件：
+
+```go
+hellogrpc.pb.go
+hellogrpc.pb.gw.go
+hellogrpc.proto
+hellogrpc_grpc.pb.go
+```
+
+其中`hellogrpc.pb.gw.go`包含的就是处理反向代理的相关代码。
+
+我们还是需要先实现Server，然后启动服务端代码：
+
+```go
+type Server struct {
+	UnimplementedGreeterServer
+}
+
+func (s *Server) SayHello(ctx context.Context, in *HelloRequest) (*HelloReply, error) {
+	log.Printf("Received: %v", in.GetName())
+	return &HelloReply{Message: "Hello " + in.GetName()}, nil
+}
+
+func TestServer(t *testing.T) {
+	var addr = "localhost:50052"
+	var s *grpc.Server
+
+	s = grpc.NewServer()
+	RegisterGreeterServer(s, &Server{})
+
+	log.Printf("server listening at %v", lis.Addr())
+	lis, _ := net.Listen("tcp", addr)
+	s.Serve(lis);
+}
+```
+
+然后在客户端通过`hellogrpc.pb.gw.go`中的方法`RegisterGreeterHandlerFromEndpoint`直接启动RESTful客户端：
+
+```go
+func TestGateway(t *testing.T) {
+	endpoint := "localhost:50052"
+	gatewayMux := runtime.NewServeMux()
+	dopts := []grpc.DialOption{grpc.WithInsecure()}
+	err := RegisterGreeterHandlerFromEndpoint(context.Background(), gatewayMux, endpoint, dopts)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = http.ListenAndServe(":8081", gatewayMux)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+```
+
+最后通过http请求：
+
+```bash
+curl --location --request POST 'http://localhost:8081/v1/say_hello' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name":"zhangsan"
+}'
+{"message":"Hello zhangsan"}
+```
+
+成功获取到返回信息。
