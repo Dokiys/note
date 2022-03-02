@@ -8,6 +8,7 @@
 * [Concurrency in Go](Go/ConcurrencyInGo.md)
 * [Go语言设计](Go/Go语言设计.md)
 * [TheShowGoOn](Go/Go语言设计.md)
+* [gRPC](Go/gRPC.md)
 
 ## Ruby
 
