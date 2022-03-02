@@ -536,20 +536,20 @@ func WithCompressor(cp Compressor) DialOption
 
 常用的方式有两种，一种是集中式LB方案，Consumer直接请求代理服务器，由代理服务器去处理服务发现逻辑，并根据负载均衡策略转发请求到对应的ServiceProvider：
 
-![centralizedLB](../asset/Go/grpc/centralizedLB.jpg)
+![centralizedLB](../asset/Go/gRPC/centralizedLB.jpg)
 
 Consumer和ServiceProvider通过LB解藕，通常由运维在LB上配置注册所有服务的地址映射，并为LB配置一个DNS域名，提供给Consumer发现LB。当收到来自Consumer的请求时，LB根据某种策略（比如Round-Robin）做负载均衡后，将请求转发到对应的ServiceProvider。
 这种方式的缺点就在于，单点的LB成了系统的瓶颈，如果对LB做分布式处理，部署多个实例会增加系统的维护成本。
 
 另一种是进程内LB方案，将处理服务发现和负载均衡的策略交由Consumer处理：
 
-![in-processLB](../asset/Go/grpc/in-processLB.jpg)
+![in-processLB](../asset/Go/gRPC/in-processLB.jpg)
 
 这种方式下，需要有一个额外的服务注册中心，ServiceProvider的启动，需要主动到ServiceRegistry注册。并且，ServiceRegistry需要时时的向Consumer推送，ServiceProvider的服务节点列表。Consumer发送请求时，根据从ServiceRegistry获取到的服务列表，然后使用某种配置做负载均衡后请求到对应的ServiceProvider。
 
 gRPC的服务发现和负载均衡可以通过下图看到，使用的是第二种方式：
 
-![grpcLB](../asset/Go/grpc/grpcLB.jpg)
+![grpcLB](../asset/Go/gRPC/grpcLB.jpg)
 
 其基本实现原理如下：
 
@@ -1038,3 +1038,104 @@ curl --location --request POST 'http://localhost:8081/v1/say_hello' \
 ```
 
 成功获取到返回信息。
+
+
+
+# etcd Discovery
+
+`etcd`是一个分布式的key-value存储系统，并且提供了一个`gRPC resolver`来根据服务名来找到对应的gRPC服务。底层机制是监听并修改以服务名作为前缀的一系列key。
+
+让我们快速启动一个本地etcd集群，并用它来实现gRPC的服务发现。etcd的下载和安装可以参见[这里](../DevOps/etcd.md)。
+首先，需要准备`Procfile`，然后通过`goreman`快速启动etcd集群：
+
+```procfile
+etcd1: ./etcd --name infra1 --listen-client-urls http://127.0.0.1:2379 --advertise-client-urls http://127.0.0.1:2379 --listen-peer-urls http://127.0.0.1:2380 --initial-advertise-peer-urls http://127.0.0.1:2380 --initial-cluster-token etcd-cluster-1 --initial-cluster 'infra1=http://127.0.0.1:2380,infra2=http://127.0.0.1:22380,infra3=http://127.0.0.1:32380' --initial-cluster-state new --enable-pprof --logger=zap --log-outputs=stderr
+etcd2: ./etcd --name infra2 --listen-client-urls http://127.0.0.1:22379 --advertise-client-urls http://127.0.0.1:22379 --listen-peer-urls http://127.0.0.1:22380 --initial-advertise-peer-urls http://127.0.0.1:22380 --initial-cluster-token etcd-cluster-1 --initial-cluster 'infra1=http://127.0.0.1:2380,infra2=http://127.0.0.1:22380,infra3=http://127.0.0.1:32380' --initial-cluster-state new --enable-pprof --logger=zap --log-outputs=stderr
+etcd3: ./etcd --name infra3 --listen-client-urls http://127.0.0.1:32379 --advertise-client-urls http://127.0.0.1:32379 --listen-peer-urls http://127.0.0.1:32380 --initial-advertise-peer-urls http://127.0.0.1:32380 --initial-cluster-token etcd-cluster-1 --initial-cluster 'infra1=http://127.0.0.1:2380,infra2=http://127.0.0.1:22380,infra3=http://127.0.0.1:32380' --initial-cluster-state new --enable-pprof --logger=zap --log-outputs=stderr
+```
+
+```bash
+$ goreman start
+```
+
+然后需要对之前的gRPC-Gateway中的代码进行简单改造。当启动`Server`的时候，需要通过`etcd client`连接etcd集群，并将自己的服务名和地址，注册到etcd中。如果该`Server`不能再提供服务，那么应该从etcd中删除相关信息。考虑到一些意外情况导致`Server`不能提供服务，我们可以利用etcd的租约，定期向etcd续租服务时间。
+注册服务需要在启动`Server`的时候调用，代码如下：
+
+```go
+func registerServer(ctx context.Context) error {
+  // 连接etcd
+	client, err := etcd.New(etcd.Config{
+		Endpoints:   []string{"localhost:2379", "localhost:22379", "localhost:32379"},
+		DialTimeout: time.Second * 5,
+	})
+	if err != nil {
+		return err
+	}
+
+  serverName := "grpc/hello_etcd"
+  addr := "localhost:50052"
+	manager, err := endpoints.NewManager(client, serverName)
+	if err != nil {
+		return err
+	}
+
+	lease := etcd.NewLease(client)
+	leaseResp, err := lease.Grant(ctx, 30)
+	if err != nil {
+		return errors.Wrapf(err, "EtcdClient获取租约失败！")
+	}
+	go func() { lease.KeepAlive(ctx, leaseResp.ID) }()		// 续约
+
+	return manager.AddEndpoint(ctx, serverName+"/" + addr, endpoints.Endpoint{Addr: addr}, etcd.WithLease(leaseResp.ID))
+}
+```
+
+在启动`Client`的时候，需要为连接创建一个etcd提供的`resolver`：
+
+```go
+func TestGateway(t *testing.T) {
+	etcdClient, err := etcd.New(etcd.Config{
+		Endpoints:   []string{"localhost:2379", "localhost:22379", "localhost:32379"},
+		DialTimeout: time.Second * 5,
+	})
+	builder, err := resolver.NewBuilder(etcdClient)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	endpoint := "etcd:///grpc/hello_etcd"
+
+	gatewayMux := runtime.NewServeMux()
+	dopts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithResolvers(builder),
+	}
+	err = RegisterGreeterHandlerFromEndpoint(context.Background(), gatewayMux, endpoint, dopts)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = http.ListenAndServe(":8081", gatewayMux)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+```
+
+值得注意的是，这里传入以创建连接的`endpoint`需要添加`Scheme`和`Authority`前缀，才能被我们创建的`resolver`处理。
+
+将`Server`和`Client`启动起来，然后通过curl请求：
+
+```bash
+curl --location --request POST 'http://localhost:8081/v1/say_hello' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name":"zhangsan"
+}'
+{"message":"Hello zhangsan"}
+```
+
+成功返回结果。
+
+
+
