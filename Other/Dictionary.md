@@ -126,7 +126,7 @@ hello work!
 
 tab中的图片宽度：
 
-![700px](/Users/admin/dokiy/note/assert/Other/Other/700px.png)
+![700px](../asset/Other/Dictionary/700px.png)
 
 {% endtab %} 
 
@@ -170,5 +170,5 @@ The third content...
 
 图片宽度：
 
-![750px](../assert/Other/Other/750px.png)
+![750px](../asset/Other/Dictionary/750px.png)
 

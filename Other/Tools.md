@@ -208,6 +208,34 @@ zip -m myfile.zip 2.txt
 unzip -d ./doc myfile.zip
 ```
 
+
+
+## terminalizer
+
+`terminalizer`可以记录我们的命令行信息，并生成gif图片：
+
+```bash
+npm install -g terminalizer
+```
+
+开始记录：
+
+```bash
+$ terminalizer record demo -d 'zsh'
+...
+$ exit
+```
+
+完成后将会自动在当前目录生成demo.yml文件，保存相关信息。然后根据再根据该文件生成图片：
+
+```bash
+$ terminalizer render demo -o=./demo.gif
+```
+
+生成gif示例：
+
+![demo](../asset/Other/Tools/demo.gif)
+
 # 使用实例
 
 ## 处理多行文本：
