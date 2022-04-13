@@ -79,7 +79,7 @@ git merge --abort
 
 ### git rebase
 
-`rebase`会将当前分支移动到指定的分支之后，并将该分支最新提交作为指定分支的一次修改，而不是对其进行合并，`rebase`很容易出现冲突！！。
+`rebase`会将当前分支移动到指定的分支之后，并将该分支最新提交作为指定分支的一次修改，而不是对其进行合并，`rebase`很容易出现冲突！！**不能在一个共享的分支上进行Git rebase操作。**
 
 ```bash
 git rebase [分支名]
@@ -92,12 +92,100 @@ git rebase [分支名]
 
 
 交互式 rebase 指的是使用带参数 `--interactive` 的 rebase 命令, 简写为 `-i`
-
-增加了这个选项后, Git 会打开一个 UI 界面并列出将要被复制到目标分支的备选提交记录，它还会显示每个提交记录的哈希值和提交说明，提交说明有助于你理解这个提交进行了哪些更改。
+增加了这个选项后, Git 会打开一个 UI 界面并列出将要被复制到目标分支的备选提交记录，它还会显示每个提交记录的哈希值和提交说明，提交说明有助于你理解这个提交进行了哪些更改。假设我们有如下提交：
 
 ```bash
-git rebase -i HEAD~4
+git log 
+commit 4232037057c6805805547366a1d7a05a0df4a63a (HEAD -> feature/t)
+Author: Dokiy <zhangzongqi@fancydigital.com.cn>
+Date:   Wed Apr 13 10:51:27 2022 +0800
+
+    2
+
+commit 84076eb827eddbb8735472924bde9ced976dc88f
+Author: Dokiy <zhangzongqi@fancydigital.com.cn>
+Date:   Wed Apr 13 10:51:22 2022 +0800
+
+    1
+
+commit a6ab3f7beb2c16caff1433ba224f6e96f873b6ec (origin/master, origin/HEAD, master)
+Author: 4javier <4javiereg4@gmail.com>
+Date:   Wed Apr 13 01:23:33 2022 +0200
+
+    docs: fix grammar (#45455)
+    PR Close #45455
 ```
+
+从`HEAD～2`到最新提交开始修改：
+
+```bash
+git rebase -i HEAD~2
+###[Dokiy]: 修改一下内容并保存将会改变顺序
+pick 84076eb827 1
+pick 4232037057 2
+
+###[Dokiy]: 以下是指令说明
+# Rebase a6ab3f7beb..4232037057 onto a6ab3f7beb (2 commands)
+#
+# Commands:
+# p, pick <commit> = use commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, but meld into previous commit
+# f, fixup <commit> = like "squash", but discard this commit's log message
+# x, exec <command> = run command (the rest of the line) using shell
+# b, break = stop here (continue rebase later with 'git rebase --continue')
+# d, drop <commit> = remove commit
+# l, label <label> = label current HEAD with a name
+# t, reset <label> = reset HEAD to a label
+# m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+# .       create a merge commit using the original merge commit's
+# .       message (or the oneline, if no original merge commit was
+# .       specified). Use -c <commit> to reword the commit message.
+...
+```
+
+修改内容为一下内容并保存：
+
+```bash
+pick 84076eb827 1
+squash 4232037057 2
+```
+
+进入到修改提交注释的界面，直接保存：
+
+```bash
+# This is a combination of 2 commits.
+# This is the 1st commit message:
+
+1
+
+# This is the commit message #2:
+
+2
+```
+
+```bash
+git log
+commit 493a535d93b041b3693cdf0c3b520ce9112b2a3a (HEAD -> feature/t)
+Author: Dokiy <zhangzongqi@fancydigital.com.cn>
+Date:   Wed Apr 13 10:51:22 2022 +0800
+
+    1
+
+    2
+
+commit a6ab3f7beb2c16caff1433ba224f6e96f873b6ec (origin/master, origin/HEAD, master)
+Author: 4javier <4javiereg4@gmail.com>
+Date:   Wed Apr 13 01:23:33 2022 +0200
+
+    docs: fix grammar (#45455)
+    PR Close #45455
+```
+
+最后两个分支被合并了
+
+
 
 
 
@@ -662,6 +750,163 @@ git log -- [filepath]
 ```
 
 
+
+## Git规范
+
+### Commit 规范
+
+`git commit` 时应当使用`-a` 进入交互界面编辑提交信息。基本格式：
+
+```text
+<type>[optional scope]: <description>
+// 空行
+[optional body]
+// 空行
+[optional footer(s)]
+```
+
+示例：
+
+```git
+commit d54d1fd68eb4a2bb32dbd107f639ef15966cf9d4
+Author: Sumit Arora <er.sumitarora@gmail.com>
+Date:   Thu Feb 17 22:56:33 2022 -0500
+
+    feat(devtools): dynamic build support for devtools (#44952)
+
+    * Updating build to support both browsers firefox & chrome.
+    * Added new `config_setting` to support build.
+    * Added new genrule `copy_manifest` to `prodapp` pkg_web.
+
+    PR Close #44952
+```
+
+**Head**
+
+| Type         | Description                                      |
+| ------------ | ------------------------------------------------ |
+| feat/feature | 新增功能                                         |
+| fix          | bug修复                                          |
+| perf         | 提高代码性能                                     |
+| style        | 代码格式类变更                                   |
+| refactor     | 其他代码类变更，如简化代码、删除溶于重命名变量等 |
+| test         | 修改测试用例                                     |
+| ci           | 持续集成和部署相关变更                           |
+| docs         | 文档类更新                                       |
+
+**Body**
+
+动词开头、使用现在时。必须包括修改的动机、跟上一版本相比的改动点。
+如果当前 commit 还原了先前的 commit，则应以 revert: 开头，后跟还原的 commit 的 Header。
+而且，在 Body 中必须写成 `This reverts commit <hash>` ，其中 hash 是要还原的 commit 的 SHA 标识。
+
+```git
+commit 7a37fe9f2855b2b09fb478c05be213211c0a1cb2
+Author: Jessica Janiuk <jessicajaniuk@google.com>
+Date:   Fri Apr 8 18:46:46 2022 +0000
+
+    Revert "build: update to jasmine 4.0 (#45558)" (#45566)
+
+    This reverts commit a248df06824db1c40346b84de07ff905b0d0606f.
+
+    PR Close #45566
+```
+
+
+
+**Footer**
+
+如当前代码跟上一个版本不兼容，需要在 footer 部分以 BREAKING CHANG: 开头，跟上不兼容改动的摘要。其他部分需要说明变动的描述、变动的理由和迁移方法：
+
+```git
+commit 9add714b13740db621eb2b200d72be74cc7eb630 (origin/g3)
+Author: Andrew Kushnir <akushnir@google.com>
+Date:   Wed Mar 30 19:13:39 2022 -0700
+
+    refactor(core): remove deprecated `aotSummaries` fields in TestBed config (#45487)
+
+    BREAKING CHANGE:
+
+    Since Ivy, TestBed doesn't use AOT summaries. The `aotSummaries` fields in TestBed APIs were present, but unused. The fields were deprecated in previous major version and in v14 those fields are removed. The `aotSummaries` fields were completely unused, so you can just drop them from the TestBed APIs usage.
+
+    PR Close #45487
+```
+
+
+
+### 分支管理
+
+通常在非开源项目中一般会根据不同的环境来设置分支，比如:
+
+| 分支名  | 描述                                                         |
+| ------- | ------------------------------------------------------------ |
+| master  | 该分支上的最新代码永远是发布状态，不能直接在该分支上开发<br />master分支每合并一个hotfix/release分支，都会打一个版本标签 |
+| develop | 该分支上的代码是开发中的最新代码，该分支只做合并操作，不能直接在该分支上开发 |
+| feature | 在研发阶段来做功能开发的分支<br />新功能的feature分支基于该分支创建，分支名通常为feature/xxxx-xxx<br />开发完成之后，先pull一下develop分支，解决冲突后再合并到develop分支并删除。 |
+| release | 基于develop分支创建的发布阶段作版本发布的预发布分支，分支名建议命名为：release/xxxx-xxxø<br/>例如，v1.0.0版本的功能全部开发测试完成后，提交到develop分支<br />然后基于develop分支创建release/1.0.0分支，并提交测试，测试中遇到的问题在release分支修改<br />最终通过测试后，将release分支合并到master和develop，并在master分支打上v1.0.0标签 |
+| hotfix  | 基于master分支上创建的维护阶段作紧急bug修复分支<br />修复完成后合并到master。分支名通常为hotfix/xxxx-xxxo<br />例如：当线上某个版本出现Bug后，从master检出对应版本的代码，创建hotfix分支并修复问题<br />问题修复后，将hotfix分支合并到master和develop分支，并在master分支打上修复后的版本标签 |
+
+基本流程：
+
+```bash
+# 1. 创建要给常驻分支
+git checkout -b develop master
+
+# 2. 基于 develop 分支，新建一个功能分支：feature/hello-world。
+git checkout -b feature/hello-world develop
+
+# 3. feature/hello-world 分支上开发
+echo "feature1" >> test.txt 
+
+# 4. 开发过程中需要先紧急修复线上代码的 bug
+git stash                                         # 临时保存修改至堆栈区
+git checkout -b hotfix/error master               # 从 master 建立 hotfix 分支
+echo "hotfix" >> test.txt                         # 修复 bug
+git commit -a -m 'fix print message error bug'    # 提交修复
+git checkout develop                              # 切换到 develop 分支
+git merge --no-ff hotfix/error                    # 把 hotfix 分支合并到 develop 分支
+git checkout master                               # 切换到 master 分支
+git merge --no-ff hotfix/error                    # 把 hotfix 分支合并到 master
+git tag -a v0.9.1 -m "fix log bug"                # 在 master 分支打上 tag
+scp test root@target:/opt/                        # 编译并部署代码
+git branch -d hotfix/error                        # 修复完成后删除 hotfix/xxx 分支
+git checkout feature/hello-world                  # 切换到 feature 分支下
+git merge --no-ff develop                         # develop 有更新，需要同步更新下
+git stash pop                                     # 恢复到修复前的工作状态
+
+# 5. 继续开发
+echo "feature2" >> test.txt 
+
+# 6. 提交代码到 feature/hello-world 分支
+git commit -a -m "print 'hello world'"
+
+# 7. 在 feature/hello-world 分支上做 code review
+git push origin feature/print-hello-world         # 提交到远程仓库
+# 创建 PR、指定 Reviewers 进行 CR
+
+# 8. CR 过后，由代码仓库 Matainer 将功能分支合并到 develop 分支
+git checkout develop
+git merge --no-ff feature/hello-world
+
+# 9. 基于 develop 分支创建 release 分支，测试代码
+git checkout -b release/1.0.0 develop
+cat test.txt 
+
+# 10. 如果测试失败，直接在 release/1.0.0 分支修改代码，完成后提交并编译部署
+git commit -a -m "fix bug"
+scp test root@target:/opt/
+
+# 11. 测试通过后，将 release/1.0.0 分支合并到 master 分支和 develop 分支
+git checkout develop
+git merge --no-ff release/1.0.0
+git checkout master
+git merge --no-ff release/1.0.0
+git tag -a v1.0.0 -m "add print hello world" # master 分支打 tag
+
+# 12. 删除 feature/hello-world 分支，也可以选择性删除 release/1.0.0 分支
+git branch -d feature/hello-world
+# git branch -d release/1.0.0
+```
 
 
 
