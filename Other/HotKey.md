@@ -25,6 +25,8 @@
 * 批量修改某参数名：光标选中变量后Shift+F6
 * 查找文件：点击Project导航框，直接输入关键字
 * 打开Terminal： Option + F12
+* 快速生成测试方法：光标在方法上，Command + N
+* 使结构体实现某接口：光标选择到结构体，Option + Enter
 
 
 
@@ -38,6 +40,8 @@
 * 切换同一应用的不同窗口：Command + `
 * 全屏窗口：Command + Control + F
 * 锁屏：Command + Control + Q
+* Finder查看隐藏文件： Command + Shift + .
+* Finder查找文件： Command + Shift + G
 
 
 

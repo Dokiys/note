@@ -1712,6 +1712,14 @@ GOPRIVATE=*.4399.com,baidu.com/private
 
 
 
+## GOPROXY
+
+GOPROXY 用于修改下载go相关数据的代理
+
+```bash
+GOPROXY=https://goproxy.cn,direct
+```
+
 ## 切换GO版本
 
 ```bash
@@ -1820,5 +1828,123 @@ replace gopkg.in/yaml.v2 v2.4.0 => [本地mod包]
 
 ```bash
 go list -m all
+```
+
+
+
+## 项目结构示例
+
+小型项目：
+
+```bash
+tms
+├── cmd
+├── internal
+├── pkg
+└── README.md
+```
+
+大型项目：
+
+```bash
+├── api                     # 当前项目对外提供的各种不同类型的 API 接口定义文件
+│   ├── openapi
+|   ├── protobuf-spec
+|   ├── thrift-spec
+|   ├── http-spec
+│   └── swagger
+|       ├── docs/
+|       ├── README.md
+│       └── swagger.yaml
+├── assets                  # 项目的其他资源 (图片、CSS、JavaScript 等）
+├── build                   # 安装包和持续集成相关的文件
+│   ├── ci                  # CI（travis，circle，drone）的配置文件和脚本
+│   ├── docker              # 子项目各个组件的 Dockerfile 文件
+│   │   ├── iam-apiserver
+│   │   ├── iam-authz-server
+│   │   └── iam-pump
+│   └── package              # 容器（Docker）、系统（deb, rpm, pkg）的包配置和脚本
+├── CHANGELOG                # 更新记录，方便了解当前版本的更新内容或者历史更新内容
+|                            #     可结合 Angular 规范 和 git-chglog 来自动生成
+├── cmd       # 统一存放组件 main 函数所在目录，不存放过多代码
+|   |                        #     其下的目录名与可执行文件名一致 
+│   ├── iam-apiserver
+│   │   └── apiserver.go
+│   ├── iam-authz-server
+│   │   └── authzserver.go
+│   ├── iamctl
+│   │   └── iamctl.go
+│   └── iam-pump
+│       └── pump.go
+├── configs                  # 配置文件模板或默认配置，不携带敏感信息（占位符替代）
+├── CONTRIBUTING.md          # 说明如何贡献代码，如何开源协同等
+|                            #     用于规范协同流程、降低第三方开发者贡献代码的难度
+├── deploy                   # Iaas、PaaS 系统和容器编排部署配置和模板
+├── docs                     # 设计文档、开发文档和用户文档等（除了 godoc 生成的文档）
+│   ├── devel                # 开发文档、hack 文档等
+│   │   ├── en-US
+│   │   └── zh-CN
+│   ├── guide                # 用户手册，安装、quickstart、产品文档等
+│   │   ├── en-US
+│   │   └── zh-CN
+│   ├── images               # 图片文件
+│   └── README.md
+├── examples                 # 应用程序或者公共包的示例代码
+├── githooks
+├── go.mod
+├── go.sum
+├── init                     # 初始化系统（systemd，upstart，sysv）、进程管理配置文件（runit，supervisord）
+├── internal                 # 私有应用和库代码，在被尝试引入时编译会报错
+│   ├── apiserver            # 应用目录，包含应用程序实现代码。
+│   │   ├── c
+│   │   │   └── v1           # HTTP API 具体实现，实现请求解包、参数校验、业务逻辑处理、返回。
+|   |   |       |            #     业务逻辑较轻，复杂的建议放到 /internal/apiserver/service 下
+│   │   │       └── user
+│   │   ├── apiserver.go
+│   │   ├── options
+│   │   ├── service
+│   │   ├── store            # 与数据库交互、持久化代码
+│   │   │   ├── mysql
+│   │   │   └── fake
+│   │   └── testing
+│   ├── iamctl               # 客户端工具
+│   │   ├── cmd
+│   │   │   ├── completion
+│   │   │   └── user
+│   │   └── util
+│   └── pkg                  # 项目内可共享，项目外不共享的包
+|       |                    #     准备对外开发时再转存到 /pkg
+│       ├── code             # 项目业务 Code 码
+│       ├── options
+│       ├── server
+│       ├── util
+|       ├── middleware       # HTTP 请求处理链
+│       └── validation       # 通用的验证函数
+├── LICENSE                  # 版权文件，可以是私有或开源
+├── Makefile                 # 执行静态代码检查、单元测试、编译等功能
+|                            #     gen -> format -> lint -> test -> build
+├── _output                  # 编译输出的二进制文件
+│   └── platforms
+│       └── linux
+│           └── amd64
+├── pkg                      # 可被外部应用使用的代码（import），需要慎重
+│   └── util
+│       └── genutil
+├── README.md                # 项目介绍、功能、快速安装和使用指引、详细文档链接、开发指引等
+├── scripts                  # 脚本文件，实现构建、安装、分析等不同功能
+│   ├── lib                  # 执行自动化任务 shell 的脚本，发布、更新文档、生成代码等
+|   |   ├── util.sh
+|   |   └── logging.sh
+|   ├── install              # 复杂的自动化部署脚本
+│   └── make-rules           # 实现 /Makefile 文件中的各个功能
+├── test                     # 其他外部测试应用和测试数据
+│   └── data                 # 需要 Go 忽略该目录中的内容时使用
+├── third_party              # 外部帮助工具，分支代码或其他第三方应用，比如 Swagger
+│   └── forked               #     fork 并作改动的第三方包，便于与 upstream 同步
+├── tools                    # 项目的支持工具。可导入来自 /pkg 和 /internal 的代码
+├── vendor                   # 项目依赖，可通过 go mod vendor 创建
+|                            #     对于 Go 库不要提交 vendor 依赖包
+├── website                  # 如不使用 GitHub 页面，可在此放置项目网站相关的数据
+└── web       # 前端代码，主要是静态资源，服务端模板和单页应用（SPAs）
 ```
 
