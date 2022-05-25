@@ -27,6 +27,7 @@
 * 打开Terminal： Option + F12
 * 快速生成测试方法：光标在方法上，Command + N
 * 使结构体实现某接口：光标选择到结构体，Option + Enter
+* 窗口查看方法内容：Command + T
 
 
 

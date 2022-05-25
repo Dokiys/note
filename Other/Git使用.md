@@ -675,12 +675,16 @@ fatal: Cannot update paths and switch to branch 'test' at the same time.
 Did you intend to checkout 'origin/master' which can not be resolved as commit?
 ```
 
-可以用`remote`命令查看远程是否可以fetch并用`set-url`选项来修改远程仓库
+可以用`remote`命令查看远程是否可以fetch并用`set-url`选项来修改远程仓库，或者`add`来添加远程仓库
 
 ```bash
 git remote -v
 git remote set-url origin [remote repository]
+
+git remote add [remote repository name] [remote repository]
 ```
+
+
 
 另一种设置远程追踪分支的方法就是使用：`git branch -u` 命令，
 
@@ -718,6 +722,21 @@ git config  --global user.email 邮箱名
 ```
 
 此外还可以在`~/.gitconfig`文件中直接修改
+
+
+
+### Hooks
+
+我们可以根据配置，在通过`git`提交或者推送代码的时候，进行一些默认的操作。在每个`git`管理的仓库的根目录下，都会有一个`.git/hooks`的文件夹，其中又一些默认的文件。我们以`pre-commit.sample`为例子。在该文件中添加内容，并将文件名改为`pre-commit`：
+
+```
+ #!/bin/sh
+ echo "Hello Work!"
+ # An example hook script to verify what is about to be committed.
+....
+```
+
+在下次提交的时候就可以看到`Hello Work!`的输出。
 
 
 
@@ -914,7 +933,7 @@ git branch -d feature/hello-world
 
 在一个项目中，可能有些文件的修改我们并不想将其推送到远程仓库。于是我们可以在`.gitignore`文件配置相应的规则
 
-`.gitignore`是一个没有后缀的文本文件，需要更`.git`文件夹放在同一级目录。具体语法如下：
+`.gitignore`是一个没有后缀的文本文件，需要更`.git`文件夹放在同一级目录。具体语法如下，更多例子可参考[这里](https://www.atlassian.com/git/tutorials/saving-changes/gitignore)：
 
 >`#`: 表示注释行
 >
@@ -939,5 +958,5 @@ git branch -d feature/hello-world
     └── Lib
 ```
 
-如果只想忽略更目录下的`Lib`文件夹中的内容，需要制定为`/Lib/`
+如果只想忽略更目录下的`Lib`文件夹中的内容，需要指定为`/Lib/`
 

@@ -366,6 +366,7 @@ fmt.Println(count)
 1
 ```
 
+由此可以看到 `sync.Once`只计算调用`Do()`方法的次数，而不是多少次唯一调用`Do()`方法，所以需要注意`sync.Once`副本的使用。
 再看一下循环调用：
 
 ```go
@@ -397,8 +398,6 @@ initA := func(){onceB.Do(initB)}
 initB = func(){onceA.Do(initA)}
 onceA.Do(initA)
 ```
-
- 综上所述：`sync.Once`只计算调用`Do()`方法的次数，而不是少次调用`Do()`方法，所以需要注意`sync.Once`副本的使用。
 
 #### 池
 
