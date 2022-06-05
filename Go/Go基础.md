@@ -1687,47 +1687,62 @@ go env [环境变量名]													 // Windows
 echo $[环境变了名]														 // MacOS，Linux
 ```
 
+通常我们会将环境写入命令解释器的配置文件，比如zsh的配置文件在`~/.zshrc`。
 
 
 
+## 环境变量
 
-## GOPROXY
+**GOROOT**
+用于指定Go的安装路径。通常指定为`/usr/local/go`
 
-从Go1.13开始，GOPROXY随着go module引入，用来控制go module的下载源。
+**GOPATH**
+指定项目的工作空间，在mod引入之前通过GOPATH指定的路径来管理一个项目，通常包含三个目录：
 
-```bash
-GOPROXY=proxy.example.com
-```
+* `src` 保存源码
+* `pkg` 保存引入的包，通过`go get`下载的包会被放在这个文件夹下
+* `bin` 保存内建的可执行文件
 
+**GOBIN**
+指定通过`go install`命令安装的应用存放的目录。通常设置为`GOPATH/bin`
 
-
-## GOPRIVATE 
-
-GOPRIVATE 用来控制go命令执行时的识别指定的私有仓库，私有仓库将会跳过proxy server和检验检查。
+**GOPRIVATE** 
+用来控制go命令执行时的识别指定的私有仓库，私有仓库将会跳过proxy server和检验检查。
 可以通过逗号分隔开来填写多个值。
 
 ```bash
 GOPRIVATE=*.4399.com,baidu.com/private
 ```
 
-
-
-## GOPROXY
-
-GOPROXY 用于修改下载go相关数据的代理
+**GOPROXY**
+从Go1.13开始，GOPROXY随着go module引入，用来控制go module的下载源。GOPROXY 用于修改下载go相关数据的代理
 
 ```bash
 GOPROXY=https://goproxy.cn,direct
 ```
 
-## 切换GO版本
+
+
+## **版本切换**
+
+如果需要安装或者切换go版本，我们可以先到[官网](https://go.dev/dl/)下载系统对应的压缩包。比如我这里下载的是[go1.18.2.darwin-amd64.tar.gz](https://go.dev/dl/go1.18.2.darwin-amd64.tar.gz)`。然后将原来的go版本直接改名：
 
 ```bash
-$ go version # 检查go版本
-$ brew install go@1.1x # 安装指定版本
-$ brew unlink go	# 取消链接当前版本
-$ brew link --force go@1.1x 	# 链接到新版本
+mv /usr/local/go /usr/local/go1.16
 ```
+
+然后将压缩包解压到`/usr/local`，因为这里我`$GOROOT`的地址是`/usr/local/go`.
+
+```bash
+tar -xcf go1.18.2.darwin-amd64.tar.gz -C /usr/local
+```
+
+```bash
+go version
+go version go1.18.2 darwin/amd64
+```
+
+可以看到已经安装成功
 
 # 命令行工具
 
