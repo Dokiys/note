@@ -35,6 +35,7 @@
 
 * Chrome检查：Command + Shift + C
 * 重命名文件：选择到文件名的状态下 + Enter
+* 打开文件：Command + O
 * 打开访达：Command + Option + B
 * 反撤销： Command + Shift + Z
 * 推出当前程序：Command + Q
