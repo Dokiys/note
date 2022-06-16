@@ -1783,6 +1783,79 @@ go build -o ./lalala ./main.go ./utils.go
 go build lalala.go
 ```
 
+甚至可以直接通过远程的 mod 来直接构建可执行文件：
+
+```bash
+go build github.com/google/wire/cmd/wire ./ && ls | grep wire
+> wire
+```
+
+
+
+## 构建约束
+
+在 go 编译时，我们可以设置一些条件来指定满足条件的文件才被编译，不满足条件的则舍去。目前支持的构建约束方式有两种：通过文件名后缀，以及在文件中添加编译标签（build tag）。
+
+**文件名后缀**
+文件名后缀需要满足以下格式：
+
+```
+filename_$GOOS.go
+filename_$GOARCH.go
+filename_$GOOS_$GOARCH.go
+```
+
+比如 Go 源码中的 os 包中的 Linux，Windows 实现：
+
+```
+src/runtime/os_linux.go
+src/runtime/os_linux_arm.go
+src/runtime/os_linux_arm64.go
+src/runtime/os_windows.go
+src/runtime/os_windows_arm.go
+src/runtime/os_windows_arm64.go
+```
+
+**build tag**
+通过在文件顶部添加注释来设置构建条件，目前有两种写法：
+
+```go
+// 1.17以前版本
+// 空格表示：AND; 逗号表示：OR; !表示：NOT; 换行表示：AND
+// +build <tag>
+```
+
+```go
+// 1.17及以后
+// && 表示AND; || 表示OR; ! 表示NOT; () 表示分组
+//go:build <tag>		
+```
+
+在`tag`中可以指定一下内容：
+
+* 操作系统，即环境变量中GOOS的值；
+* 操作系统的架构，即环境变量中GOARCH的值
+* 使用的编译器，比如 gc 或者 gccgo；
+* 其他自定义标签；
+* 枚举值`ignore`，指定该文件不参与编译；
+
+对于自定义的标签，可以在`go build`的时候，添加`-tags`参数来设置筛选：
+
+```bash
+go build -tags <tag...> 
+```
+
+
+
+## run
+
+相较于`build`，` run`命令也会编译源码，并执行源码的`main()`函数，但是不会在当前目录留下可执行文件。并且也可以直接运行远程的文件。
+
+```go
+go run github.com/google/wire/cmd/wire     
+wire: app: wrote XXX/wire_gen.go
+```
+
 
 
 ## install
@@ -1862,7 +1935,36 @@ go list -m all
 
 
 
-## 项目结构示例
+## generate
+
+`go generate`默认会扫描当前目录包下添加了`//go:generate`注释的文件，然后运行设置的命令。这通常和一些工具配合生成一些代码或者相关文件。比如我们有一下文件：
+
+```go
+//go:generate touch 1.txt
+//go:generate touch 2.txt
+
+package main
+
+func main() {}
+```
+
+我们在同级目录执行：
+
+```bash
+go generate
+```
+
+将会生成`1.txt`及`2.txt`两个文件。当然我们也可以用以下方式指定目录下的所有文件：
+
+```bash
+go generate ./...
+```
+
+
+
+
+
+# 项目结构示例
 
 小型项目：
 
