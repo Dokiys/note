@@ -1641,7 +1641,7 @@ ok      hellogo/test    6.368s
 通过`go test -cover`可以查看测试的覆盖率：
 
 ```bash
-t>go test -cover
+go test -cover
 Start Test
 PASS
 coverage: 100.0% of statements
@@ -1649,16 +1649,21 @@ End Test
 ok      hellogo/test    0.107s
 ```
 
-通过命令：
+默认情况下`go test`只会运行当前目录下的测试文件，可以在最后指定其他目录：
 
 ```bash
->go test -v -coverprofile=cover.out
+go test ./...		# 当前目录及所有子目录下的测试用例
 ```
 
-可以将覆盖率信息保存到`cover.out`文件，然后再通过`cover`工具，可以查看当前包下各函数的覆盖率：
+通过以下命令可以将覆盖率信息保存到`cover.out`文件，然后再通过`cover`工具，可以查看当前包下各函数的覆盖率：
 
 ```bash
->go tool cover -func=cover.out
+go install golang.org/x/tools/cmd/cover		# 安装cover工具
+go test -v -coverprofile=cover.out
+```
+
+```bash
+go tool cover -func=cover.out
 hellogo/test/fib.go:3:  Fib             100.0%
 total:                  (statements)    100.0%
 ```
@@ -1666,10 +1671,8 @@ total:                  (statements)    100.0%
 通过`-html`选项会直接浏览器中打开测试内容的覆盖情况：
 
 ```bash
->go tool cover -html=cover.out
+go tool cover -html=cover.out
 ```
-
-
 
 # 环境配置
 
@@ -1715,11 +1718,23 @@ GOPRIVATE=*.4399.com,baidu.com/private
 ```
 
 **GOPROXY**
-从Go1.13开始，GOPROXY随着go module引入，用来控制go module的下载源。GOPROXY 用于修改下载go相关数据的代理
+从Go1.13开始，`GOPROXY`随着go module引入，用来控制go module的下载源。`GOPROXY`用于修改下载go相关数据的代理：
 
 ```bash
 GOPROXY=https://goproxy.cn,direct
 ```
+
+**GOSUMDB**
+我们先试想一种情况：某项目的v1版本被很多其他很多项目引入，这个时候该项目在v1版本进行了新的修改，这样所有引入了该项目的其他项目在重新拉取依赖时，即使没有做过任何修改也会出现和原来不一致的情况。
+为了解决以上问题， Go 加入了`go.sum`对下载的依赖进行校验。通过对 mod 的版本及所有文件进行 Hash 计算会得到一个校验值，一个公开 mod 的这个校验值都会存在 Checksum 数据库中，这个服务由 [sum.golang.org](https://sum.golang.org/) 提供。当我们通过 go 命令下载 mod 的时候，也会根据下载的版本及下载的所有文件去计算这个 mod 的校验值，并到 sum.golang.org 去校验 mod 内容是否有被篡改，从而保证 mod 的安全性。所以 Go 公开的 mod 即使很小的改动，都需要重新打 tag。
+
+所以从Go1.13开始，`GOSUMDB`随着go module引入可以用来配置使用哪个校验服务器来做依赖包的校验：
+
+```bash
+GOSUMDB="sum.golang.google.cn"
+```
+
+也可以通过`GONOSUMDB`指定那些包不需要校验。
 
 
 
