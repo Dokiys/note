@@ -1636,7 +1636,7 @@ ok      hellogo/test    6.368s
 
 
 
-## 测试覆盖
+## 测试覆盖率
 
 通过`go test -cover`可以查看测试的覆盖率：
 
