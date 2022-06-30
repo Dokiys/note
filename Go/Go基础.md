@@ -1632,7 +1632,226 @@ ok      hellogo/test    6.368s
 
 ## Mock
 
-// TODO
+### 依赖注入
+
+有些情况下我们的方法会依赖一些外部调用，比如数据库，HTTP请求等，这时候的单元测试就会形成对外部调用返回结果的依赖。我们可以先看一下下面的这个例子：
+
+```go
+type A struct{}
+
+func (self *A) IsOne() bool {
+	if r := Bar(); r == 1 {
+		return true
+	} else {
+		return false
+	}
+}
+
+func Bar() int {
+	return rand.Intn(2)
+}
+```
+
+```go
+func TestMock(t *testing.T) {
+	a := &A{}
+	assert.Equal(t, true,a.IsOne())
+}
+```
+
+`*A.greet()`方法会依赖函数`Bar()`的返回值来判断，而`Bar()`的返回值是随机的，所以在执行测试函数`TestGreet()`的时候不是幂等的。
+我们可以对代码进行适当的修改以达到幂等的目的。比如将函数`Bar()`以参数方式传入：
+
+```go
+func (self *A) IsOne(f func() int) bool {...}
+```
+
+```go
+	f1 := func() int { return 1 }
+	f2 := func() int { return 2 }
+	assert.Equal(t, true, a.IsOne(f1))
+	assert.Equal(t, false, a.IsOne(f2))
+```
+
+如此一来我们变解决了对函数`Bar()`的依赖。而实际上我们更常见的情况是成员方式的调用，比如：
+
+```go
+type B struct{}
+
+func (self *B) Bar() int {
+	return rand.Intn(2)
+}
+```
+
+```go
+type A struct {
+	b *B
+}
+
+func (self *A) IsOne() bool {
+	if r := self.b.Bar(); r == 1 {
+		return true
+	} else {
+		return false
+	}
+}
+```
+
+这是在很多项目中都很常见的一种情况，Service 直接将 Model 作为成员变量。这样就会又会遇到我们刚刚的问题，A 对  B 的依赖导致不太好编写单元测试。
+解决这一问题的核心就是解开 A 和 B 的耦合，解耦利器**接口**可以帮助我们对代码进行简单修改：
+
+```go
+type Inf interface {
+	Bar() int
+}
+type A struct {
+	inf Inf
+}
+
+func (self *A) IsOne() bool {
+	if r := self.inf.Bar(); r == 1 {
+		return true
+	} else {
+		return false
+	}
+}
+```
+
+```go
+type InfImpl struct{}
+
+func (self *InfImpl) Bar() int {
+	return 1
+}
+
+func TestMock(t *testing.T) {
+	a := &A{inf: &InfImpl{}}
+	assert.Equal(t, true, a.IsOne())
+}
+```
+
+可以看到，通过`Inf`我们将`*A.greet()`方法的逻辑抽离了出来。然后利用对`Inf`接口的不同实现，我们可以控制`*A.greet()`方法的执行逻辑。这种方式也被称作为**依赖注入**(dependency injection，缩写为DI)。
+
+目前有一些成熟的工具来帮助我们生成实现接口的方法，只需要我们自己设置入参和返回值，比如[GoMock](https://github.com/golang/mock)。首先我们安装工具：
+
+```bash
+go install github.com/golang/mock/mockgen
+```
+
+然后指定需要实现的接口作为数据源，并设置报名，然后生成文件：
+
+```bash
+mockgen -source=./mock_test.go -destination=./mock_info.go -package=tdd
+```
+
+执行命令后`GoMock`会为我们在`mock_info.go`中生成一个或多个结构体来实现`mock_test.go`中的接口。
+然后我们可以直接在单元测试中使用：
+
+```go
+func TestMock(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockInf := NewMockInf(ctrl)
+	mockInf.EXPECT().Bar().Return(1).AnyTimes()
+	a := &A{inf: mockInf}
+
+	assert.Equal(t, true, a.greet())
+}
+```
+
+如果接口的方法需要入参，也可以基于入参数来设置返回值：
+
+```go
+mockInf.EXPECT().IsGood(gomock.Eq("zhangsan")).Return(true).AnyTimes()
+```
+
+我们还也自己实现`gomock`提供的`Matcher`来做一些判断，比如有些情况入参可能会有很多参数，但实际上我们只关心其中一个：
+
+```go
+type People struct {
+	age int
+}
+
+type Inf interface {
+	IsOldPerson(p *People) bool
+}
+```
+
+```go
+type gtAgeMatcher struct {
+	age int
+}
+
+func newGtAgeMatcher(age int) *gtAgeMatcher {
+	return &gtAgeMatcher{age: age}
+}
+
+func (self *gtAgeMatcher) Matches(x interface{}) bool {
+	p, ok := x.(*People)
+	if !ok {
+		return false
+	}
+	if self.age < p.age {
+		return true
+	}
+
+	return false
+}
+
+func (self *gtAgeMatcher) String() string {
+	return fmt.Sprintf("age > %d", self.age)
+}
+```
+
+```go
+mockInf.EXPECT().IsOldPerson(newGtAgeMatcher(10)).Return(true).AnyTimes()
+```
+
+
+
+### HTTP
+
+HTTP 请求的依赖在编程实践中也是比较常见的。下面是`http.CLient`的结构：
+
+```go
+type Client struct {
+	// Transport specifies the mechanism by which individual
+	// HTTP requests are made.
+	// If nil, DefaultTransport is used.
+	Transport RoundTripper
+	CheckRedirect func(req *Request, via []*Request) error
+	Jar CookieJar
+	Timeout time.Duration
+}
+```
+
+其中最主要的就是`RoundTripper`接口，它提供了基本的 HTTP 服务：
+
+```go
+type RoundTripper interface {
+	RoundTrip(*Request) (*Response, error)
+}
+```
+
+简单来说，`RoundTripper`需要实现一个`RoundTrip`方法，接收一个`*http.Request`返回一个`*http.Response`。借此我们可以实现一个自己的`http.Client`来提供 Mock：
+
+```go
+type MockRoundTrip struct {}
+func (self *MockRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
+	return &http.Response{
+		StatusCode: 200,
+    Body:       ioutil.NopCloser(bytes.NewBufferString([]byte("Test MockRoundTrip")])),
+		Header:     make(http.Header),
+	},nil
+}
+
+func NewMockHttpClient() *http.Client{
+  return &http.Client{ Transport: MockRoundTrip }
+}
+```
+
+当然我们可以在`MockRoundTrip`提供更多的 case，或者传入 case 来处理更多不同的情况。
 
 
 
@@ -1861,6 +2080,16 @@ wire: app: wrote XXX/wire_gen.go
 ## install
 
 `install`工具可以将当前执行目录下的`main`函数的文件，在`$GOPATH/bin`目录下生成可执行文件。
+
+
+
+## vet
+
+Go 中自带的静态分析工具，用来检查一些代码中的错误。
+
+```bash
+go vet gen.go
+```
 
 
 

@@ -63,16 +63,10 @@ git merge [分支名]
 
 `merge`命令只会将选择的分支合并到当前分支，当前分支中的修改不会保存到`merge`到分支中。
 
-以下命令会将分支2合并到分支1之后：
-
 ```bash
-git merge [分支1] [分支2]
-```
-
-`merge`产生冲突时放弃`merge`
-
-```bash
-git merge --abort
+git merge --no-ff 					# 在提交时，创建一个merge的commit信息，然后再进行合并
+git merge [分支1] [分支2]			# 将分支2合并到分支1之后
+git merge --abort						# merge产生冲突时放弃merge
 ```
 
 
@@ -455,7 +449,7 @@ git diff <文件路径> #比较指定文件
 git diff <版本号码1(old)> <版本号码2(new)> <文件路径> # 比较指定文件指定版本的不同
 git diff <版本号码1(old)> <版本号码2(new)> --stat # 比较指定版本有哪些文件修改
 git diff --cached # 比较暂存区的代码和当前分支head的代码
-git diff . ":(exclude)<文件/正则>" # 比较时排除指定文件
+git diff  ':!<文件/正则>' ':!<文件/正则>'# 比较时排除多个指定文件
 git diff <版本号码1(old)> <版本号码2(new)> --stat  ":(exclude)<文件/正则>"	# 比较版本排除制定文件修改
 ```
 
