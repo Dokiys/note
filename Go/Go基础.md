@@ -960,37 +960,50 @@ default:
 }
 ```
 
+### 实现接口
+
+在实践中我们在使用接口的过程中，通常都会遇到接口增加方法的时候，这样就需要在接口的实现中添加对应的方法。由于 Go 语言的特性，并没有强制要求指定结构体对接口的实现。所有我们需要明确找到借口实现，添加接口方法。如果是使用的 Goland 编辑器，有一个小技巧，帮助我们快速实现添加的方法。
+比如我们有一个结构体，需要实现`io.Reader`接口。我们可以添加如下的冗余代码：
+
+```go
+type r struct{}
+
+var _ io.Reader = (*r)(nil)
+```
+
+这样 Goland 会提示我们`r`没有实现`io.Reader`中的方法，我们可以借此快速添加缺失的方法。
+
 
 
 ## 内存布局
 
 **Number**
 
-![number](../assert/Go/Go%E5%9F%BA%E7%A1%80/number.png)
+![number](../asset/Go/Go%E5%9F%BA%E7%A1%80/number.png)
 
 **string**
 
-![string](../assert/Go/Go%E5%9F%BA%E7%A1%80/string.png)
+![string](../asset/Go/Go%E5%9F%BA%E7%A1%80/string.png)
 
 **struct**
 
-![struct](../assert/Go/Go%E5%9F%BA%E7%A1%80/struct.png)
+![struct](../asset/Go/Go%E5%9F%BA%E7%A1%80/struct.png)
 
 **slice**
 
-![slice](../assert/Go/Go%E5%9F%BA%E7%A1%80/slice.png)
+![slice](../asset/Go/Go%E5%9F%BA%E7%A1%80/slice.png)
 
 **interface**
 
-![interface](../assert/Go/Go%E5%9F%BA%E7%A1%80/interface.png)
+![interface](../asset/Go/Go%E5%9F%BA%E7%A1%80/interface.png)
 
 **new**
 
-![new](../assert/Go/Go%E5%9F%BA%E7%A1%80/new.png)
+![new](../asset/Go/Go%E5%9F%BA%E7%A1%80/new.png)
 
 **make**
 
-![make](../assert/Go/Go%E5%9F%BA%E7%A1%80/make.png)
+![make](../asset/Go/Go%E5%9F%BA%E7%A1%80/make.png)
 
 
 
