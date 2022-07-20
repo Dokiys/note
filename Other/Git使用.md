@@ -923,7 +923,9 @@ git branch -d feature/hello-world
 
 
 
-## .gitignore
+## gitignore
+
+### .gitigonre
 
 在一个项目中，可能有些文件的修改我们并不想将其推送到远程仓库。于是我们可以在`.gitignore`文件配置相应的规则
 
@@ -953,4 +955,15 @@ git branch -d feature/hello-world
 ```
 
 如果只想忽略更目录下的`Lib`文件夹中的内容，需要指定为`/Lib/`
+
+### core.excludesFile
+
+`.gitignore`只能对应一个仓库，如果想全局忽略所有仓库中的某些文件，可以通过配置`core.excludesFile`来设置：
+
+```bash
+git config --global core.excludesFile "~/workspace/git/.global_ignore" # 设置忽略配置文件路径
+git config --get core.excludesFile		# 查看忽略配置文件路径
+```
+
+需要注意的是，这里的配置文件中每条配置跟`.gitignore`一样，是相对于每个仓库而言的，而不是绝对路径。
 
