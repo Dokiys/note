@@ -732,6 +732,50 @@ git config  --global user.email 邮箱名
 
 在下次提交的时候就可以看到`Hello Work!`的输出。
 
+### gitignore
+
+#### .gitigonre
+
+在一个项目中，可能有些文件的修改我们并不想将其推送到远程仓库。于是我们可以在`.gitignore`文件配置相应的规则
+
+`.gitignore`是一个没有后缀的文本文件，需要更`.git`文件夹放在同一级目录。具体语法如下，更多例子可参考[这里](https://www.atlassian.com/git/tutorials/saving-changes/gitignore)：
+
+>`#`: 表示注释行
+>
+>`dir/`: 表示忽略整个`dir`文件夹
+>
+>`/README`: 忽略当前目录下的`README`文件
+>
+>`*.png`: 忽略所有以png为后缀的文件
+>
+>`!a.png`：不忽略`a.png`文件
+>
+>`[123]*`: 忽略以1或2或3开头的文件
+>
+>`[abc]?`: 忽略以a或b或c开头的并且只有两个字符的文件名的文件
+
+**注：**需要注意的是，`.gitignore`默认会搜索所有路径下的文件。比如项目根目录与一级目录下存在同名文件夹：
+
+```bash
+.
+├── Lib
+└── build
+    └── Lib
+```
+
+如果只想忽略更目录下的`Lib`文件夹中的内容，需要指定为`/Lib/`
+
+#### core.excludesFile
+
+`.gitignore`只能对应一个仓库，如果想全局忽略所有仓库中的某些文件，可以通过配置`core.excludesFile`来设置：
+
+```bash
+git config --global core.excludesFile "~/workspace/git/.global_ignore" # 设置忽略配置文件路径
+git config --get core.excludesFile		# 查看忽略配置文件路径
+```
+
+需要注意的是，这里的配置文件中每条配置跟`.gitignore`一样，是相对于每个仓库而言的，而不是绝对路径。
+
 
 
 ## Git日志
@@ -760,6 +804,12 @@ git log --format='%aN' | sort -u | while read name; do echo -en "$name\t"; git l
 
 ```bash
 git log -- [filepath]
+```
+
+### 图像化展示
+
+```bash
+git log --graph --oneline		# 图形化查看当前分支体检记录
 ```
 
 
@@ -922,48 +972,4 @@ git branch -d feature/hello-world
 ```
 
 
-
-## gitignore
-
-### .gitigonre
-
-在一个项目中，可能有些文件的修改我们并不想将其推送到远程仓库。于是我们可以在`.gitignore`文件配置相应的规则
-
-`.gitignore`是一个没有后缀的文本文件，需要更`.git`文件夹放在同一级目录。具体语法如下，更多例子可参考[这里](https://www.atlassian.com/git/tutorials/saving-changes/gitignore)：
-
->`#`: 表示注释行
->
->`dir/`: 表示忽略整个`dir`文件夹
->
->`/README`: 忽略当前目录下的`README`文件
->
->`*.png`: 忽略所有以png为后缀的文件
->
->`!a.png`：不忽略`a.png`文件
->
->`[123]*`: 忽略以1或2或3开头的文件
->
->`[abc]?`: 忽略以a或b或c开头的并且只有两个字符的文件名的文件
-
-**注：**需要注意的是，`.gitignore`默认会搜索所有路径下的文件。比如项目根目录与一级目录下存在同名文件夹：
-
-```bash
-.
-├── Lib
-└── build
-    └── Lib
-```
-
-如果只想忽略更目录下的`Lib`文件夹中的内容，需要指定为`/Lib/`
-
-### core.excludesFile
-
-`.gitignore`只能对应一个仓库，如果想全局忽略所有仓库中的某些文件，可以通过配置`core.excludesFile`来设置：
-
-```bash
-git config --global core.excludesFile "~/workspace/git/.global_ignore" # 设置忽略配置文件路径
-git config --get core.excludesFile		# 查看忽略配置文件路径
-```
-
-需要注意的是，这里的配置文件中每条配置跟`.gitignore`一样，是相对于每个仓库而言的，而不是绝对路径。
 

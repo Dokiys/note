@@ -33,6 +33,7 @@
 
 ## Logs
 
+* [FactoryPattern&IOP](Logs/FactoryPattern&IOP.md)
 * [Go的错误处理](Logs/HandleGoError.md)
 
 ## Zoo
