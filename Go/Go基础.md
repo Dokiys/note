@@ -1906,6 +1906,30 @@ total:                  (statements)    100.0%
 go tool cover -html=cover.out
 ```
 
+
+
+## Example
+
+除了标准的测试以外，还可以利用`go doc`支持的`Example`来进行测试：
+
+```go
+func ExamplePrintln() {
+	fmt.Println("example!")
+	// Output:
+	// example!
+}
+```
+
+```bash
+$ go test -v -run='ExamplePrintln'      
+=== RUN   ExamplePrintln
+--- PASS: ExamplePrintln (0.00s)
+PASS
+ok      mydoc   0.361s
+```
+
+更多关于`Example`的内容可见[doc](#doc)的章节
+
 # 环境配置
 
 Windows环境和MacOS，Linux的设置环境变量稍有区别：
@@ -1993,7 +2017,9 @@ go version go1.18.2 darwin/amd64
 
 # 命令行工具
 
-## build
+## 构建
+
+### **go build**
 
 Go提供的命令行工具`build`可包涵`main`函数的文件统计目录生成可执行文件。
 
@@ -2024,7 +2050,40 @@ go build github.com/google/wire/cmd/wire ./ && ls | grep wire
 
 
 
-## 构建约束
+### go install
+
+`install`和`build`很相似，区别在于其构建的可执行文件会直接放在`$GOPATH/bin`目录下，可被全局调用。
+
+
+
+### go run
+
+相较于`build`，` run`命令也会编译源码，并执行源码的`main()`函数，但是不会在当前目录留下可执行文件。并且也可以直接运行远程的文件。
+
+```go
+go run github.com/google/wire/cmd/wire     
+wire: app: wrote XXX/wire_gen.go
+```
+
+
+
+### go clean
+
+`clean`可以用于清理`build`命令生成的文件，添加`-i`选项，可以将`install`命令在`$GOPATH/bin`目录下生成的文件一并删除。
+
+`-x`参数可以打印出执行的命令：
+
+```bash
+$ go clean -x
+cd /Users/XXX/XXX/go_test/my/royalpoker
+rm -f royalpoker royalpoker.exe royalpoker royalpoker.exe royalpoker.test royalpoker.test.exe royalpoker.test royalpoker.test.exe handler handler.exe hub hub.exe local_player local_player.exe local_player.test local_player.test.exe local_player_test local_player_test.exe main main.exe msg msg.exe player player.exe
+```
+
+
+
+
+
+### 构建约束
 
 在 go 编译时，我们可以设置一些条件来指定满足条件的文件才被编译，不满足条件的则舍去。目前支持的构建约束方式有两种：通过文件名后缀，以及在文件中添加编译标签（build tag）。
 
@@ -2079,23 +2138,6 @@ go build -tags <tag...>
 
 
 
-## run
-
-相较于`build`，` run`命令也会编译源码，并执行源码的`main()`函数，但是不会在当前目录留下可执行文件。并且也可以直接运行远程的文件。
-
-```go
-go run github.com/google/wire/cmd/wire     
-wire: app: wrote XXX/wire_gen.go
-```
-
-
-
-## install
-
-`install`工具可以将当前执行目录下的`main`函数的文件，在`$GOPATH/bin`目录下生成可执行文件。
-
-
-
 ## vet
 
 Go 中自带的静态分析工具，用来检查一些代码中的错误。
@@ -2103,13 +2145,6 @@ Go 中自带的静态分析工具，用来检查一些代码中的错误。
 ```bash
 go vet gen.go
 ```
-
-
-
-## clean
-
-`clean`可以用于清理`build`命令生成的文件。
-添加`-i`选项，可以将`install`命令在`$GOPATH/bin`目录下生成的文件一并删除。
 
 
 
@@ -2204,7 +2239,9 @@ go generate ./...
 
 
 
+## doc
 
+todo
 
 # 项目结构示例
 
