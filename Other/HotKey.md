@@ -34,6 +34,8 @@
 * 提取方法：Command  + Option + M
 * 在下一行复制选择的代码：Command + D
 * 加选当前选中的内容：Ctrl + G
+* 光标快速跳转到代码块开始/结束处：Option + 方向上 可以加选代码块，在加方向键左/右 即可
+* 切换窗口： Command + Shift + `
 
 
 
@@ -123,6 +125,15 @@
   * 删除光标前一个单词：Ctrl + W
   * 清除光标后至行尾的内容：Ctrl + K
   * 恢复删除：Ctrl + Y
+  
+* 命令参数后置：
+  
+  ```bash
+  ls $(read && echo $REPLY) | grep .go # 需要手动输入
+  ls $(pbpaste) | grep .go
+  ```
+
+
 
 ## vim
 
@@ -145,7 +156,7 @@
   d0 # 删除光标到本行开头
   ```
 
-  
+* 复制/黏贴/撤销：yy / p / u
 
 
 
