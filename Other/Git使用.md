@@ -266,6 +266,64 @@ git checkout [需要使用该代码的分支]
 git cherry-pick [commit id] # 提交该 commit 到当前分支
 ```
 
+**一次cherry-pick实践**
+
+背景：在共享的开发中，二进制文件通常不应该被提交到远程仓库。一旦提交之后就会被git保存在历史记录中，这将占用大量的空间。并且即使在后续的提交中进行了删除，之前的二进制文件记录也会被保存在历史记录中。
+
+在一次开发中，不小心吧二进制文件提交到了远程仓库，好在还没有合并到主分支。坏在提交二进制文件的记录之后已经有了十几次提交。
+重新修改的思路就是，找到提交二进制文件的位置，然后切出一个新的分支。修改之后，将原来分支之后每一个提交记录`cherry-pick`到新切出的分支。
+
+```bash
+# 首先我们需要找到需要修改的提交并修改，比如我这里是
+➜  workspace git:(error_branch) git checout 14ddcb9 && git checkout -b fix_cherry_pick
+# 修改完成后强制覆盖原来的提交
+➜  workspace git:(fix_cherry_pick) git add . && git commit --amend
+# 这时候我们需要回到原来的分支查看[14ddcb9]之后所有的提交
+➜  workspace git:(fix_cherry_pick) git checkout feat/add_api
+```
+
+```bash
+# 查询自【14ddcb9】之后的提交记录
+➜  workspace git:(error_branch) git --no-pager log --after="$(git show -s --format='%at' 14ddcb9)" --first-parent --format=format:"%h" --reverse feat/eticket_api_migration_archive ^14ddcb9 | tr '\n' ' '
+641eef3 418022f 81b1e50...6b781f7 77441cd
+#### 这里解释一下这条命令 ####
+# --no-pager: 指定一次输出所有的记录，而不采用分页
+# --after="$(git show -s --format='%at' 14ddcb9)"： 设置查看从某某时间开始的记录
+# git show -s --format='%at' 14ddcb9： 可以获取到<commit:14ddcb9>的提交时间
+# --first-parent： 因为我这个提交里面存在merge其他分支的情况，所有只查看merge的那一条提交
+# --format=format:"%h" 设置log输出的格式， %H指定输出完整的hash值
+# --reverse：设置倒序输出提交，方便进行cherry-pick
+# ^14ddcb9: 排除<commit:14ddcb9>这个提交
+# | tr '\n' ' '： 将换行输出转变成空格输出
+```
+
+获取到这这些提交记录之后，我们可以回到刚刚的`fix_cherry_pick`直接使用`cherry-pick`整理提交：
+
+```bash
+➜  workspace git:(error_branch) git checkout fix_cherry_pick
+➜  workspace git:(fix_cherry_pick) git cherry_pick 641eef3 418022f 81b1e50...6b781f7 77441cd
+[fix_cherry_pick 192ded3] Add
+ Date: Thu Aug 11 10:09:28 2022 +0800
+ 1 file changed, 208 insertions(+), 249 deletions(-)
+error: commit c28e6e04726decdd52e6514bf4e58c594a907d5d is a merge but no -m option was given.
+```
+
+这时候遇到了一个错误，这是因为`<commit:c28e6e0>`这个提交是一个merge的操作，而merge有可能会出现冲突，git并不知道如何去处理这些冲突，所以需要我们手动去处理：
+
+```bash
+➜  workspace git:(fix_cherry_pick) git merge c28e6e04726decdd52e6514bf4e58c594a907d5d
+Auto-merging a.go
+Auto-merging b.go
+CONFLICT (content): Merge conflict in b.go
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+处理完冲突之后提交，并继续`cherry-pick`，直到完成所有的提交即可：
+
+```bash
+➜  workspace git:(fix_cherry_pick) git cherry-pick --continue
+```
+
 
 
 ### 分支归档
@@ -972,4 +1030,8 @@ git branch -d feature/hello-world
 ```
 
 
+
+### 语义化版本
+
+参考：[semantic versioning](https://semver.org/spec/v2.0.0.html)
 
