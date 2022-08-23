@@ -790,6 +790,14 @@ git config  --global user.email 邮箱名
 
 在下次提交的时候就可以看到`Hello Work!`的输出。
 
+通过一下命令可以设置全局的hooks，其命令的执行路径是相对于项目的`.git`所在路径：
+
+```bash
+ git config --global core.hooksPath [PATH]
+```
+
+
+
 ### gitignore
 
 #### .gitigonre
