@@ -293,3 +293,19 @@ for filename in `ls`
 ```
 
 **注！：**千万不要将`f.csv`放在操作文件夹的同一级目录下，不然会出现往`f.csv`添加数据的死循环，导致内存和磁盘爆表
+
+
+
+##  zshrc alias
+
+```zsh
+# protofmt buf format ./*.proto file
+function protofmt() {
+  for filename in $(find . -name "*.proto"); do \
+    buf format $filename -o $filename;
+  done
+}
+# gnum generate 1..N num
+function gnum(){echo {1..$1} | tr ' ' "\n" | pbcopy}
+```
+

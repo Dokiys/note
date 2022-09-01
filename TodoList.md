@@ -1,32 +1,12 @@
 # TODOLIST
 
-1. Goland 快速输入如下：
-
-   ```
-   a1 = 1;
-   a2 = 1;
-   a3 = 1;
-   a4 = 1;
-   ```
-
-   ```bash
-   echo {1..12} | tr ' ' "\n" | pbcopy
-   gmfs -s=$(pbpaste) $(find . -name "*.go") | pbcopy
-   ```
-
-   
-
-3. goland 调用方法筛选只看方法或者变量
-
-4. shell
-
-5. godoc mydoc 笔记（WIP）
+1. shell
    https://github.com/cuonglm/gocmt
 
-5. 服务网格，dapr
-   
+4. 服务网格，dapr
+
 5. flatter
-   
+
    ```
    Flutter开发
    Flutter教程，请更新到这里
@@ -73,5 +53,3 @@
    https://github.com/jhflovehqy/flutter_bolg_manage
    https://github.com/xuexiangjys/flutter_template
    ```
-   
-7. mac 窗口悬浮

@@ -812,6 +812,8 @@ git config  --global user.email 邮箱名
 >
 >`/README`: 忽略当前目录下的`README`文件
 >
+>`**/cover.out`：忽略所有目录下的`cover.out`文件
+>
 >`*.png`: 忽略所有以png为后缀的文件
 >
 >`!a.png`：不忽略`a.png`文件

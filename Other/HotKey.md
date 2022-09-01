@@ -36,6 +36,7 @@
 * 加选当前选中的内容：Ctrl + G
 * 光标快速跳转到代码块开始/结束处：Option + 方向上 可以加选代码块，在加方向键左/右 即可
 * 切换窗口： Command + Shift + `
+* 复制光标 Caret Cloning： Option + Option(长按) + 方向上/下
 
 
 

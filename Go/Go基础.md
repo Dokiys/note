@@ -1519,7 +1519,7 @@ func TestTable(t *testing.T) {
 }
 ```
 
-此时如果我们指向运行`TestTable()`可以添加`-run`参数，后面赋值对应需要的方法：
+此时如果我们指向运行`TestTable()`可以添加`-run`参数，后面赋值对应需要的方法， 并且`-run`支持赋值正则表达式：
 
 ```go
 >go test -v -run="TestTable"
@@ -1538,7 +1538,7 @@ PASS
 ok      hellogo/test    0.147s
 ```
 
-此外`-run`还可以赋值正则表达式。
+### TestMain
 
 如果测试文件中包含`TestMain(m *testing.M)`，那么生成的测试将调用 `TestMain(m *testing.M)`，而不是直接运行测试。我们可以将此利用，在`TestMain(m *testing.M)`做一些共有的操作：
 
@@ -1571,6 +1571,24 @@ Start Test
 PASS
 End Test
 ok      hellogo/test    0.129s
+```
+
+### -args
+
+`go test`允许我们传入自定义参数，一下两种方式都可以被接收：
+
+```bash
+go test -coverprofile=cover.out -args '-quiet=true'
+go test -coverprofile=cover.out -quiet=true 
+```
+
+```go
+var quiet = flag.Bool("quiet", false, "")
+
+func TestMain(m *testing.M) {
+	flag.Parse()
+  fmt.Printf("quiet: %b", quiet)
+}
 ```
 
 
@@ -2239,9 +2257,68 @@ go generate ./...
 
 
 
-## doc
+## godoc
 
-todo
+`godoc`也是官方提供的工具之一，可以根据项目生成对应的文档。使用之前需要先安装这个工具：
+
+```bash
+go install golang.org/x/tools/cmd/godoc@latest
+```
+
+然后通过如下命令即可启动一个http的文档服务，然后访问`localhost:6060`即可：
+
+```bash
+godoc -http=localhost:6060
+```
+
+关于生成的文档又一些规则，比如
+
+* 在当前目录下任意go文件的`package`上面**一行**写的注释会被生成为`Overview`。如果在多个文件中都写了包注释，则会有冲突。通常会专门用一个名为`doc.go`的文件来写关于这个项目的`Overview`
+* 包下的函数，结构体等，都会被生成到`Index`中
+* 如果为函数或者结构体编写了`example`函数，则会在文档对应的函数或者结构体中也生成`Example`
+
+**Example**
+
+编写`Example`函数的文件名需要以`_test.go`为后缀，并且包名为`{PackageName}_test`。需要作为例子展示的函数需要以`Example`为函数名前缀。下面是一个简单的例子：
+
+```go
+package mydoc_test
+
+import (
+	"fmt"
+
+	"mydoc"
+)
+
+func ExampleVersion() {
+	mydoc.Version()
+	// Output:
+	// v1.0.0
+}
+```
+
+这个`Example`函数将会被生成到`mydoc`到`Version`函数下。并且这个函数是可以被测试的：
+
+```bash
+$ go test -v -run='ExampleVersion'  
+```
+
+测试的结果是将这里结尾的`Output:`以下的注释内容与`ExampleVersion()`这个函数执行时的输出进行比较。如果完全一致才会通过测试。
+除此之外还可以为结构体的方法添加`Example`，名称需要遵循格式：`Example{StructName}_{MethodName}`：
+
+```go
+func ExampleStu_Study() {
+	stu := mydoc.Stu{Name: "zhangsan"}
+	fmt.Println(stu.Code())
+	stu.Study()
+	fmt.Println(stu.Code())
+	// Output:
+	// 0
+	// 1
+}
+```
+
+
 
 # 项目结构示例
 
