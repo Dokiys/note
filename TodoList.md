@@ -53,3 +53,7 @@
    https://github.com/jhflovehqy/flutter_bolg_manage
    https://github.com/xuexiangjys/flutter_template
    ```
+   
+4. [learnshell](https://www.learnshell.org/)
+   [File Test Operators](https://www.folkstalk.com/2012/09/file-test-operators-operations-examples.html)
+
