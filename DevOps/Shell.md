@@ -3,9 +3,10 @@
 Shell programming can be accomplished by **directly executing shell commands at the shell prompt** or **by storing them in the order of execution, in a text file, called a shell script**, a command-line interpreter (CLI) . To execute, simply write the shell script file name, once the file has execute permission (`chmod +x filename`).
 
 There is different types of shells, such as sh, bash, zsh etc. 
-The Bourne shell (sh) is regarded as the first UNIX shell ever. The Bourne shell has some major drawbacks, for example it doesn't have in-built functionality to handle logical and arthmetic operations. 
-More popularly known as the Bash shell, the GNU Bourne-Again shell (bash) was designed to be compatible with the Bourne shell. It allows us to automatically recall previously used commands and edit them with help of arrow keys, unlike the Bourne shell.
-The Z Shell (zsh) is a sh shell extension with more improvements for customization, including some features of Bash.
+
+* The Bourne shell (sh) is regarded as the first UNIX shell ever. The Bourne shell has some major drawbacks, for example it doesn't have in-built functionality to handle logical and arthmetic operations. 
+* More popularly known as the Bash shell, the GNU Bourne-Again shell (bash) was designed to be compatible with the Bourne shell. It allows us to automatically recall previously used commands and edit them with help of arrow keys, unlike the Bourne shell.
+* The Z Shell (zsh) is a sh shell extension with more improvements for customization, including some features of Bash.
 
 We will discusses shell programming in general with focus on **Bash** shell as the main shell interpreter.
 
@@ -28,7 +29,7 @@ To add a shell command like following:
 
 ```bash
 #!/bin/bash
-  #!/usr/bin/env bash		# comment
+#!/usr/bin/env bash		# comment
 
 # To print Hello Work!
 echo 'Hello Work!'
