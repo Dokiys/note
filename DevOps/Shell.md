@@ -57,7 +57,6 @@ MyFirstLetters=ABC
 single_quote='Hello        world!'		# Won't interpolate anything.
 double_quote="Hello   $MyFirstLetters     world!"		# Will interpolate.
 escape_special_character="Hello   \$MyFirstLetters     world!"		# Use backslash.
-
 ```
 
 Variables can be assigned with the value of a command output, called **substitution**. Substitution can be done by encapsulating the command with `` ` ` ``(known as back-ticks) or with `$()`. When the script runs, it will run the command inside the` $()`parenthesis or  `` ` ` `` and capture its output.
@@ -85,8 +84,8 @@ my_array[4]="carrot"                    # value assignment without a $ and curly
 
 # Double quote array expansions to avoid re-splitting elements.
 echo "${my_array[@]}"                   # => apple banana Fruit Basket carrot
-echo ${#my_array[@]}                    # 5
-echo ${my_array[${#my_array[@]}-1]}     # carrot
+echo ${#my_array[@]}                    # => 5
+echo ${my_array[${#my_array[@]}-1]}     # => carrot
 ```
 
 
@@ -142,7 +141,7 @@ done
 
 ## Operators
 
-### Arithmetic Operators
+### Arithmetic
 
 To calculate simple arithmetics on variables should use: `$((expression))`
 
@@ -160,39 +159,276 @@ The basic operators include:
 * **a % b** modulo (the integer remainder of a divided by b)
 * **a** ****** **b** exponentiation (a to the power of b)
 
-### String Operations
 
 
+### String
 
-
-
-## 一行执行多个命令
-
-`;`用于区分多个命令，各命令直接的执行互不影响
+**Length**
 
 ```bash
-> cat 1.txt; ls
-cat: 1.txt: No such file or directory
-2.txt
+STRING="this is a string"
+echo "length STRING: ${#STRING}" # => length STRING: 16
 ```
 
-**&&**前面的命令执行成功才会执行后面的命令
+**Extraction**
+Extract substring of length `$LEN` from `$STRING` starting after position `$POS`:
 
 ```bash
-> cat 1.txt && ls
-cat: 1.txt: No such file or directory
+STRING="this is a string"
+POS=0
+LEN=4
+echo ${STRING:$POS:$LEN} # => this
 ```
 
-`||`当前面的命令执行失败后才会执行后面的命令
+ If `$LEN` is omitted, extract substring from `$POS` to end of line:
 
 ```bash
-> cat 1.txt || touch 1.txt; ls
-cat: 1.txt: No such file or directory
-1.txt 2.txt
+STRING="this is a string"
+echo ${STRING:10}        # => this
+echo ${STRING:(-6)}      # => this
+```
+
+**Replacement**
+Replace `all/firest/beginning/end` or delete occurrences of substring:
+
+```bash
+REPLACE_STRING="to be or not to be"
+echo "Replace first:      ${REPLACE_STRING[*]/be/eat}"        # => to eat or not to be
+echo "Replace all:        ${REPLACE_STRING[*]//be/eat}"       # => to eat or not to eat
+echo "Delete:             ${REPLACE_STRING[*]// not}"         # => to be or to be
+echo "Replace beginning:  ${REPLACE_STRING[*]/%to be/to eat}" # => to be or not to eat
+echo "Replace end:        ${REPLACE_STRING[*]/#to be/to eat}" # => to eat or not to be
 ```
 
 
 
-## 默认确认
+### File Test
 
-有些命令在执行时需要键入Y/n进行确认，在执行命令时添加`-y`参数，可以默认进行确认
+Shell provide you with several useful commands to do some file tests on file system. The file test operators are mostly used in the if clause. The syntax likes below:
+
+```bash
+# file test operators
+if [ -e "function.sh" ]; then
+  echo "function.sh is exist!"		# => function.sh is exist!
+fi
+```
+
+Common options are as follows:
+
+* `-e`: True if the file exists.
+* `-d`: True if the file exists and is a directory.
+* `-f`: True if the file exists and is a regular file.
+* `-r`: True if the file exists and is readable.
+* `-w`: True if the file exists and is writable.
+* `-x`: True if the file exists and is executable.
+
+
+
+## Expression
+
+### Comparisons
+
+**Number**
+
+```bash
+comparison   Evaluated to true when
+$a -lt $b    $a < $b
+$a -gt $b    $a > $b
+$a -le $b    $a <= $b
+$a -ge $b    $a >= $b
+$a -eq $b    $a is equal to $b
+$a -ne $b    $a is not equal to $b
+```
+
+**String**
+
+```bash
+comparison    	Evaluated to true when
+"$a" = "$b"     $a is the same as $b
+"$a" == "$b"    $a is the same as $b
+"$a" != "$b"    $a is different from $b
+-z "$a"         $a is empty
+```
+
+
+
+### Decision Making
+
+The shell supports logical decision making. Baisc use:
+
+```bash
+if [ "$NAME" = "Zhangsan" ]; then
+  echo "Hello Zhangsan!"
+elif [ "$NAME" = "Lisi" ]; then
+  echo "Hi Lisi!"
+else
+  echo "Wow"
+fi
+```
+
+The expression used by the conditional construct is evaluated to either true or false. The expression can be a single string or variable. A **empty string** or a string consisting of **spaces** or an **undefined variable** name, are evaluated as false.
+
+**Logical combination**
+The expression can be a logical combination of comparisons, **negation** is denoted by `!`, ogical AND (**conjunction**) is `&&`, logical OR (**disjunction**) is `||`. Conditional expressions should be surrounded by double brackets `[[ ]]`:
+
+```bash
+VAR_A=(1 2 3)
+VAR_B="be"
+VAR_C="cat"
+if [[ ${VAR_A[0]} -eq 1 && ($VAR_B = "bee" || $VAR_C = "cat") ]] ; then
+    echo "True"
+fi
+```
+
+**Case structure**
+Case structure support more cases:
+
+```bash
+CASE_CONDITION="one"
+case $CASE_CONDITION in
+"one") echo "You selected bash" ;;
+"two") echo "You selected perl" ;;
+"three") echo "You selected python" ;;
+"four") echo "You selected c++" ;;
+"five") exit ;;
+esac
+```
+
+
+
+### Loops
+
+**`for`** support array or command output results:
+
+```bash
+NAMES=('Joe Ham' Jenny Sara Tony)
+for N in "${NAMES[@]}" ; do
+  echo "My name is $N"
+done
+```
+
+```bash
+for N in $(echo -e 'Joe Ham' Jenny Sara Tony) ; do
+  echo "My name is $N"
+done
+```
+
+**`while`** if condition is true, **`until`** if condition is false, executes commands:
+
+```bash
+WHILE_COUNT=3
+while [ $WHILE_COUNT -gt 0 ]; do
+  echo "Value of count is: $WHILE_COUNT"
+  WHILE_COUNT=$(($WHILE_COUNT - 1))
+done
+```
+
+```bash
+UNTIL_COUNT=1
+until [ $UNTIL_COUNT -gt 3 ]; do
+  echo "Value of count is: $UNTIL_COUNT"
+  UNTIL_COUNT=$(($UNTIL_COUNT + 1))
+done
+```
+
+**break** and **continue**, like most language, can be used to control loop execution:
+
+```bash
+echo
+CTRL_COUNT=3
+while [ $CTRL_COUNT -gt 0 ]; do
+  if [ $CTRL_COUNT -eq 1 ]; then
+    CTRL_COUNT=$(($CTRL_COUNT - 1))
+    continue
+  fi
+  echo "Value of count is: $CTRL_COUNT"
+  if [ $CTRL_COUNT -eq 3 ]; then
+      break
+  fi
+done
+```
+
+
+
+## Function
+
+The function syntax likes below:
+
+```bash
+function add {
+  echo "$(($1 + $2))"
+}
+```
+
+A function call is equivalent to a command. Parameters may be passed to a function, by specifying them after the function name. 
+
+```bash
+echo "$(add 1 2)"		# => 3
+```
+
+
+
+## Pipelines
+
+**Background**
+As we know, under normal circumstances every Linux program has three streams opened when it starts; one for input; one for output; and one for printing diagnostic or error messages. The three as special file descriptors, which are represented by:
+
+* stdin:  `0`
+* stdout: `1`
+* stderr: `2` 
+
+By default, `stdout` and `stderr` are printed to your terminal, that's why we can see them at all. `>` operator can help us redirect them to a other `file descriptor`. For example: 
+
+```bash
+$ echo "hello work!" 1> hello 		# default stdstream is stdout, '1>' equal `>`
+$ cat hello
+hello
+```
+
+Redirect to stdstream use `>&`, such as: `echo "hello work!" 1>&2`.
+We can referene below to understand stdstream, to avoid stderr print to terminal, I redirect stderr to `/dev/null`:
+
+```bash
+function out() {
+  echo "Standard output"
+}
+
+function err() {
+  echo "Standard error" 1>&2
+}
+```
+
+```bash
+echo "out stdout: $(out 2>/dev/null)"		# => out stdout: Standard output
+echo "err stdout: $(err 2>/dev/null)"		# => err stdout: 
+```
+
+
+
+## Pipes
+
+Pipelines is a way to chain commands and connect stdout from one command to the stdin of the next. By default pipelines redirects standard output only.
+A pipeline is represented by the pipe character: `|`. To show pipes, we use a command `read`，which will help us read from stdin:
+
+```bash
+function isNull() {
+  read in		# rean from stdin and assign to $in
+  if [[ ${#in} -eq 0 ]]; then
+    echo "True"
+  else
+    echo "False"
+  fi
+}
+```
+
+```bash
+echo "out isNull: $(out 2>/dev/null | isNull)"		# => out isNull: False
+echo "err isNull: $(err 2>/dev/null | isNull)"		# => err isNull: True
+```
+
+If you want to include the standard error need to use the form `2>&1 |`:
+
+```bash
+echo "err redirect isNull: $(err 2>&1 | isNull)"	# => err redirect isNull: False
+```
+
