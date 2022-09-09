@@ -12,7 +12,7 @@
 
 ## DevOps
 
-* [Shell](DevOps/shell.md)
+* [Shell](DevOps/Shell.md)
 * [TheDokerNote](DevOps/TheDokerNote.md)
 * [云原生技术](DevOps/云原生技术.md)
 * [etcd](DevOps/etcd.md)

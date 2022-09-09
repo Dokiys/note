@@ -326,7 +326,7 @@ Automatic merge failed; fix conflicts and then commit the result.
 
 
 
-### 分支归档
+### git tag
 
 `tag`可以用于永远指向某个提交记录的标识呢，比如软件发布新的大版本，或者是修正一些重要的 Bug 或是增加了某些新特性。
 
@@ -354,6 +354,12 @@ git tag -n
  ```bash
 git tag -d [标签名]
  ```
+
+推到远程：
+
+```bash
+git push --tags
+```
 
 
 

@@ -5,4 +5,5 @@
 * 创建一个在将来可能会用于数据分析，同比数据或者数据量比较大的表时。都需要对`created_at`和`updated_at`字段添加索引。
 * 唯一键无法对`NULL`值生效，使用时需要与`not null`同时使用。
 * `datatime`和`timestamp`类型插入数据的精度比表设置的精度高时都有出现四舍五入的情况。
+*  事务修改需要添加`FOR UPDATE`来加行锁进行查询`SELECT * FROM user WHERE id = 1 FOR UPDATE`。
 
