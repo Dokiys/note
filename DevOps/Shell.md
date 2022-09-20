@@ -209,7 +209,7 @@ Shell provide you with several useful commands to do some file tests on file sys
 
 ```bash
 # file test operators
-if [ -e "function.sh" ]; then
+if [ -e "function.sh" ]; then			# => or if [ ! -e "function.sh" ];
   echo "function.sh is exist!"		# => function.sh is exist!
 fi
 ```
@@ -433,3 +433,7 @@ If you want to include the standard error need to use the form `2>&1 |`:
 echo "err redirect isNull: $(err 2>&1 | isNull)"	# => err redirect isNull: False
 ```
 
+
+
+// Todo
+// read shift local trap

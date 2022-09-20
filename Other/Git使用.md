@@ -796,10 +796,20 @@ git config  --global user.email 邮箱名
 
 在下次提交的时候就可以看到`Hello Work!`的输出。
 
-通过一下命令可以设置全局的hooks，其命令的执行路径是相对于项目的`.git`所在路径：
+通过一下命令可以设置（全局）的hooks，其命令的执行路径是相对于项目的`.git`所在路径：
 
 ```bash
+ git config core.hooksPath [PATH]
  git config --global core.hooksPath [PATH]
+```
+
+```bash
+# 添加push前的golint检查
+# sed  's/$/ \\\\n/g' .git/hooks/pre-push | xargs echo # 将文档输出为一行
+# 添加到全局
+git config --global core.hooksPath ~/workspace/git/hooks && echo "#\!/bin/sh \n \n # check lint \n if [ ! -e .golangci.yml || ! hash golangci-lint]; then \n exit 0; \n fi \n \n golangci-lint run 1>&2 \n" > ~/workspace/git/hooks/pre-push
+# 添加到项目
+git config core.hooksPath '.git/hooks' &&  echo "#\!/bin/sh \n \n # check lint \n if [ ! -e .golangci.yml || ! hash golangci-lint]; then \n exit 0; \n fi \n \n golangci-lint run 1>&2 \n" > .git/hooks/pre-push
 ```
 
 
@@ -884,6 +894,8 @@ git log -- [filepath]
 
 ```bash
 git log --graph --oneline		# 图形化查看当前分支体检记录
+git log --graph --oneline --min-parents=2	# 只查看当前分支的提交和Merge提交
+git log --graph --oneline --merges	# 只查看当前分支的提交和Merge提交
 ```
 
 

@@ -291,6 +291,8 @@ fileH fileG fileF fileE fileD fileC fileB fileA
 
 登录 Shell 时会在`~/.bash_history`文件中去读取记录下的命令
 
+// TODO[Dokiy] 
+
 获取一个命令可以使用：
 
 ```bash

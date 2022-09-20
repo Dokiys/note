@@ -1,11 +1,8 @@
 # TODOLIST
 
-1. shell
-   https://github.com/cuonglm/gocmt
+1. 服务网格，dapr
 
-4. 服务网格，dapr
-
-5. flatter
+2. flatter
 
    ```
    Flutter开发
@@ -53,10 +50,18 @@
    https://github.com/jhflovehqy/flutter_bolg_manage
    https://github.com/xuexiangjys/flutter_template
    ```
-   
-4. Shell Tools
-   
+
+3. Shell Tools
+
    重新整合一下
+
+   还有Linux基础里的Todo [参考1](https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Word-Designators) [参考2](https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Event-Designators)
+
    
+
 4. codecov
    https://docs.codecov.com/docs/quick-start
+
+5. Cli => build check
+
+6. Zsh 选择history参数
