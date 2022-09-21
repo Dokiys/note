@@ -803,14 +803,50 @@ git config  --global user.email 邮箱名
  git config --global core.hooksPath [PATH]
 ```
 
+#### **pre-push** 
+
 ```bash
 # 添加push前的golint检查
 # sed  's/$/ \\\\n/g' .git/hooks/pre-push | xargs echo # 将文档输出为一行
 # 添加到全局
-git config --global core.hooksPath ~/workspace/git/hooks && echo "#\!/bin/sh \n \n # check lint \n if [ ! -e .golangci.yml || ! hash golangci-lint]; then \n exit 0; \n fi \n \n golangci-lint run 1>&2 \n" > ~/workspace/git/hooks/pre-push
+git config --global core.hooksPath ~/workspace/git/hooks && echo "#\!/bin/sh \n \n # check lint \n if [ ! -e .golangci.yml ] || ! command -v golangci-lint > /dev/null; then \n exit 0; \n fi \n \n golangci-lint run 1>&2 \n" > ~/workspace/git/hooks/pre-push && chmod +x ~/workspace/git/hooks/pre-push
 # 添加到项目
-git config core.hooksPath '.git/hooks' &&  echo "#\!/bin/sh \n \n # check lint \n if [ ! -e .golangci.yml || ! hash golangci-lint]; then \n exit 0; \n fi \n \n golangci-lint run 1>&2 \n" > .git/hooks/pre-push
+git config core.hooksPath '.git/hooks' &&  echo "#\!/bin/sh \n \n # check lint \n if [ ! -e .golangci.yml ] || ! command -v golangci-lint > /dev/null; then \n exit 0; \n fi \n \n golangci-lint run 1>&2 \n" > .git/hooks/pre-push && chmod +x ~/workspace/git/hooks/pre-push
 ```
+
+#### **pre-commit** 
+
+```bash
+#!/bin/sh
+
+MAX_SIZE=$((1024 * 1024 * 5))
+FILES=$(git --no-pager diff --cached --name-status | grep "A\t" | awk '{print $2}')
+
+for FILE in $FILES; do
+  SIZE=$(ls -l $FILE | awk '{print $5}')
+
+  if [ $SIZE -gt $MAX_SIZE ]; then
+    ERR_FILES[${#ERR_FILES[@]}]=$FILE
+    continue
+  fi
+done
+
+if [ ${#ERR_FILES[@]} -eq 0 ]; then
+  exit 0
+fi
+
+# Regular Colors
+Red='\033[0;31m' # Red
+echo "Exceed max size files:"
+echo "  (use \"git commit --no-verify -m 'COMMENT'\" to discard)"
+for E_FILE in $ERR_FILES; do
+  echo "${Red}\t${E_FILE}"
+done
+
+exit 1
+```
+
+
 
 
 
