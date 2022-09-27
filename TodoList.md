@@ -51,17 +51,10 @@
    https://github.com/xuexiangjys/flutter_template
    ```
 
-3. Shell Tools
-
-   重新整合一下
-
-   还有Linux基础里的Todo [参考1](https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Word-Designators) [参考2](https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Event-Designators)
-
-   
-
 4. codecov
    https://docs.codecov.com/docs/quick-start
 
 5. Cli => build check
 
-6. Zsh 选择history参数
+7. protofmt
+

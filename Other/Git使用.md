@@ -807,11 +807,26 @@ git config  --global user.email 邮箱名
 
 ```bash
 # 添加push前的golint检查
-# sed  's/$/ \\\\n/g' .git/hooks/pre-push | xargs echo # 将文档输出为一行
 # 添加到全局
-git config --global core.hooksPath ~/workspace/git/hooks && echo "#\!/bin/sh \n \n # check lint \n if [ ! -e .golangci.yml ] || ! command -v golangci-lint > /dev/null; then \n exit 0; \n fi \n \n golangci-lint run 1>&2 \n" > ~/workspace/git/hooks/pre-push && chmod +x ~/workspace/git/hooks/pre-push
+git config --global core.hooksPath ~/workspace/git/hooks &&  echo "#\!/bin/sh \n \n # check lint \n if [ ! -e .golangci.yml ] || ! command -v golangci-lint > /dev/null; then \n exit 0; \n fi \n \n golangci-lint run 1>&2 \nif [ \$? -ne 0 ]; then  echo \"  (use \"\\\`git push --no-verify\\\`\" to discard)\";exit 2; fi" > ~/workspace/git/hooks/pre-push && chmod +x ~/workspace/git/hooks/pre-push
 # 添加到项目
-git config core.hooksPath '.git/hooks' &&  echo "#\!/bin/sh \n \n # check lint \n if [ ! -e .golangci.yml ] || ! command -v golangci-lint > /dev/null; then \n exit 0; \n fi \n \n golangci-lint run 1>&2 \n" > .git/hooks/pre-push && chmod +x ~/workspace/git/hooks/pre-push
+git config core.hooksPath .git/hooks &&  echo "#\!/bin/sh \n \n # check lint \n if [ ! -e .golangci.yml ] || ! command -v golangci-lint > /dev/null; then \n exit 0; \n fi \n \n golangci-lint run 1>&2 \nif [ \$? -ne 0 ]; then  echo \"  (use \"\\\`git push --no-verify\\\`\" to discard)\";exit 2; fi" > .git/hooks/pre-push && chmod +x ~/workspace/git/hooks/pre-push
+```
+
+```bash
+#!/bin/sh
+
+# check lint
+if [ ! -e .golangci.yml ] || ! command -v golangci-lint >/dev/null; then
+  exit 0
+fi
+
+golangci-lint run 1>&2
+
+if [ $? -ne 0 ]; then
+  echo "  (use \"git push -no-verify\" to discard)";
+  exit 2;
+fi
 ```
 
 #### **pre-commit** 

@@ -49,10 +49,6 @@
 
 
 
-
-
-
-
 ## Cron
 
 ```yaml
@@ -79,6 +75,32 @@
 
 
 
+## ANSI C Quoting
+
+[bash manual](https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#ANSI_002dC-Quoting)
+
+| character | description  |
+| :-------- | ------------ |
+|`\a `|alert (bell)|
+|`\b `|backspace|
+|`\e `|\E an escape character (not ANSI C)|
+|`\f `|form feed|
+|`\n `|newline|
+|`\r `|carriage return|
+|`\t `|horizontal tab|
+|`\v `|vertical tab|
+|`\\`| backslash |
+|`\' `|single quote|
+|`\" `|double quote|
+|`\? `|question mark|
+|`\nn`|n the eight-bit character whose value is the octal value nnn (one to three octal digits)|
+|`\xH`|H the eight-bit character whose value is the hexadecimal value HH (one or two hex digits)|
+|`\uH`|HHH the Unicode (ISO/IEC 10646) character whose value is the hexadecimal value HHHH (one to four hex digits)|
+|`\UH`|HHHHHHH the Unicode (ISO/IEC 10646) character whose value is the hexadecimal value HHHHHHHH (one to eight hex digits)|
+|`\cx`| a control-x character|
+
+
+
 ## loki
 
 基本查询：
@@ -91,8 +113,6 @@
 - !=：日志行不包含的字符串
 - |~：日志行匹配正则表达式
 - !~：日志行与正则表达式不匹配
-
-
 
 
 

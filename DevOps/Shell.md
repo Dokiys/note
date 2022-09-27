@@ -367,6 +367,16 @@ A function call is equivalent to a command. Parameters may be passed to a functi
 echo "$(add 1 2)"		# => 3
 ```
 
+By default all variables are global. You can create a local variables using the `local`:
+
+```bash
+function Hello {
+	local NAME="zhangsan"
+	echo $NAME
+}
+echo $NAME	# => (NULL)
+```
+
 
 
 ## Pipelines
@@ -435,5 +445,250 @@ echo "err redirect isNull: $(err 2>&1 | isNull)"	# => err redirect isNull: False
 
 
 
-// Todo
-// read shift local trap
+
+
+# Programs
+
+## Builtin
+
+### dirname
+
+```bash
+# 打印出文件夹路径
+$ dirname deploy/report/rpc/Dockerfile
+deploy/report/rpc
+```
+
+### envsubst
+
+envsubst会根据环境变量替换模板中的变量，然后生成指定名称的文件。
+在MacOS，CentOS等系统中，起包含在gettext工具中。
+
+```bash
+$ cat temp.yml
+vars:
+  ADD: ${ADD}
+$ export ADD=1.1.1.1
+$ envsubst <temp.yml> add.yml
+$ cat add.yml
+vars:
+  ADD: 1.1.1.1
+```
+
+当文件中有多个变量时，需要制定替换的具体变量名：
+
+```bash
+$ envsubst 'ADD' <temp.yml> add.yml
+```
+
+### read
+
+接收控制台输入，并按照指定名称创建参数：
+
+```bash
+$ read var_name && echo $var_name
+123
+123
+```
+
+### scp
+
+Linux命令行下可以通过`scp`命令传输文件，添加`-r`选项可以传输目录
+
+从服务器下载文件
+
+```bash
+> [bysj ~]$ scp username@servername:/path/filename /tmp/local_destination
+```
+
+上传本地文件目录到服务器
+
+```bash
+> [bysj ~]$ scp -r /path/local_filename username@servername:/path 
+```
+
+### shift
+
+```bash
+#!/usr/bin/env bash
+
+while [ $# != 0 ]; do
+  echo "args: $*"
+  shift
+done
+```
+
+```bash
+./shift.sh 1 2 3
+args: 1 2 3
+args: 2 3
+args: 3
+```
+
+### tar & zip
+
+```bash
+tar -czvf [文件名].tar.gz	1.txt 2.txt					#压缩
+tar -xzvf [文件名].tar.gz	-C [指定解压路径]			#解压缩
+```
+
+```bash
+# -c ：create、-x ：打开归档文件、-z ：压缩、-v ：view
+# -f ：归档文件名，应用在最后一个参数，后直接跟归档文件名，再跟需要归档的文件
+# -C：指定指定解压路径
+# 如果打包的没有采用-z压缩，则还可以添加 -r 选项来追加文件：
+tar -rvf [文件名].tar [被追加的文件名]
+```
+
+zpi 用于压缩制定的文件， `-r`选项可以递归压缩目录下的文件：
+
+```bash
+zip -r myfile.zip 1.txt 2.txt Dir
+```
+
+```bash
+# 添加/删除某文件
+zip -m myfile.zip 3.txt
+zip -d myfile.zip 2.txt
+```
+
+`unzip`可以将压缩文件解压缩，`-d`用于制定解压路径：
+
+```bash
+unzip -d ./doc myfile.zip
+```
+
+### trap
+
+`trap`可以捕获系统信号，比如：
+
+* `Ctrl+C`可以触发`SIGINT`
+* `Ctrl+Z`可以触发`SIGSTOP`，`SIGKILL`/`SIGSTOP` 不会被捕获
+* *`Ctrl+D`仅仅只是输入`EOF`，不会触发系统信号
+
+```bash
+#!/usr/bin/env bash
+
+trap "echo Booh!" SIGINT SIGSTOP
+echo "it's going to run until you hit Ctrl+Z"
+echo "hit Ctrl+C to be blown away!"
+
+while true
+do
+    sleep 60
+done
+```
+
+```bash
+$ ./trap.sh
+it's going to run until you hit Ctrl+Z
+hit Ctrl+C to be blown away!
+^CBooh!
+^CBooh!
+^CBooh!
+^Z
+[2]  + 55377 suspended  ./trap.sh
+```
+
+
+
+### tr & sed
+
+`tr`按照给定的**字符**，对标准入进行替换：
+
+```bash
+$ echo 'Hello work!' | tr a-z A-Z | tr ' ' '\n'
+HELLO
+WORK!
+```
+
+`sed`根据指定的参数修改标准输入并写入标准输出：
+
+```bash
+$ echo 'Hello work!' | sed 's/Hello/Hola/g'
+Hola work!
+```
+
+```bash
+# -i 直接修改原文件
+$ echo 'Hello work!' > temp.txt && sed -i 's/Hello/Hola/g' temp.txt && cat temp.txt
+Hola work!
+# 删除/向后新增/向前新增
+$ sed -i '/target_content/d' temp.txt
+$ sed -i '/target_content/a new_content' temp.txt
+$ sed -i '/target_content/i new_content' temp.txt
+# 匹配行中替换某个字符串
+$ sed -i '/target_line/s/target_content/new_content/g' temp.txt
+```
+
+
+
+## External
+
+### goreman
+
+[Goreman](https://github.com/mattn/goreman) 是一个[Foreman](https://github.com/ddollar/foreman)的Go语言的克隆版本，一般在开发过程中的调试多个进程时使用。
+安装：
+
+```bash
+$ go get github.com/mattn/goreman
+```
+
+Goreman基于命令行同级目录下的`Procfile`文件来运行，采用`[进程名]:[shell脚本]`的格式：
+
+```procfile
+server1: ./server -name="S1"
+server1: ./server -name="S2"
+```
+
+常用命令：
+
+```bash
+goreman check				# 检查Procfile配置
+goreman start				# 运行
+goreman -f myprocfile start				# 通过指定文件运行(默认为Procfile)
+goreman run status	# 查看状态
+goreman run stop PROCESS_NAME			# 停止某个进程
+goreman run start PROCESS_NAME		# 启动某个进程
+goreman run restart PROCESS_NAME	# 重启某个进程
+```
+
+### terminalizer
+
+`terminalizer`可以记录我们的命令行信息，并生成gif图片：
+
+```bash
+npm install -g terminalizer
+```
+
+开始记录：
+
+```bash
+$ terminalizer record demo -d 'zsh'
+...
+$ exit
+```
+
+完成后将会自动在当前目录生成demo.yml文件，保存相关信息。然后根据再根据该文件生成图片：
+
+```bash
+$ terminalizer render demo -o=./demo.gif
+```
+
+
+
+## Others
+
+###  zshrc alias
+
+```zsh
+# protofmt buf format ./*.proto file
+function protofmt() {
+  for filename in $(find . -name "*.proto"); do \
+    buf format $filename -o $filename;
+  done
+}
+# gnum generate 1..N num
+function gnum(){echo {1..$1} | tr ' ' "\n" | pbcopy}
+```
+
