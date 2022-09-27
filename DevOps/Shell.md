@@ -445,7 +445,17 @@ echo "err redirect isNull: $(err 2>&1 | isNull)"	# => err redirect isNull: False
 
 
 
+## Built-in
 
+Shell builtin commands are commands that can be executed within the running shell's process. Most builtin commands will be used directly. Some time Shell will use external commands, for example `echo`. Under macOS `echo` just support `-n` option. The following shows how to use builtin `echo`：
+
+```bash
+$ builtin echo -e "123\\\111/asd/"
+123\111/asd/
+$ bash -c "echo -e \"123
+\\\111/asd/\""
+123\111/asd/
+```
 
 # Programs
 
