@@ -51,10 +51,17 @@
    https://github.com/xuexiangjys/flutter_template
    ```
 
-4. codecov
-   https://docs.codecov.com/docs/quick-start
-
+4. [codecov](https://docs.codecov.com/docs/quick-start)
+   
 5. Cli => build check
 
-7. protofmt
+5. protofmt
+
+6. gconv
+
+7. monorepo、bazel
+
+8. [aliyun RDS](https://help.aliyun.com/document_detail/26117.html?spm=5176.19907426.help.dexternal.7bba14502qtRg2#t7814.html)
+
+7. redis
 

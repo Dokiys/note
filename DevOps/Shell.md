@@ -461,6 +461,19 @@ $ bash -c "echo -e \"123
 
 ## Builtin
 
+### awk
+
+```bash
+$ cat 1.txt
+1 a
+2 b
+3 c
+$ cat 1.txt | awk '{print $2}'
+a
+b
+c
+```
+
 ### dirname
 
 ```bash
@@ -489,6 +502,19 @@ vars:
 
 ```bash
 $ envsubst 'ADD' <temp.yml> add.yml
+```
+
+### grep
+
+按行查找内容
+
+```bash
+$ cat 1.txt 
+1
+2
+3
+$ cat 1.txt | grep -v '1' | grep '2'		# 先排除'1'，再查找'2'
+3
 ```
 
 ### read
@@ -633,7 +659,7 @@ $ sed -i '/target_line/s/target_content/new_content/g' temp.txt
 
 
 
-## External
+## Others
 
 ### goreman
 
@@ -686,8 +712,6 @@ $ terminalizer render demo -o=./demo.gif
 ```
 
 
-
-## Others
 
 ###  zshrc alias
 
