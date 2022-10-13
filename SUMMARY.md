@@ -17,6 +17,11 @@
 * [云原生技术](DevOps/云原生技术.md)
 * [etcd](DevOps/etcd.md)
 
+## Tools
+
+* [Git使用](Tools/Git使用.md)
+* [Dictionary](Tools/Dictionary.md)
+
 ## Ruby
 
 * [Ruby元编程](Ruby/Ruby元编程.md)
@@ -27,28 +32,16 @@
 
 ## Other
 
-* [Git使用](Other/Git使用.md)
-* [HotKey](Other/HotKey.md)
-* [Tools](Other/Tools.md)
-* [FrontEnd小记](Other/FrontEnd小记.md)
-
-## Logs
-
-* [FactoryPattern&IOP](Logs/FactoryPattern&IOP.md)
-* [Go的错误处理](Logs/HandleGoError.md)
-
-## Zoo
-
-* [RabbitMQ](Zoo/RabbitMQ.md)
-* [Elasticsearch](Zoo/Elasticsearch.md)
-* [JWT](Zoo/JWT.md)
-* [OAuth2](Zoo/OAuth2.md)
-* [Encryption](Zoo/Encryption.md)
-* [HelloDocker](Zoo/HelloDocker.md) 
-* [Regexp](Zoo/Regexp.md)
-* [一个HTTP请求](Zoo/一个HTTP请求.md) 
-* [Java网络编程](Zoo/Java网络编程.md)
-* [Java并发编程](Zoo/Java并发编程.md)
+* [RabbitMQ](Other/RabbitMQ.md)
+* [Elasticsearch](Other/Elasticsearch.md)
+* [JWT](Other/JWT.md)
+* [OAuth2](Other/OAuth2.md)
+* [Encryption](Other/Encryption.md)
+* [Regexp](Other/Regexp.md)
+* [一个HTTP请求](Other/一个HTTP请求.md) 
+* [FrontEnd](Other/FrontEnd.md)
+* [Java网络编程](Other/Java网络编程.md)
+* [Java并发编程](Other/Java并发编程.md)
 
 
 
