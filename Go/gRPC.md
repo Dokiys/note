@@ -910,6 +910,8 @@ $  goreman start
 
 # gRPC-Gateway
 
+## Gateway
+
 除了gRPC，有时候我们也需要进行RESTful调用，gRPC-Gateway就是一个用于解决这个问题的工具。其会根据proto文件，生成对应的代码，反向代理来自RESTful的请求，并转换成gRPC调用。上一张官网的经典图：
 
 ![grpc_gateway](../asset/Go/gRPC/grpc_gateway.svg)
@@ -1040,6 +1042,31 @@ curl --location --request POST 'http://localhost:8081/v1/say_hello' \
 成功获取到返回信息。
 
 
+
+## OpenAPI
+
+通常我们的HTTP服务都需要提供相应的API文档，我们可以通过插件`protoc-gen-openapi`帮助我们通过`proto`文件来自动生成文档。在此之前，需要先了解一些背景知识。`OpenAPI`是Linux基金会下的一个开源项目，其实就是一个关于HTTP接口描述的规范。比如在postman或者apifox中导入接口时都支持`OpenAPI`的格式文件。
+
+我们需要先安装插件：
+
+```bash
+$ go install github.com/google/gnostic/cmd/protoc-gen-openapi@v0.6.8
+```
+
+还是使用刚才的proto文件，执行一下命令：
+
+```bash
+# gRPC Gateway
+PROTO_GRPC_FILES=$(shell find ./gateway/* -name *.proto)
+proto_gateway:
+	protoc --openapi_out=./gateway $(PROTO_GRPC_FILES)
+```
+
+会发现在`./gateway`目录下生成了一个`openapi.yaml`文件。可以使用swagger-ui来渲染该文件，通过docker可以快速的在本地启动起来：
+
+```bash
+docker run -p 19999:8080 -e SWAGGER_JSON=/foo/openapi.yaml -v `pwd`/gateway:/foo swaggerapi/swagger-ui
+```
 
 # etcd Discovery
 
