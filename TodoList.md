@@ -1,8 +1,6 @@
 # TODOLIST
 
-1. 服务网格，dapr
-
-2. flatter
+1. flatter
 
    ```
    Flutter开发
@@ -51,17 +49,20 @@
    https://github.com/xuexiangjys/flutter_template
    ```
 
-4. [codecov](https://docs.codecov.com/docs/quick-start)
-   
-5. Cli => build check
+2. Cli => build check
 
-5. protofmt
+3. 服务网格，dapr
 
-6. gconv
+4. protofmt
 
-7. monorepo、bazel
+5. gconv
 
-8. [aliyun RDS](https://help.aliyun.com/document_detail/26117.html?spm=5176.19907426.help.dexternal.7bba14502qtRg2#t7814.html)
+6. monorepo、bazel
 
-7. redis
+7. [aliyun RDS](https://help.aliyun.com/document_detail/26117.html?spm=5176.19907426.help.dexternal.7bba14502qtRg2#t7814.html)
 
+8. redis
+
+9. openapi => swagger => protoc genapi
+
+10. job
