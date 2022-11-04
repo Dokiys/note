@@ -63,6 +63,10 @@
 
 8. redis
 
-9. openapi => swagger => protoc genapi
+9. job
 
-10. job
+10. pprof https://zhuanlan.zhihu.com/p/71529062
+
+11. apisix route
+
+12. skaffold
