@@ -6,4 +6,5 @@
 * 唯一键无法对`NULL`值生效，使用时需要与`not null`同时使用。
 * `datatime`和`timestamp`类型插入数据的精度比表设置的精度高时都有出现四舍五入的情况。
 *  事务修改需要添加`FOR UPDATE`来加行锁进行查询`SELECT * FROM user WHERE id = 1 FOR UPDATE`。
+*  查看mysql状态`SHOW STATUS`，刷新mysql状态`FLUSH STATUS`
 

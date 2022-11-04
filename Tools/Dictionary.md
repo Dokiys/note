@@ -224,7 +224,7 @@ The third content...
 * 使结构体实现某接口：光标选择到结构体，Option + Enter
 * 窗口查看方法内容：Command + T
 * 光标跳转到上一个方法：Shift + Ctrl + 方向上/下
-* 切换Tool Window：长按Ctrl + Tab 
+* 切换Tool Window：长按Ctrl + Tab 或者 Command + E
 * 提取方法：Command  + Option + M
 * 在下一行复制选择的代码：Command + D
 * 加选当前选中的内容：Ctrl + G
