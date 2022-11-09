@@ -821,16 +821,6 @@ func(cat *Cat) Rename(name string){
 
 ### 方法集
 
-每个类型都有与之关联的⽅法集：
-
-* 类型 T ⽅法集包含全部 receiver T ⽅法。 
-* 类型 *T ⽅法集包含全部 receiver T + *T ⽅法。 
-* 如类型 S 包含匿名字段 T，则 S ⽅法集包含 T ⽅法。 
-* 如类型 S 包含匿名字段 *T，则 S ⽅法集包含 T + *T ⽅法。 
-* 不管嵌⼊ T 或 *T，*S ⽅法集总是包含 T + *T ⽅法。
-
-
-
 方法根据调用者不同可以分为两种表现形式：
 
 ```go
@@ -838,19 +828,55 @@ instance.method(args...)			// method value
 <type>.func(instance, args...)		// method expression。
 ```
 
-如以上定义的Cat结构体中添加`WhoAmI()`，方法后可以使用如下两种方式调用：
+可以通过一下的例子来感受一下：
 
 ```go
-func (cat *Cat) WhoAmI(){
-	fmt.Printf("I am %v\n",cat.name)
+type Cat struct {
+	name string
 }
 
-func MethodMethod() {
-	cat := &Cat{"Tomcat"}
-	cat.WhoAmI()
-	(*Cat).WhoAmI(cat)
+func (cat *Cat) Rename(name string) {
+	cat.name = name
+}
+
+func (cat Cat) WhoAmI() {
+	fmt.Printf("I am %v\n", cat.name)
 }
 ```
+
+以下对于`WhoAmI()`和`Rename()`两种写法其实是等价的：
+
+```go
+// value reciver
+cat := Cat{"Tomcat"}
+cat.WhoAmI()				// 1
+(Cat).WhoAmI(cat)		// 2
+```
+
+```go
+// pointer reciver
+cat := Cat{"Tomcat"}
+cat.Rename("Jerry")						// 1	=> (&cat).Rename("Jerry")
+(*Cat).Rename(&cat, "Harry")	// 2
+```
+
+这里值得注意的是，cat作为Cat类型的值依然可以调用到作为指针接收的`(cat *Cat) Rename`方法。这是因为`go`在编译的时候会为我们做隐式转换，实际上`cat.Rename("Jerry")`相当于`(&cat).Rename("Jerry")`。
+但是如果尝试使用以下两种方法调用，则编译会不通过：
+
+```go
+Cat.Rename(&cat, "Harry")
+Cat.Rename(cat, "Harry")		
+```
+
+这就涉及到方法集的概念，方法集决定了可以在该类型上操作的方法。每个类型都有与之关联的⽅法集，比如上面例子中的`WhoAmI()`就是定义在`Cat`类型的方法集中的一个方法。
+
+定义同一个receiver上的方法，可能属于多个方法集：
+
+* 类型 T ⽅法集包含全部 receiver T ⽅法。 
+* 类型 *T ⽅法集包含全部 receiver T + *T ⽅法。 
+* 如类型 S 包含匿名字段 T，则 S ⽅法集包含 T ⽅法。 
+* 如类型 S 包含匿名字段 *T，则 S ⽅法集包含 T + *T ⽅法。 
+* 不管嵌⼊ T 或 *T，S ⽅法集总是包含 T + *T ⽅法。
 
 
 
