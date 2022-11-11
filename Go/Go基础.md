@@ -1443,11 +1443,13 @@ writer.Flush()
 
 # 测试
 
-之所以将测试单独写一章，就是为了表明测试的重要性。
+之所以将测试单独写一章，就是为了表明测试对一个项目的重要性。
 
 
 
 ## 单元测试
+
+### Test
 
 单元测试是用来测试一部分代码的函数。单元测试的是确认目标在给定的场景下有没有按照预期工作。
 
@@ -1492,7 +1494,6 @@ ok      hellogo/test    0.100s
 ```
 
 如果不添加`-v`参数，将不会输出`t.Log()`中的内容。
-
 让我们修改一下函数的内容，使得返回一个错误的结果，在运行测试：
 
 ```go
@@ -1545,24 +1546,22 @@ func TestTable(t *testing.T) {
 }
 ```
 
-此时如果我们指向运行`TestTable()`可以添加`-run`参数，后面赋值对应需要的方法， 并且`-run`支持赋值正则表达式：
+go在运行测试方法时，各个包直接是相互隔离并且并行的（当然这取决于你设置的运行cpu数量）。同一个包下的测试会按照文件名顺序，来执行。同一个文件中的多个测试会按照从上到下的顺序执行。
+
+`t.Run()`可以让我们在同一个Test方法中，顺序执行多次，并可以设置名称：
 
 ```go
->go test -v -run="TestTable"
-=== RUN   TestTable
-    unit_test.go:35: Table Group Test
-=== RUN   TestTable/Test_fib(1)
-=== RUN   TestTable/Test_fib(2)
-=== RUN   TestTable/Test_fib(3)
-=== RUN   TestTable/Test_fib(4)
---- PASS: TestTable (0.00s)
-    --- PASS: TestTable/Test_fib(1) (0.00s)
-    --- PASS: TestTable/Test_fib(2) (0.00s)
-    --- PASS: TestTable/Test_fib(3) (0.00s)
-    --- PASS: TestTable/Test_fib(4) (0.00s)
-PASS
-ok      hellogo/test    0.147s
+func TestRun(t *testing.T) {
+  t.Run("name1", func(t *testing.T) {
+		t.Log(1)
+	})
+	t.Run("name2", func(t *testing.T) {
+		t.Log(2)
+	})
+}
 ```
+
+
 
 ### TestMain
 
@@ -1599,7 +1598,38 @@ End Test
 ok      hellogo/test    0.129s
 ```
 
-### -args
+
+
+### testflag
+
+可以通过`go help test`和`go help testflag`查看更多的参数
+
+#### -v
+
+打印详细的测试输出
+
+#### -run
+
+`-run`参数，后面赋值对应需要执行的测试方法， 并且`-run`支持赋值正则表达式，比如之前的例子：
+
+```go
+>go test -v -run="TestTable.*"
+=== RUN   TestTable
+    unit_test.go:35: Table Group Test
+=== RUN   TestTable/Test_fib(1)
+=== RUN   TestTable/Test_fib(2)
+=== RUN   TestTable/Test_fib(3)
+=== RUN   TestTable/Test_fib(4)
+--- PASS: TestTable (0.00s)
+    --- PASS: TestTable/Test_fib(1) (0.00s)
+    --- PASS: TestTable/Test_fib(2) (0.00s)
+    --- PASS: TestTable/Test_fib(3) (0.00s)
+    --- PASS: TestTable/Test_fib(4) (0.00s)
+PASS
+ok      hellogo/test    0.147s
+```
+
+#### -args
 
 `go test`允许我们传入自定义参数，一下两种方式都可以被接收：
 

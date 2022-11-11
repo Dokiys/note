@@ -59,14 +59,9 @@
 
 6. monorepo、bazel
 
-7. [aliyun RDS](https://help.aliyun.com/document_detail/26117.html?spm=5176.19907426.help.dexternal.7bba14502qtRg2#t7814.html)
-
 8. redis
-
-9. job
 
 10. pprof https://zhuanlan.zhihu.com/p/71529062
 
-11. apisix route
+11. skaffold
 
-12. skaffold
