@@ -49,19 +49,10 @@
    https://github.com/xuexiangjys/flutter_template
    ```
 
-2. Cli => build check
-
-3. 服务网格，dapr
-
-4. protofmt
-
-5. gconv
-
-6. monorepo、bazel [Google软件工程](https://qiangmzsx.github.io/Software-Engineering-at-Google/#/)
-
-8. redis
-
-10. pprof https://zhuanlan.zhihu.com/p/71529062
-
-11. skaffold
+1. 服务网格，dapr
+2. gconv
+3. redis
+4. pprof https://zhuanlan.zhihu.com/p/71529062
+5. skaffold
+6. makefile
 
