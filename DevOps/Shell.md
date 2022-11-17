@@ -469,8 +469,6 @@ $ bash -c "echo -e \"123
 ;  => 多个命令单独执行
 ```
 
-
-
 ### awk
 
 ```bash
@@ -478,10 +476,10 @@ $ cat 1.txt
 1 a
 2 b
 3 c
-$ cat 1.txt | awk '{print $2}'
-a
-b
-c
+$ cat 1.txt | awk -v OFS='\t,\t' '{print$1,$2}'
+1	,	a
+2	,	b
+3	,	c
 ```
 
 ### dirname
@@ -490,6 +488,14 @@ c
 # 打印出文件夹路径
 $ dirname deploy/report/rpc/Dockerfile
 deploy/report/rpc
+```
+
+### du
+
+```bash
+# 查看文件夹下的文件大小
+du -sh *
+du -s * | awk -v OFS='\t' '{print$1,$2}' | sort -n | awk '{print$2}'
 ```
 
 ### envsubst
