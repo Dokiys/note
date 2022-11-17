@@ -535,7 +535,7 @@ git clean -fd		# 清除untracked文件以及目录
 
 
 
-## Git远程
+## git remote
 
 远程仓库只是你的仓库在另个一台计算机上的拷贝。你可以通过因特网与这台计算机通信 —— 也就是增加或是获取提交记录。
 
@@ -752,7 +752,7 @@ git fetch --all
 
 
 
-## Git配置
+## git config
 
 ### 用户信息
 
@@ -904,7 +904,7 @@ git config --get core.excludesFile		# 查看忽略配置文件路径
 
 
 
-## Git日志
+## git log
 
 ### 统计提交
 
@@ -942,9 +942,9 @@ git log --graph --oneline --merges	# 只查看当前分支的提交和Merge提�
 
 
 
-## Git规范
+# Git规范
 
-### Commit 规范
+## Commit 规范
 
 `git commit` 时应当使用`-a` 进入交互界面编辑提交信息。基本格式：
 
@@ -1026,7 +1026,7 @@ Date:   Wed Mar 30 19:13:39 2022 -0700
 
 
 
-### 分支管理
+## 分支管理
 
 通常在非开源项目中一般会根据不同的环境来设置分支，比如:
 
@@ -1102,24 +1102,85 @@ git branch -d feature/hello-world
 
 
 
-### 语义化版本
+## 语义化版本
 
 参考：[semantic versioning](https://semver.org/spec/v2.0.0.html)
 
 
 
-### Gibhub常用指南
+# 常用示例
+
+## Github基于别人分支修改
 
 ```bash
-# 从远程仓库拉取别人提交的PR分支
+# 1. 从远程仓库拉取别人提交的PR分支
 # pbpaste为PR号
 git fetch origin pull/$(pbpaste)/head:$(pbpaste) && git checkout $(pbpaste)
 ```
 
 ```bash
 # 直接修改别人的PR
-git remote set-url origin [other_repository_url]					# 先修改remote
-git push origin $(git_current_branch):main								# 推到别人分支
-git remote set-url origin [repository_url]								# 设置回来
+git remote set-url origin [other_repository_url]					# 2. 先修改remote
+git push origin $(git_current_branch):main								# 3. 推到别人分支
+git remote set-url origin [repository_url]								# 4. 设置回来
 ```
 
+
+
+## 删除历史提交大文件
+
+```bash
+# 1. 清除缓存
+git gc --prune=now	
+```
+
+```bash
+# 2. 查找大文件
+$ git rev-list --objects --all | grep "$(git verify-pack -v .git/objects/pack/*.idx | sort -k 3 -n | tail -3 | awk '{print$1}')"
+```
+
+`git rev-list --objects —all`显示所有commit及其所关联的所有对象  
+`verify-pack -v *.idx`：查看压缩包内容  
+
+```bash
+# 3. 删除指定的大文件
+git filter-branch --force --index-filter "git rm -rf --cached --ignore-unmatch [filename]" --prune-empty --tag-name-filter cat -- --all
+```
+
+`filter-branch` ：命令通过一个`filter`来重写历史提交，这个`filter`针对指定的所有分支运行  
+`--index-filter`：过滤命令作用于`git rm -rf --cached --ignore-unmatch [filename]`  
+`git rm -rf --cached --ignore-unmatch [filename]`： 删除`index`中的文件，并且忽略没有匹配的`index`  
+`--prune-empty`：指示`git filter-branch` 完全删除所有的空commit  
+`-–tag-name-filter`：将每个tag指向重写后的commit  
+`cat`命令会在收到tag时返回tag名称  
+`–-`选项用来分割 rev-list 和 filter-branch 选项  
+`--all`参数告诉Git我们需要重写所有分支（或引用）
+
+```bash
+# 4. 删除缓存
+# 移除本地仓库中指向旧提交的剩余refs
+$ git for-each-ref --format='delete %(refname)' refs/original | git update-ref --stdin
+# 清除reflog
+$ git reflog expire --expire=now --all
+# Git的垃圾回收器清理没有引用指向的对象。
+$ git gc --prune=now
+```
+
+此时就已经完成了对文件的删除，但是提交到远程仓库时**一定要先备份原来的仓库，一旦提交后就再也没有办法恢复了！！一旦提交后就再也没有办法恢复了！！一旦提交后就再也没有办法恢复了！！**
+
+```bash
+# 5. 覆盖远程的提交
+$ git push --all --force
+$ git push --tags --force
+```
+
+```bash
+# 6. 其他的存储库拉取时也需要删除旧的提交，清理本地仓库
+$ git for-each-ref --format='delete %(refname)' refs/original | git update-ref --stdin
+$ git reflog expire --expire=now --all
+$ git gc --prune=now
+```
+
+
+
+参考：[Git清理删除历史提交文件](https://www.jianshu.com/p/7ace3767986a?utm_campaign=maleskine&utm_content=note&utm_medium=seo_notes&utm_source=recommendation)
