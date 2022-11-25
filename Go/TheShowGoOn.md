@@ -363,3 +363,19 @@ func (nopCloser) Close() error { return nil }
 time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC).Sub(checkTime) >= 0
 ```
 
+
+
+## Gin Middleware
+
+```go
+// Next should be used only inside middleware.
+// It executes the pending handlers in the chain inside the calling handler.
+// See example in GitHub.
+func (c *Context) Next() {
+	c.index++
+	for c.index < int8(len(c.handlers)) {
+		c.handlers[c.index](c)
+		c.index++
+	}
+}
+```

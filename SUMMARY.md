@@ -4,7 +4,7 @@
 
 ## Go
 
-* [Go基础](Go/Go基础.md)
+* [GoGuide](Go/GoGuide.md)
 * [Concurrency in Go](Go/ConcurrencyInGo.md)
 * [Go语言设计](Go/Go语言设计.md)
 * [TheShowGoOn](Go/Go语言设计.md)
@@ -19,7 +19,7 @@
 
 ## Tools
 
-* [Git使用](Tools/Git使用.md)
+* [GitGuide](Tools/GitGuide.md)
 * [Dictionary](Tools/Dictionary.md)
 
 ## Ruby
