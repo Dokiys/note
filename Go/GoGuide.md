@@ -2277,10 +2277,13 @@ require (
 replace gopkg.in/yaml.v2 v2.4.0 => [本地mod包]
 ```
 
-此外还可以通过列出当前项目包名以及所有依赖到的包：
+常用的关于`mod`的命令：
 
 ```bash
+# 列出当前项目包名以及所有依赖到的包
 go list -m all
+# 清除已经下载的包
+go clean -modcache
 ```
 
 

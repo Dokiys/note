@@ -482,6 +482,14 @@ $ cat 1.txt | awk -v OFS='\t,\t' '{print$1,$2}'
 3	,	c
 ```
 
+添加筛选条件：
+
+```bash
+$ cat 1.txt | awk '$2=="1" || $2=="2" {print $0}'
+```
+
+
+
 ### dirname
 
 ```bash
@@ -741,4 +749,6 @@ function protofmt() {
 # gnum generate 1..N num
 function gnum(){echo {1..$1} | tr ' ' "\n" | pbcopy}
 ```
+
+
 
