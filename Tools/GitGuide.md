@@ -1,4 +1,4 @@
-# Git使用
+# GitGuide
 
 Git 仓库中的提交记录保存的是你的目录下所有文件的快照，就像是把整个目录复制，然后再粘贴一样，但比复制粘贴优雅许多！
 
@@ -63,16 +63,10 @@ git merge [分支名]
 
 `merge`命令只会将选择的分支合并到当前分支，当前分支中的修改不会保存到`merge`到分支中。
 
-以下命令会将分支2合并到分支1之后：
-
 ```bash
-git merge [分支1] [分支2]
-```
-
-`merge`产生冲突时放弃`merge`
-
-```bash
-git merge --abort
+git merge --no-ff 					# 在提交时，创建一个merge的commit信息，然后再进行合并
+git merge [分支1] [分支2]			# 将分支2合并到分支1之后
+git merge --abort						# merge产生冲突时放弃merge
 ```
 
 
@@ -272,9 +266,67 @@ git checkout [需要使用该代码的分支]
 git cherry-pick [commit id] # 提交该 commit 到当前分支
 ```
 
+**一次cherry-pick实践**
+
+背景：在共享的开发中，二进制文件通常不应该被提交到远程仓库。一旦提交之后就会被git保存在历史记录中，这将占用大量的空间。并且即使在后续的提交中进行了删除，之前的二进制文件记录也会被保存在历史记录中。
+
+在一次开发中，不小心吧二进制文件提交到了远程仓库，好在还没有合并到主分支。坏在提交二进制文件的记录之后已经有了十几次提交。
+重新修改的思路就是，找到提交二进制文件的位置，然后切出一个新的分支。修改之后，将原来分支之后每一个提交记录`cherry-pick`到新切出的分支。
+
+```bash
+# 首先我们需要找到需要修改的提交并修改，比如我这里是
+➜  workspace git:(error_branch) git checout 14ddcb9 && git checkout -b fix_cherry_pick
+# 修改完成后强制覆盖原来的提交
+➜  workspace git:(fix_cherry_pick) git add . && git commit --amend
+# 这时候我们需要回到原来的分支查看[14ddcb9]之后所有的提交
+➜  workspace git:(fix_cherry_pick) git checkout feat/add_api
+```
+
+```bash
+# 查询自【14ddcb9】之后的提交记录
+➜  workspace git:(error_branch) git --no-pager log --after="$(git show -s --format='%at' 14ddcb9)" --first-parent --format=format:"%h" --reverse feat/eticket_api_migration_archive ^14ddcb9 | tr '\n' ' '
+641eef3 418022f 81b1e50...6b781f7 77441cd
+#### 这里解释一下这条命令 ####
+# --no-pager: 指定一次输出所有的记录，而不采用分页
+# --after="$(git show -s --format='%at' 14ddcb9)"： 设置查看从某某时间开始的记录
+# git show -s --format='%at' 14ddcb9： 可以获取到<commit:14ddcb9>的提交时间
+# --first-parent： 因为我这个提交里面存在merge其他分支的情况，所有只查看merge的那一条提交
+# --format=format:"%h" 设置log输出的格式， %H指定输出完整的hash值
+# --reverse：设置倒序输出提交，方便进行cherry-pick
+# ^14ddcb9: 排除<commit:14ddcb9>这个提交
+# | tr '\n' ' '： 将换行输出转变成空格输出
+```
+
+获取到这这些提交记录之后，我们可以回到刚刚的`fix_cherry_pick`直接使用`cherry-pick`整理提交：
+
+```bash
+➜  workspace git:(error_branch) git checkout fix_cherry_pick
+➜  workspace git:(fix_cherry_pick) git cherry_pick 641eef3 418022f 81b1e50...6b781f7 77441cd
+[fix_cherry_pick 192ded3] Add
+ Date: Thu Aug 11 10:09:28 2022 +0800
+ 1 file changed, 208 insertions(+), 249 deletions(-)
+error: commit c28e6e04726decdd52e6514bf4e58c594a907d5d is a merge but no -m option was given.
+```
+
+这时候遇到了一个错误，这是因为`<commit:c28e6e0>`这个提交是一个merge的操作，而merge有可能会出现冲突，git并不知道如何去处理这些冲突，所以需要我们手动去处理：
+
+```bash
+➜  workspace git:(fix_cherry_pick) git merge c28e6e04726decdd52e6514bf4e58c594a907d5d
+Auto-merging a.go
+Auto-merging b.go
+CONFLICT (content): Merge conflict in b.go
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+处理完冲突之后提交，并继续`cherry-pick`，直到完成所有的提交即可：
+
+```bash
+➜  workspace git:(fix_cherry_pick) git cherry-pick --continue
+```
 
 
-### 分支归档
+
+### git tag
 
 `tag`可以用于永远指向某个提交记录的标识呢，比如软件发布新的大版本，或者是修正一些重要的 Bug 或是增加了某些新特性。
 
@@ -302,6 +354,12 @@ git tag -n
  ```bash
 git tag -d [标签名]
  ```
+
+推到远程：
+
+```bash
+git push --tags
+```
 
 
 
@@ -455,7 +513,7 @@ git diff <文件路径> #比较指定文件
 git diff <版本号码1(old)> <版本号码2(new)> <文件路径> # 比较指定文件指定版本的不同
 git diff <版本号码1(old)> <版本号码2(new)> --stat # 比较指定版本有哪些文件修改
 git diff --cached # 比较暂存区的代码和当前分支head的代码
-git diff . ":(exclude)<文件/正则>" # 比较时排除指定文件
+git diff  ':!<文件/正则>' ':!<文件/正则>'# 比较时排除多个指定文件
 git diff <版本号码1(old)> <版本号码2(new)> --stat  ":(exclude)<文件/正则>"	# 比较版本排除制定文件修改
 ```
 
@@ -477,7 +535,7 @@ git clean -fd		# 清除untracked文件以及目录
 
 
 
-## Git远程
+## git remote
 
 远程仓库只是你的仓库在另个一台计算机上的拷贝。你可以通过因特网与这台计算机通信 —— 也就是增加或是获取提交记录。
 
@@ -542,9 +600,9 @@ git remote add origin [Git远程仓库url]
 ```bash
 git fetch origin <source>:<destination>
 # 例如：
-git fetch origin foo^:master
 # 会将远程仓库中的foo分支的上一个提交，fetch到本地的master
 # 如果destination不存在的话，会在本地新建一个分支保存提交记录
+git fetch origin foo^:master
 ```
 
 如果不指定 <source>的话即将本地的分支删除
@@ -602,34 +660,25 @@ git pull --rebase
 
 ```bash
 git push <remote> <place>
-例如：
+# 例如：
 git push origin master
-//切到本地仓库中的“master”分支，获取所有的提交，再到远程仓库“origin”中找到“master”分支，将远程仓库中没有的提交记录都添加上去
+# 切到本地仓库中的“master”分支，获取所有的提交，再到远程仓库“origin”中找到“master”分支，将远程仓库中没有的提交记录都添加上去
 ```
 
 同时为源和目的地指定 `<place>` 的话，只需要用冒号 `:` 将二者连起来就可以了：
 
 ```bash
 git push origin <source>:<destination>
-例如：
+# 例如：
+# 会将foo分支的上一个提交push到远程仓库的master分支
+# 如果destination不存在的话，会在远程仓库新建一个分支保存提交记录
 git push origin foo^:master
-//会将foo分支的上一个提交push到远程仓库的master分支
-//如果destination不存在的话，会在远程仓库新建一个分支保存提交记录
 ```
-
-在远程创建一个与当前分支同名的分支并将当前分支的修改提交可以使用`gpsup`命令：
 
 ```bash
-➜  [/Users/atyun/works/boko] git:(feature/zhangzongqi-pm33816-20200828) gpsup
-➜  [/Users/atyun/works/boko] git:(feature/zhangzongqi-pm33816-20200828) alias gpsup
-gpsup='git push --set-upstream origin $(git_current_branch)'
-
-➜  [/Users/atyun/works/boko] git:(feature/zhangzongqi-pm33q816-20200828) git branch -vv
-  feature/zhangzognqi-debug-20200824   797e3dd Merge branch 'hotfix/wanglu-20200817-fix' into 'dit'
-* feature/zhangzongqi-pm33816-20200828 db1f4fc [origin/feature/zhangzongqi-pm33816-20200828] 添加学生端状态
+# 在远程创建一个与当前分支同名的分支并将当前分支的修改提交
+git push --set-upstream origin $(git_current_branch)
 ```
-
-执行后当前分支会跟踪远程的新建的同名分支。
 
 
 
@@ -703,7 +752,7 @@ git fetch --all
 
 
 
-## Git配置
+## git config
 
 ### 用户信息
 
@@ -738,9 +787,82 @@ git config  --global user.email 邮箱名
 
 在下次提交的时候就可以看到`Hello Work!`的输出。
 
+通过一下命令可以设置（全局）的hooks，其命令的执行路径是相对于项目的`.git`所在路径：
+
+```bash
+ git config core.hooksPath [PATH]
+ git config --global core.hooksPath [PATH]
+```
+
+#### **pre-push** 
+
+```bash
+# 添加push前的golint检查
+# 添加到全局
+wget -qO ~/workspace/git/hooks/pre-push  https://raw.githubusercontent.com/Dokiys/example/main/shell/git_hooks/pre_push_golint_check && git config --global core.hooksPath ~/workspace/git/hooks && chmod +x ~/workspace/git/hooks/pre-push
+# 添加到项目
+wget -qO .git/hooks/pre-push  https://raw.githubusercontent.com/Dokiys/example/main/shell/git_hooks/pre_push_golint_check && git config core.hooksPath .git/hooks && chmod +x .git/hooks/pre-push
+```
+
+#### **pre-commit** 
+
+```bash
+wget -qO .git/hooks/pre-commit  https://raw.githubusercontent.com/Dokiys/example/main/shell/git_hooks/pre_commit_filesize_check && git config core.hooksPath .git/hooks && chmod +x .git/hooks/pre-commit
+```
+
+**参考：**[Git禁止大文件提交到仓库中](https://vra.github.io/2019/03/10/git-reject-large-file-when-commit/)
 
 
-## Git日志
+
+### gitignore
+
+#### .gitigonre
+
+在一个项目中，可能有些文件的修改我们并不想将其推送到远程仓库。于是我们可以在`.gitignore`文件配置相应的规则
+
+`.gitignore`是一个没有后缀的文本文件，需要更`.git`文件夹放在同一级目录。具体语法如下，更多例子可参考[这里](https://www.atlassian.com/git/tutorials/saving-changes/gitignore)：
+
+>`#`: 表示注释行
+>
+>`dir/`: 表示忽略整个`dir`文件夹
+>
+>`/README`: 忽略当前目录下的`README`文件
+>
+>`**/cover.out`：忽略所有目录下的`cover.out`文件
+>
+>`*.png`: 忽略所有以png为后缀的文件
+>
+>`!a.png`：不忽略`a.png`文件
+>
+>`[123]*`: 忽略以1或2或3开头的文件
+>
+>`[abc]?`: 忽略以a或b或c开头的并且只有两个字符的文件名的文件
+
+**注：**需要注意的是，`.gitignore`默认会搜索所有路径下的文件。比如项目根目录与一级目录下存在同名文件夹：
+
+```bash
+.
+├── Lib
+└── build
+    └── Lib
+```
+
+如果只想忽略更目录下的`Lib`文件夹中的内容，需要指定为`/Lib/`
+
+#### core.excludesFile
+
+`.gitignore`只能对应一个仓库，如果想全局忽略所有仓库中的某些文件，可以通过配置`core.excludesFile`来设置：
+
+```bash
+git config --global core.excludesFile "~/workspace/git/.global_ignore" # 设置忽略配置文件路径
+git config --get core.excludesFile		# 查看忽略配置文件路径
+```
+
+需要注意的是，这里的配置文件中每条配置跟`.gitignore`一样，是相对于每个仓库而言的，而不是绝对路径。
+
+
+
+## git log
 
 ### 统计提交
 
@@ -768,11 +890,19 @@ git log --format='%aN' | sort -u | while read name; do echo -en "$name\t"; git l
 git log -- [filepath]
 ```
 
+### 图像化展示
+
+```bash
+git log --graph --oneline		# 图形化查看当前分支体检记录
+git log --graph --oneline --min-parents=2	# 只查看当前分支的提交和Merge提交
+git log --graph --oneline --merges	# 只查看当前分支的提交和Merge提交
+```
 
 
-## Git规范
 
-### Commit 规范
+# Git规范
+
+## Commit 规范
 
 `git commit` 时应当使用`-a` 进入交互界面编辑提交信息。基本格式：
 
@@ -812,6 +942,7 @@ Date:   Thu Feb 17 22:56:33 2022 -0500
 | test         | 修改测试用例                                     |
 | ci           | 持续集成和部署相关变更                           |
 | docs         | 文档类更新                                       |
+| chore        | 对构建过程或辅助工具和库(如文档生成)的更改       |
 
 **Body**
 
@@ -853,7 +984,7 @@ Date:   Wed Mar 30 19:13:39 2022 -0700
 
 
 
-### 分支管理
+## 分支管理
 
 通常在非开源项目中一般会根据不同的环境来设置分支，比如:
 
@@ -929,34 +1060,85 @@ git branch -d feature/hello-world
 
 
 
-## .gitignore
+## 语义化版本
 
-在一个项目中，可能有些文件的修改我们并不想将其推送到远程仓库。于是我们可以在`.gitignore`文件配置相应的规则
+参考：[semantic versioning](https://semver.org/spec/v2.0.0.html)
 
-`.gitignore`是一个没有后缀的文本文件，需要更`.git`文件夹放在同一级目录。具体语法如下，更多例子可参考[这里](https://www.atlassian.com/git/tutorials/saving-changes/gitignore)：
 
->`#`: 表示注释行
->
->`dir/`: 表示忽略整个`dir`文件夹
->
->`/README`: 忽略当前目录下的`README`文件
->
->`*.png`: 忽略所有以png为后缀的文件
->
->`!a.png`：不忽略`a.png`文件
->
->`[123]*`: 忽略以1或2或3开头的文件
->
->`[abc]?`: 忽略以a或b或c开头的并且只有两个字符的文件名的文件
 
-**注：**需要注意的是，`.gitignore`默认会搜索所有路径下的文件。比如项目根目录与一级目录下存在同名文件夹：
+# 常用示例
+
+## Github基于别人分支修改
 
 ```bash
-.
-├── Lib
-└── build
-    └── Lib
+# 1. 从远程仓库拉取别人提交的PR分支
+# pbpaste为PR号
+git fetch origin pull/$(pbpaste)/head:$(pbpaste) && git checkout $(pbpaste)
 ```
 
-如果只想忽略更目录下的`Lib`文件夹中的内容，需要指定为`/Lib/`
+```bash
+# 直接修改别人的PR
+git remote set-url origin [other_repository_url]					# 2. 先修改remote
+git push origin $(git_current_branch):main								# 3. 推到别人分支
+git remote set-url origin [repository_url]								# 4. 设置回来
+```
 
+
+
+## 删除历史提交大文件
+
+```bash
+# 1. 清除缓存
+git gc --prune=now	
+```
+
+```bash
+# 2. 查找大文件
+$ git rev-list --objects --all | grep "$(git verify-pack -v .git/objects/pack/*.idx | sort -k 3 -n | tail -3 | awk '{print$1}')"
+```
+
+`git rev-list --objects —all`显示所有commit及其所关联的所有对象  
+`verify-pack -v *.idx`：查看压缩包内容  
+
+```bash
+# 3. 删除指定的大文件
+git filter-branch --force --index-filter "git rm -rf --cached --ignore-unmatch [filename]" --prune-empty --tag-name-filter cat -- --all
+```
+
+`filter-branch` ：命令通过一个`filter`来重写历史提交，这个`filter`针对指定的所有分支运行  
+`--index-filter`：过滤命令作用于`git rm -rf --cached --ignore-unmatch [filename]`  
+`git rm -rf --cached --ignore-unmatch [filename]`： 删除`index`中的文件，并且忽略没有匹配的`index`  
+`--prune-empty`：指示`git filter-branch` 完全删除所有的空commit  
+`-–tag-name-filter`：将每个tag指向重写后的commit  
+`cat`命令会在收到tag时返回tag名称  
+`–-`选项用来分割 rev-list 和 filter-branch 选项  
+`--all`参数告诉Git我们需要重写所有分支（或引用）
+
+```bash
+# 4. 删除缓存
+# 移除本地仓库中指向旧提交的剩余refs
+$ git for-each-ref --format='delete %(refname)' refs/original | git update-ref --stdin
+# 清除reflog
+$ git reflog expire --expire=now --all
+# Git的垃圾回收器清理没有引用指向的对象。
+$ git gc --prune=now
+```
+
+此时就已经完成了对文件的删除，但是提交到远程仓库时**一定要先备份原来的仓库，一旦提交后就再也没有办法恢复了！！一旦提交后就再也没有办法恢复了！！一旦提交后就再也没有办法恢复了！！**
+
+```bash
+# 5. 覆盖远程的提交
+$ git push --all --force
+$ git push --tags --force
+```
+
+```bash
+# 6. 其他的存储库拉取时也需要删除旧的提交，清理本地仓库
+$ git for-each-ref --format='delete %(refname)' refs/original | git update-ref --stdin
+$ git reflog expire --expire=now --all
+$ git gc --prune=now
+```
+
+
+
+参考：[Git清理删除历史提交文件](https://www.jianshu.com/p/7ace3767986a?utm_campaign=maleskine&utm_content=note&utm_medium=seo_notes&utm_source=recommendation)

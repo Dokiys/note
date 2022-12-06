@@ -77,7 +77,7 @@ for i:=0; i<n; i++ {
 
 在Go1.14中采用了一种叫做`open coded defer`的方式，直接在编译时将`defer`调用函数的参数使用局部变量保存，然后根据`df`变量在函数返回之前确定是否需要被调用。
 
-![1.14](Z:/note/assert/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_OirJhw4DUZ.png)
+![1.14](../asset/Go/Go%E8%AF%AD%E8%A8%80%E8%AE%BE%E8%AE%A1/chrome_OirJhw4DUZ.png)
 
 这种方式将`defer`直接展开再调用函数内，从而不需要创建`_defer`结构体，而且不需要注册在`g._defer`链表中。
 但和1.13版本一样，对于一些需要在运行时确定参数的`defer`注册，还是需要采用1.12中的方式调用`defer`。

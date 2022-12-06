@@ -1,3 +1,30 @@
+# 操作系统与CPU架构
+
+首先我们需要明确*CPU*是硬件层面的东西，操作系统是软件层面的东西。一台计算机通常有运算器、控制器、存储设备、输入设备、输出设备五个部分组成。
+*CPU*（**C**entral **P**rocessing **U**nit，缩写：**CPU**）在这之中作为运算器（数据运算）、控制器（指令解析）。
+操作系统（**O**perating **S**ystem，缩写：**OS**）是一组主管并控制计算机操作、运用和运行硬件、软件资源和提供公共服务来组织用户交互的相互关联的系统软件程序。
+
+通常我们说的*CPU架构*或者*CPU指令集*全称其实是*CPU指令集架构*（Instruction Set Architecture，缩写为ISA）。*CPU*指令集有点类似于标准或者规范，不同公司生产*CPU*可能采用不同的指令集，最常见的比如AMD和Intel为代表的`x86`、Apple，高通为代表的`ARM`。
+*CPU指令集*相当于操作系统和*CPU*沟通的语言，操作系统通过*CPU*提供的指令集来告诉*CPU*需要做怎么样的运算。操作系统根据所使用的*CPU*做适配，比如最常用的*windows*只支持`x86`指令集，*windows RT*支持`ARM`指令集。
+对于操作系统上的应用程序来说，也是如此。通常一个*arm*的程序是无法在`x86`的机器上运行的。（通过一些转移技术，也可以实现，比如[`rosetta`](https://zh.m.wikipedia.org/zh-hans/Rosetta)）
+
+下面的表格是从[Go官网](https://go.dev/dl/)提供下载的不同版本，要看懂下面这张图要需要提到一点，根据*CPU*内部的通用寄存器的宽度可以分为32位的*CPU*和64位的*CPU*（*CPU*寄存器的宽度可以简单类比水管的直径）`x86`指令集只支持32位*CPU*，也被策称为`386`。至于为什么一直没有提到`AMD`的指令集，通过表格我们可以看到，`amd64`其实就是`x86`架构64位的版本。
+
+| File name                    | Kind      | OS      | Arch   | Size  |
+| ---------------------------- | --------- | ------- | ------ | ----- |
+| go1.19.3.src.tar.gz          | Source    |         |        | 25MB  |
+| go1.19.3.darwin-amd64.pkg    | Installer | macOS   | x86-64 | 145MB |
+| go1.19.3.darwin-arm64.tar.gz | Archive   | macOS   | ARM64  | 138MB |
+| go1.19.3.darwin-arm64.pkg    | Installer | macOS   | ARM64  | 139MB |
+| go1.19.3.linux-386.tar.gz    | Archive   | Linux   | x86    | 114MB |
+| go1.19.3.linux-amd64.tar.gz  | Archive   | Linux   | x86-64 | 142MB |
+| go1.19.3.linux-arm64.tar.gz  | Archive   | Linux   | ARM64  | 110MB |
+| go1.19.3.linux-armv6l.tar.gz | Archive   | Linux   | ARMv6  | 111MB |
+| go1.19.3.windows-386.zip     | Archive   | Windows | x86    | 128MB |
+| go1.19.3.windows-386.msi     | Installer | Windows | x86    | 111MB |
+| go1.19.3.windows-amd64.zip   | Archive   | Windows | x86-64 | 156MB |
+| go1.19.3.windows-amd64.msi   | Installer | Windows | x86-64 | 135MB |
+
 # Linux基础
 
 * 一切皆文件
@@ -290,6 +317,8 @@ fileH fileG fileF fileE fileD fileC fileB fileA
 ```
 
 登录 Shell 时会在`~/.bash_history`文件中去读取记录下的命令
+
+// TODO[Dokiy] 
 
 获取一个命令可以使用：
 

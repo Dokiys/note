@@ -298,7 +298,7 @@ func TestBuilder2(t *testing.T) {
 
 
 
-引入
+## 引入
 
 ```go
 package data
@@ -328,3 +328,54 @@ func Path(rel string) string {
 }
 ```
 
+
+
+## 接口包装
+
+`io`包中，`NopCloser()`可以将一个`Reader`包装成`ReadCloser`。注意其中的`nopCloser`结构，以及`NopCloser()`的返回方式。利用继承，使得`nopCloser`不用实现`Reader`所需的方法
+
+```go
+// NopCloser returns a ReadCloser with a no-op Close method wrapping
+// the provided Reader r.
+func NopCloser(r Reader) ReadCloser {
+   return nopCloser{r}
+}
+
+type nopCloser struct {
+   Reader
+}
+
+func (nopCloser) Close() error { return nil }
+```
+
+
+
+## 延迟日志
+
+在`HTTP`请求中，有些安全要求比较高的情况下，通常返回的数据会有加密。直接根据返回的数据打日志会造成日志不可查询。我们更希望在数据解密之后，再打日志。`HTTP`请求打日志的情况会很常见，所以我们通常会对其进行封装。如果我们之间在解密数据后打日志，则会产生两条日志记录。而实际只有一个`HTTP`请求，这并不是我们希望的。这个时候就需要预留一个延迟日志的方法。
+大概思路就是允许调用方禁止默认的打日志行为，并将该行为返回给调用方，由调用方去根据需求自行调用。这样调用方就可以在解密返回的消息之后，将消息重新装入`http.Response`，然后再调用相应的日志方法这样就可以打印出解密后的日志。将在进行了多层封装的情况下，可以通过`context.Context`进行禁止行为或方法的传递。
+
+
+
+## 时间零值校验
+
+```go
+time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC).Sub(checkTime) >= 0
+```
+
+
+
+## Gin Middleware
+
+```go
+// Next should be used only inside middleware.
+// It executes the pending handlers in the chain inside the calling handler.
+// See example in GitHub.
+func (c *Context) Next() {
+	c.index++
+	for c.index < int8(len(c.handlers)) {
+		c.handlers[c.index](c)
+		c.index++
+	}
+}
+```

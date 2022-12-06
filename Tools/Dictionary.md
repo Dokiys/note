@@ -1,4 +1,4 @@
-## 占位符
+# 占位符
 
 **普通占位符**
 
@@ -49,11 +49,7 @@
 
 
 
-
-
-
-
-## Cron
+# Cron
 
 ```yaml
 0 0 12 * * ?				Fire at 12:00 PM (noon) every day
@@ -79,7 +75,33 @@
 
 
 
-## loki
+# ANSI C Quoting
+
+[bash manual](https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#ANSI_002dC-Quoting)
+
+| character | description  |
+| :-------- | ------------ |
+|`\a `|alert (bell)|
+|`\b `|backspace|
+|`\e `|\E an escape character (not ANSI C)|
+|`\f `|form feed|
+|`\n `|newline|
+|`\r `|carriage return|
+|`\t `|horizontal tab|
+|`\v `|vertical tab|
+|`\\`| backslash |
+|`\' `|single quote|
+|`\" `|double quote|
+|`\? `|question mark|
+|`\nn`|n the eight-bit character whose value is the octal value nnn (one to three octal digits)|
+|`\xH`|H the eight-bit character whose value is the hexadecimal value HH (one or two hex digits)|
+|`\uH`|HHH the Unicode (ISO/IEC 10646) character whose value is the hexadecimal value HHHH (one to four hex digits)|
+|`\UH`|HHHHHHH the Unicode (ISO/IEC 10646) character whose value is the hexadecimal value HHHHHHHH (one to eight hex digits)|
+|`\cx`| a control-x character|
+
+
+
+# loki
 
 基本查询：
 
@@ -93,6 +115,14 @@
 - !~：日志行与正则表达式不匹配
 
 
+
+# Markdown
+
+## Latex
+
+$C_{6}^{1}+C_{6}^{2}+C_{6}^{3}+C_{6}^{4}+C_{6}^{5}+C_{6}^{6}$
+
+参考：[全面魔改Typora样式，仿照LaTeX写论文](https://zhuanlan.zhihu.com/p/357096043)
 
 
 

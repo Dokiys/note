@@ -821,16 +821,6 @@ func(cat *Cat) Rename(name string){
 
 ### 方法集
 
-每个类型都有与之关联的⽅法集：
-
-* 类型 T ⽅法集包含全部 receiver T ⽅法。 
-* 类型 *T ⽅法集包含全部 receiver T + *T ⽅法。 
-* 如类型 S 包含匿名字段 T，则 S ⽅法集包含 T ⽅法。 
-* 如类型 S 包含匿名字段 *T，则 S ⽅法集包含 T + *T ⽅法。 
-* 不管嵌⼊ T 或 *T，*S ⽅法集总是包含 T + *T ⽅法。
-
-
-
 方法根据调用者不同可以分为两种表现形式：
 
 ```go
@@ -838,19 +828,55 @@ instance.method(args...)			// method value
 <type>.func(instance, args...)		// method expression。
 ```
 
-如以上定义的Cat结构体中添加`WhoAmI()`，方法后可以使用如下两种方式调用：
+可以通过一下的例子来感受一下：
 
 ```go
-func (cat *Cat) WhoAmI(){
-	fmt.Printf("I am %v\n",cat.name)
+type Cat struct {
+	name string
 }
 
-func MethodMethod() {
-	cat := &Cat{"Tomcat"}
-	cat.WhoAmI()
-	(*Cat).WhoAmI(cat)
+func (cat *Cat) Rename(name string) {
+	cat.name = name
+}
+
+func (cat Cat) WhoAmI() {
+	fmt.Printf("I am %v\n", cat.name)
 }
 ```
+
+以下对于`WhoAmI()`和`Rename()`两种写法其实是等价的：
+
+```go
+// value reciver
+cat := Cat{"Tomcat"}
+cat.WhoAmI()				// 1
+(Cat).WhoAmI(cat)		// 2
+```
+
+```go
+// pointer reciver
+cat := Cat{"Tomcat"}
+cat.Rename("Jerry")						// 1	=> (&cat).Rename("Jerry")
+(*Cat).Rename(&cat, "Harry")	// 2
+```
+
+这里值得注意的是，cat作为Cat类型的值依然可以调用到作为指针接收的`(cat *Cat) Rename`方法。这是因为`go`在编译的时候会为我们做隐式转换，实际上`cat.Rename("Jerry")`相当于`(&cat).Rename("Jerry")`。
+但是如果尝试使用以下两种方法调用，则编译会不通过：
+
+```go
+Cat.Rename(&cat, "Harry")
+Cat.Rename(cat, "Harry")		
+```
+
+这就涉及到方法集的概念，方法集决定了可以在该类型上操作的方法。每个类型都有与之关联的⽅法集，比如上面例子中的`WhoAmI()`就是定义在`Cat`类型的方法集中的一个方法。
+
+定义同一个receiver上的方法，可能属于多个方法集：
+
+* 类型 T ⽅法集包含全部 receiver T ⽅法。 
+* 类型 *T ⽅法集包含全部 receiver T + *T ⽅法。 
+* 如类型 S 包含匿名字段 T，则 S ⽅法集包含 T ⽅法。 
+* 如类型 S 包含匿名字段 *T，则 S ⽅法集包含 T + *T ⽅法。 
+* 不管嵌⼊ T 或 *T，S ⽅法集总是包含 T + *T ⽅法。
 
 
 
@@ -960,37 +986,50 @@ default:
 }
 ```
 
+### 实现接口
+
+在实践中我们在使用接口的过程中，通常都会遇到接口增加方法的时候，这样就需要在接口的实现中添加对应的方法。由于 Go 语言的特性，并没有强制要求指定结构体对接口的实现。所有我们需要明确找到借口实现，添加接口方法。如果是使用的 Goland 编辑器，有一个小技巧，帮助我们快速实现添加的方法。
+比如我们有一个结构体，需要实现`io.Reader`接口。我们可以添加如下的冗余代码：
+
+```go
+type r struct{}
+
+var _ io.Reader = (*r)(nil)
+```
+
+这样 Goland 会提示我们`r`没有实现`io.Reader`中的方法，我们可以借此快速添加缺失的方法。
+
 
 
 ## 内存布局
 
 **Number**
 
-![number](../assert/Go/Go%E5%9F%BA%E7%A1%80/number.png)
+![number](../asset/Go/Go%E5%9F%BA%E7%A1%80/number.png)
 
 **string**
 
-![string](../assert/Go/Go%E5%9F%BA%E7%A1%80/string.png)
+![string](../asset/Go/Go%E5%9F%BA%E7%A1%80/string.png)
 
 **struct**
 
-![struct](../assert/Go/Go%E5%9F%BA%E7%A1%80/struct.png)
+![struct](../asset/Go/Go%E5%9F%BA%E7%A1%80/struct.png)
 
 **slice**
 
-![slice](../assert/Go/Go%E5%9F%BA%E7%A1%80/slice.png)
+![slice](../asset/Go/Go%E5%9F%BA%E7%A1%80/slice.png)
 
 **interface**
 
-![interface](../assert/Go/Go%E5%9F%BA%E7%A1%80/interface.png)
+![interface](../asset/Go/Go%E5%9F%BA%E7%A1%80/interface.png)
 
 **new**
 
-![new](../assert/Go/Go%E5%9F%BA%E7%A1%80/new.png)
+![new](../asset/Go/Go%E5%9F%BA%E7%A1%80/new.png)
 
 **make**
 
-![make](../assert/Go/Go%E5%9F%BA%E7%A1%80/make.png)
+![make](../asset/Go/Go%E5%9F%BA%E7%A1%80/make.png)
 
 
 
@@ -1404,15 +1443,16 @@ writer.Flush()
 
 # 测试
 
-之所以将测试单独写一章，就是为了表明测试的重要性。
+之所以将测试单独写一章，就是为了表明测试对一个项目的重要性。
 
 
 
 ## 单元测试
 
-单元测试是用来测试一部分代码的函数。单元测试的是确认目标在给定的场景下有没有按照预期工作。
+### Test
 
-根据测试框架的的约定：
+单元测试是用来测试一部分代码的函数。单元测试的是确认目标在给定的场景下有没有按照预期工作。
+根据测试文件需要按照以下约定：
 
 * 测试文件的文件名必须以`_test`结尾。
 * 测试函数必须以`Test`开头，并且必须接收一个`testing.T`类型的指针，且无返回值。
@@ -1453,7 +1493,6 @@ ok      hellogo/test    0.100s
 ```
 
 如果不添加`-v`参数，将不会输出`t.Log()`中的内容。
-
 让我们修改一下函数的内容，使得返回一个错误的结果，在运行测试：
 
 ```go
@@ -1478,6 +1517,20 @@ FAIL    hellogo/test    0.107s
 ```
 
 如果执行`t.Fatalf()`将会直接停止当前测试函数的运行，如果希望抛出错误并且继续运行函数可以使用`t.Errorf()`
+
+go在运行测试方法时，各个**包之间是相互隔离并且并行的**（当然这取决于你设置的运行cpu数量）。同一个包下的测试会按照**文件名顺序**执行。同一个文件中的多个测试会按照**从上到下**的顺序执行。
+`t.Run()`可以让我们在同一个Test方法中，顺序执行多次，并可以设置名称：
+
+```go
+func TestRun(t *testing.T) {
+  t.Run("name1", func(t *testing.T) {
+		t.Log(1)
+	})
+	t.Run("name2", func(t *testing.T) {
+		t.Log(2)
+	})
+}
+```
 
 通过简单的修改函数，我们还可以同时对一组结果进行测试：
 
@@ -1506,26 +1559,10 @@ func TestTable(t *testing.T) {
 }
 ```
 
-此时如果我们指向运行`TestTable()`可以添加`-run`参数，后面赋值对应需要的方法：
+为了避免不必要的重复执行，一个成功的单元测试将会被缓存，直到当前测试包下的内容有修改。
+即使某个方法存在类似`time.Now()`这种动态生成的变量的时候，比如测试方法包含`time.Now().Unix() < 1668152900`这样的判断，并通过的情况下，**即使该判断存在二义性，因为测试通过了就会被缓存**。所以应该避免在单元测试中使用不确定的参数。
 
-```go
->go test -v -run="TestTable"
-=== RUN   TestTable
-    unit_test.go:35: Table Group Test
-=== RUN   TestTable/Test_fib(1)
-=== RUN   TestTable/Test_fib(2)
-=== RUN   TestTable/Test_fib(3)
-=== RUN   TestTable/Test_fib(4)
---- PASS: TestTable (0.00s)
-    --- PASS: TestTable/Test_fib(1) (0.00s)
-    --- PASS: TestTable/Test_fib(2) (0.00s)
-    --- PASS: TestTable/Test_fib(3) (0.00s)
-    --- PASS: TestTable/Test_fib(4) (0.00s)
-PASS
-ok      hellogo/test    0.147s
-```
-
-此外`-run`还可以赋值正则表达式。
+### TestMain
 
 如果测试文件中包含`TestMain(m *testing.M)`，那么生成的测试将调用 `TestMain(m *testing.M)`，而不是直接运行测试。我们可以将此利用，在`TestMain(m *testing.M)`做一些共有的操作：
 
@@ -1558,6 +1595,55 @@ Start Test
 PASS
 End Test
 ok      hellogo/test    0.129s
+```
+
+
+
+### testflag
+
+可以通过`go help test`和`go help testflag`查看更多的参数
+
+#### -v
+
+打印详细的测试输出
+
+#### -run
+
+`-run`参数，后面赋值对应需要执行的测试方法， 并且`-run`支持赋值正则表达式，比如之前的例子：
+
+```go
+>go test -v -run="TestTable.*"
+=== RUN   TestTable
+    unit_test.go:35: Table Group Test
+=== RUN   TestTable/Test_fib(1)
+=== RUN   TestTable/Test_fib(2)
+=== RUN   TestTable/Test_fib(3)
+=== RUN   TestTable/Test_fib(4)
+--- PASS: TestTable (0.00s)
+    --- PASS: TestTable/Test_fib(1) (0.00s)
+    --- PASS: TestTable/Test_fib(2) (0.00s)
+    --- PASS: TestTable/Test_fib(3) (0.00s)
+    --- PASS: TestTable/Test_fib(4) (0.00s)
+PASS
+ok      hellogo/test    0.147s
+```
+
+#### -args
+
+`go test`允许我们传入自定义参数，一下两种方式都可以被接收：
+
+```bash
+go test -coverprofile=cover.out -args '-quiet=true'
+go test -coverprofile=cover.out -quiet=true 
+```
+
+```go
+var quiet = flag.Bool("quiet", false, "")
+
+func TestMain(m *testing.M) {
+	flag.Parse()
+  fmt.Printf("quiet: %b", quiet)
+}
 ```
 
 
@@ -1632,16 +1718,235 @@ ok      hellogo/test    6.368s
 
 ## Mock
 
-// TODO
+### 依赖注入
+
+有些情况下我们的方法会依赖一些外部调用，比如数据库，HTTP请求等，这时候的单元测试就会形成对外部调用返回结果的依赖。我们可以先看一下下面的这个例子：
+
+```go
+type A struct{}
+
+func (self *A) IsOne() bool {
+	if r := Bar(); r == 1 {
+		return true
+	} else {
+		return false
+	}
+}
+
+func Bar() int {
+	return rand.Intn(2)
+}
+```
+
+```go
+func TestMock(t *testing.T) {
+	a := &A{}
+	assert.Equal(t, true,a.IsOne())
+}
+```
+
+`*A.greet()`方法会依赖函数`Bar()`的返回值来判断，而`Bar()`的返回值是随机的，所以在执行测试函数`TestGreet()`的时候不是幂等的。
+我们可以对代码进行适当的修改以达到幂等的目的。比如将函数`Bar()`以参数方式传入：
+
+```go
+func (self *A) IsOne(f func() int) bool {...}
+```
+
+```go
+	f1 := func() int { return 1 }
+	f2 := func() int { return 2 }
+	assert.Equal(t, true, a.IsOne(f1))
+	assert.Equal(t, false, a.IsOne(f2))
+```
+
+如此一来我们变解决了对函数`Bar()`的依赖。而实际上我们更常见的情况是成员方式的调用，比如：
+
+```go
+type B struct{}
+
+func (self *B) Bar() int {
+	return rand.Intn(2)
+}
+```
+
+```go
+type A struct {
+	b *B
+}
+
+func (self *A) IsOne() bool {
+	if r := self.b.Bar(); r == 1 {
+		return true
+	} else {
+		return false
+	}
+}
+```
+
+这是在很多项目中都很常见的一种情况，Service 直接将 Model 作为成员变量。这样就会又会遇到我们刚刚的问题，A 对  B 的依赖导致不太好编写单元测试。
+解决这一问题的核心就是解开 A 和 B 的耦合，解耦利器**接口**可以帮助我们对代码进行简单修改：
+
+```go
+type Inf interface {
+	Bar() int
+}
+type A struct {
+	inf Inf
+}
+
+func (self *A) IsOne() bool {
+	if r := self.inf.Bar(); r == 1 {
+		return true
+	} else {
+		return false
+	}
+}
+```
+
+```go
+type InfImpl struct{}
+
+func (self *InfImpl) Bar() int {
+	return 1
+}
+
+func TestMock(t *testing.T) {
+	a := &A{inf: &InfImpl{}}
+	assert.Equal(t, true, a.IsOne())
+}
+```
+
+可以看到，通过`Inf`我们将`*A.greet()`方法的逻辑抽离了出来。然后利用对`Inf`接口的不同实现，我们可以控制`*A.greet()`方法的执行逻辑。这种方式也被称作为**依赖注入**(dependency injection，缩写为DI)。
+
+目前有一些成熟的工具来帮助我们生成实现接口的方法，只需要我们自己设置入参和返回值，比如[GoMock](https://github.com/golang/mock)。首先我们安装工具：
+
+```bash
+go install github.com/golang/mock/mockgen
+```
+
+然后指定需要实现的接口作为数据源，并设置报名，然后生成文件：
+
+```bash
+mockgen -source=./mock_test.go -destination=./mock_info.go -package=tdd
+```
+
+执行命令后`GoMock`会为我们在`mock_info.go`中生成一个或多个结构体来实现`mock_test.go`中的接口。
+然后我们可以直接在单元测试中使用：
+
+```go
+func TestMock(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockInf := NewMockInf(ctrl)
+	mockInf.EXPECT().Bar().Return(1).AnyTimes()
+	a := &A{inf: mockInf}
+
+	assert.Equal(t, true, a.greet())
+}
+```
+
+如果接口的方法需要入参，也可以基于入参数来设置返回值：
+
+```go
+mockInf.EXPECT().IsGood(gomock.Eq("zhangsan")).Return(true).AnyTimes()
+```
+
+我们还也自己实现`gomock`提供的`Matcher`来做一些判断，比如有些情况入参可能会有很多参数，但实际上我们只关心其中一个：
+
+```go
+type People struct {
+	age int
+}
+
+type Inf interface {
+	IsOldPerson(p *People) bool
+}
+```
+
+```go
+type gtAgeMatcher struct {
+	age int
+}
+
+func newGtAgeMatcher(age int) *gtAgeMatcher {
+	return &gtAgeMatcher{age: age}
+}
+
+func (self *gtAgeMatcher) Matches(x interface{}) bool {
+	p, ok := x.(*People)
+	if !ok {
+		return false
+	}
+	if self.age < p.age {
+		return true
+	}
+
+	return false
+}
+
+func (self *gtAgeMatcher) String() string {
+	return fmt.Sprintf("age > %d", self.age)
+}
+```
+
+```go
+mockInf.EXPECT().IsOldPerson(newGtAgeMatcher(10)).Return(true).AnyTimes()
+```
 
 
 
-## 测试覆盖
+### HTTP
+
+HTTP 请求的依赖在编程实践中也是比较常见的。下面是`http.CLient`的结构：
+
+```go
+type Client struct {
+	// Transport specifies the mechanism by which individual
+	// HTTP requests are made.
+	// If nil, DefaultTransport is used.
+	Transport RoundTripper
+	CheckRedirect func(req *Request, via []*Request) error
+	Jar CookieJar
+	Timeout time.Duration
+}
+```
+
+其中最主要的就是`RoundTripper`接口，它提供了基本的 HTTP 服务：
+
+```go
+type RoundTripper interface {
+	RoundTrip(*Request) (*Response, error)
+}
+```
+
+简单来说，`RoundTripper`需要实现一个`RoundTrip`方法，接收一个`*http.Request`返回一个`*http.Response`。借此我们可以实现一个自己的`http.Client`来提供 Mock：
+
+```go
+type MockRoundTrip struct {}
+func (self *MockRoundTrip) RoundTrip(req *http.Request) (*http.Response, error) {
+	return &http.Response{
+		StatusCode: 200,
+    Body:       ioutil.NopCloser(bytes.NewBufferString([]byte("Test MockRoundTrip")])),
+		Header:     make(http.Header),
+	},nil
+}
+
+func NewMockHttpClient() *http.Client{
+  return &http.Client{ Transport: MockRoundTrip }
+}
+```
+
+当然我们可以在`MockRoundTrip`提供更多的 case，或者传入 case 来处理更多不同的情况。
+
+
+
+## 测试覆盖率
 
 通过`go test -cover`可以查看测试的覆盖率：
 
 ```bash
-t>go test -cover
+go test -cover
 Start Test
 PASS
 coverage: 100.0% of statements
@@ -1649,16 +1954,21 @@ End Test
 ok      hellogo/test    0.107s
 ```
 
-通过命令：
+默认情况下`go test`只会运行当前目录下的测试文件，可以在最后指定其他目录：
 
 ```bash
->go test -v -coverprofile=cover.out
+go test ./...		# 当前目录及所有子目录下的测试用例
 ```
 
-可以将覆盖率信息保存到`cover.out`文件，然后再通过`cover`工具，可以查看当前包下各函数的覆盖率：
+通过以下命令可以将覆盖率信息保存到`cover.out`文件，然后再通过`cover`工具，可以查看当前包下各函数的覆盖率：
 
 ```bash
->go tool cover -func=cover.out
+go install golang.org/x/tools/cmd/cover		# 安装cover工具
+go test -v -coverprofile=cover.out
+```
+
+```bash
+go tool cover -func=cover.out
 hellogo/test/fib.go:3:  Fib             100.0%
 total:                  (statements)    100.0%
 ```
@@ -1666,10 +1976,32 @@ total:                  (statements)    100.0%
 通过`-html`选项会直接浏览器中打开测试内容的覆盖情况：
 
 ```bash
->go tool cover -html=cover.out
+go tool cover -html=cover.out
 ```
 
 
+
+## Example
+
+除了标准的测试以外，还可以利用`go doc`支持的`Example`来进行测试：
+
+```go
+func ExamplePrintln() {
+	fmt.Println("example!")
+	// Output:
+	// example!
+}
+```
+
+```bash
+$ go test -v -run='ExamplePrintln'      
+=== RUN   ExamplePrintln
+--- PASS: ExamplePrintln (0.00s)
+PASS
+ok      mydoc   0.361s
+```
+
+更多关于`Example`的内容可见[doc](#doc)的章节
 
 # 环境配置
 
@@ -1715,11 +2047,23 @@ GOPRIVATE=*.4399.com,baidu.com/private
 ```
 
 **GOPROXY**
-从Go1.13开始，GOPROXY随着go module引入，用来控制go module的下载源。GOPROXY 用于修改下载go相关数据的代理
+从Go1.13开始，`GOPROXY`随着go module引入，用来控制go module的下载源。`GOPROXY`用于修改下载go相关数据的代理：
 
 ```bash
 GOPROXY=https://goproxy.cn,direct
 ```
+
+**GOSUMDB**
+我们先试想一种情况：某项目的v1版本被很多其他很多项目引入，这个时候该项目在v1版本进行了新的修改，这样所有引入了该项目的其他项目在重新拉取依赖时，即使没有做过任何修改也会出现和原来不一致的情况。
+为了解决以上问题， Go 加入了`go.sum`对下载的依赖进行校验。通过对 mod 的版本及所有文件进行 Hash 计算会得到一个校验值，一个公开 mod 的这个校验值都会存在 Checksum 数据库中，这个服务由 [sum.golang.org](https://sum.golang.org/) 提供。当我们通过 go 命令下载 mod 的时候，也会根据下载的版本及下载的所有文件去计算这个 mod 的校验值，并到 sum.golang.org 去校验 mod 内容是否有被篡改，从而保证 mod 的安全性。所以 Go 公开的 mod 即使很小的改动，都需要重新打 tag。
+
+所以从Go1.13开始，`GOSUMDB`随着go module引入可以用来配置使用哪个校验服务器来做依赖包的校验：
+
+```bash
+GOSUMDB="sum.golang.google.cn"
+```
+
+也可以通过`GONOSUMDB`指定那些包不需要校验。
 
 
 
@@ -1746,7 +2090,9 @@ go version go1.18.2 darwin/amd64
 
 # 命令行工具
 
-## build
+## 构建
+
+### **go build**
 
 Go提供的命令行工具`build`可包涵`main`函数的文件统计目录生成可执行文件。
 
@@ -1768,18 +2114,110 @@ go build -o ./lalala ./main.go ./utils.go
 go build lalala.go
 ```
 
+甚至可以直接通过远程的 mod 来直接构建可执行文件：
+
+```bash
+go build github.com/google/wire/cmd/wire ./ && ls | grep wire
+> wire
+```
 
 
-## install
 
-`install`工具可以将当前执行目录下的`main`函数的文件，在`$GOPATH/bin`目录下生成可执行文件。
+### go install
+
+`install`和`build`很相似，区别在于其构建的可执行文件会直接放在`$GOPATH/bin`目录下，可被全局调用。
 
 
 
-## clean
+### go run
 
-`clean`可以用于清理`build`命令生成的文件。
-添加`-i`选项，可以将`install`命令在`$GOPATH/bin`目录下生成的文件一并删除。
+相较于`build`，` run`命令也会编译源码，并执行源码的`main()`函数，但是不会在当前目录留下可执行文件。并且也可以直接运行远程的文件。
+
+```go
+go run github.com/google/wire/cmd/wire     
+wire: app: wrote XXX/wire_gen.go
+```
+
+
+
+### go clean
+
+`clean`可以用于清理`build`命令生成的文件，添加`-i`选项，可以将`install`命令在`$GOPATH/bin`目录下生成的文件一并删除。
+
+`-x`参数可以打印出执行的命令：
+
+```bash
+$ go clean -x
+cd /Users/XXX/XXX/go_test/my/royalpoker
+rm -f royalpoker royalpoker.exe royalpoker royalpoker.exe royalpoker.test royalpoker.test.exe royalpoker.test royalpoker.test.exe handler handler.exe hub hub.exe local_player local_player.exe local_player.test local_player.test.exe local_player_test local_player_test.exe main main.exe msg msg.exe player player.exe
+```
+
+
+
+
+
+### 构建约束
+
+在 go 编译时，我们可以设置一些条件来指定满足条件的文件才被编译，不满足条件的则舍去。目前支持的构建约束方式有两种：通过文件名后缀，以及在文件中添加编译标签（build tag）。
+
+**文件名后缀**
+文件名后缀需要满足以下格式：
+
+```
+filename_$GOOS.go
+filename_$GOARCH.go
+filename_$GOOS_$GOARCH.go
+```
+
+比如 Go 源码中的 os 包中的 Linux，Windows 实现：
+
+```
+src/runtime/os_linux.go
+src/runtime/os_linux_arm.go
+src/runtime/os_linux_arm64.go
+src/runtime/os_windows.go
+src/runtime/os_windows_arm.go
+src/runtime/os_windows_arm64.go
+```
+
+**build tag**
+通过在文件顶部添加注释来设置构建条件，目前有两种写法：
+
+```go
+// 1.17以前版本
+// 空格表示：AND; 逗号表示：OR; !表示：NOT; 换行表示：AND
+// +build <tag>
+```
+
+```go
+// 1.17及以后
+// && 表示AND; || 表示OR; ! 表示NOT; () 表示分组
+//go:build <tag>		
+```
+
+在`tag`中可以指定一下内容：
+
+* 操作系统，即环境变量中GOOS的值；
+* 操作系统的架构，即环境变量中GOARCH的值
+* 使用的编译器，比如 gc 或者 gccgo；
+* 其他自定义标签；
+* 枚举值`ignore`，指定该文件不参与编译；
+
+对于自定义的标签，可以在`go build`的时候，添加`-tags`参数来设置筛选：
+
+```bash
+go build -tags <tag...> 
+```
+
+
+
+## vet
+
+Go 中自带的静态分析工具，用来检查一些代码中的错误。
+
+```bash
+go vet gen.go
+```
 
 
 
@@ -1839,15 +2277,108 @@ require (
 replace gopkg.in/yaml.v2 v2.4.0 => [本地mod包]
 ```
 
-此外还可以通过列出当前项目包名以及所有依赖到的包：
+常用的关于`mod`的命令：
 
 ```bash
+# 列出当前项目包名以及所有依赖到的包
 go list -m all
+# 清除已经下载的包
+go clean -modcache
 ```
 
 
 
-## 项目结构示例
+## generate
+
+`go generate`默认会扫描当前目录包下添加了`//go:generate`注释的文件，然后运行设置的命令。这通常和一些工具配合生成一些代码或者相关文件。比如我们有一下文件：
+
+```go
+//go:generate touch 1.txt
+//go:generate touch 2.txt
+
+package main
+
+func main() {}
+```
+
+我们在同级目录执行：
+
+```bash
+go generate
+```
+
+将会生成`1.txt`及`2.txt`两个文件。当然我们也可以用以下方式指定目录下的所有文件：
+
+```bash
+go generate ./...
+```
+
+
+
+## godoc
+
+`godoc`也是官方提供的工具之一，可以根据项目生成对应的文档。使用之前需要先安装这个工具：
+
+```bash
+go install golang.org/x/tools/cmd/godoc@latest
+```
+
+然后通过如下命令即可启动一个http的文档服务，然后访问`localhost:6060`即可：
+
+```bash
+godoc -http=localhost:6060
+```
+
+关于生成的文档又一些规则，比如
+
+* 在当前目录下任意go文件的`package`上面**一行**写的注释会被生成为`Overview`。如果在多个文件中都写了包注释，则会有冲突。通常会专门用一个名为`doc.go`的文件来写关于这个项目的`Overview`
+* 包下的函数，结构体等，都会被生成到`Index`中
+* 如果为函数或者结构体编写了`example`函数，则会在文档对应的函数或者结构体中也生成`Example`
+
+**Example**
+
+编写`Example`函数的文件名需要以`_test.go`为后缀，并且包名为`{PackageName}_test`。需要作为例子展示的函数需要以`Example`为函数名前缀。下面是一个简单的例子：
+
+```go
+package mydoc_test
+
+import (
+	"fmt"
+
+	"mydoc"
+)
+
+func ExampleVersion() {
+	mydoc.Version()
+	// Output:
+	// v1.0.0
+}
+```
+
+这个`Example`函数将会被生成到`mydoc`到`Version`函数下。并且这个函数是可以被测试的：
+
+```bash
+$ go test -v -run='ExampleVersion'  
+```
+
+测试的结果是将这里结尾的`Output:`以下的注释内容与`ExampleVersion()`这个函数执行时的输出进行比较。如果完全一致才会通过测试。
+除此之外还可以为结构体的方法添加`Example`，名称需要遵循格式：`Example{StructName}_{MethodName}`：
+
+```go
+func ExampleStu_Study() {
+	stu := mydoc.Stu{Name: "zhangsan"}
+	fmt.Println(stu.Code())
+	stu.Study()
+	fmt.Println(stu.Code())
+	// Output:
+	// 0
+	// 1
+}
+```
+
+
+
+# 项目结构示例
 
 小型项目：
 

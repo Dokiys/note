@@ -223,6 +223,8 @@ Docker镜像是由文件系统叠加而成的。在Docker里，root文件系统�
 $ docker pull ubuntu:12.04
 ```
 
+注：`Docker`在拉取的时候会自动根据设备的架构拉取相应的基础架构版本，比如如果使用的是M1芯片的mac使用的是`arm64`架构，在拉取`ubuntu:12.04`时会首先尝试拉取`arm64`的版本。
+
 我们拉取了版本为12.04的`ubuntu`镜像，其中的版本被称为`tag`。在通过镜像启动容器时也可以指定镜像的tag：
 
 ```bash
@@ -241,6 +243,8 @@ $ docker image list <镜像名>
 ```bash
 $ docker search <镜像名>
 ```
+
+
 
 ### **构建镜像**
 
@@ -335,6 +339,28 @@ RUN apt-get -y update \
     && apt-get -y install apache2
 ```
 
+#### 多阶段构建
+
+在一个`Dockerfile`文件中，支持使用个`FROM`语句。每个`FROM`指令可以使用不同的基础，并且每个指令都开始一个新的构建。我们可以选择性地将工件从一个阶段复制到另一个阶段，从而在最终`image`中只留下您想要的内容。
+
+比如在`go`语言编译的程序中，可以在提供`golang`环境的镜像中对代码完成编译，然后将编译好的可执行文件复制到另外一个运行环境中。这样可以确保最终获得到的`image`为我们需要的最整洁的环境。下面的`Dockerfile`示例展示了如何组织多阶段构建：
+
+```dockerfile
+FROM golang:1.19 as builder
+ENV GOPROXY=https://goproxy.cn,direct GOSUMDB="sum.golang.google.cn"
+WORKDIR /build
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o hello_work .
+
+FROM debian:11
+WORKDIR /app
+COPY --from=builder /build/hello_work ./
+EXPOSE 3000
+ENTRYPOINT ["/app/hello_work"]
+```
+
+
+
 #### 逆构建
 
 如果想查看一个镜像的构建过程，可以通过`docker history`来查看，例如：
@@ -352,6 +378,7 @@ d0dfe98c7d4f   5 seconds ago   RUN /bin/sh -c apt-get -y update     && apt-…  
 还有一些开源的工具，可以直接根具镜像生成对应的`Dockerfile`，比如[dfimage](https://github.com/LanikSJ/dfimage)。用法也相当简单：
 
 ```bash
+$ docker pull ghcr.io/laniksj/dfimage
 $ docker run -v /var/run/docker.sock:/var/run/docker.sock dfimage dokiy/my_apache:webserver2
 ```
 
