@@ -27,6 +27,8 @@
 * 选中/当前所在方法 与 上/下 一个方法调换位置：Shift + Command + 方向上/下
 * 批量修改某参数名：光标选中变量后Shift+F6
 * 查找文件：点击Project导航框，直接输入关键字
+* 全局查找文件：Shift + Command + O
+* 查找类型：Command + O
 * 打开Terminal： Option + F12
 * 快速生成测试方法：光标在方法上，Command + N
 * 使结构体实现某接口：光标选择到结构体，Option + Enter
