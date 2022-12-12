@@ -741,20 +741,14 @@ $ exit
 $ terminalizer render demo -o=./demo.gif
 ```
 
+###  参数后置
 
-
-###  zshrc alias
-
-```zsh
-# protofmt buf format ./*.proto file
-function protofmt() {
-  for filename in $(find . -name "*.proto"); do \
-    buf format $filename -o $filename;
-  done
-}
-# gnum generate 1..N num
-function gnum(){echo {1..$1} | tr ' ' "\n" | pbcopy}
+```bash
+ls $(read && echo $REPLY) | grep .go # 需要手动输入
+ls $(pbpaste) | grep .go
 ```
+
+
 
 
 

@@ -101,6 +101,8 @@
 * 从光标删除到前一个单词：Ctrl + W
 * 撤销删除：Ctrl + `-`
 * 在当前目录打开Finder：键入`open .`
+* 上/下/左/右： Ctrl + `P`/`N`/`B`/`F`
+* 删除光标(之前)的字符：Ctrl + `D`(`H`)
 
 ## VsCode
 
@@ -122,26 +124,6 @@
 
 * 美化JSON：Command + B
 * 发送请求：Command + Enter
-
-## Linux
-
-* 命令行光标移动：
-
-  * 光标移动到行首：Ctrl + A
-  * 光标移动到行尾：Ctrl + E
-  * 光标移动到上一个单词词首：Esc 然后 + B
-  * 光标移动到下一个单词词首：Esc 然后 + F
-  * 删除光标后的一个单词：Esc 然后 + D
-  * 删除光标前一个单词：Ctrl + W
-  * 清除光标后至行尾的内容：Ctrl + K
-  * 恢复删除：Ctrl + Y
-
-* 命令参数后置：
-
-  ```bash
-  ls $(read && echo $REPLY) | grep .go # 需要手动输入
-  ls $(pbpaste) | grep .go
-  ```
 
 
 

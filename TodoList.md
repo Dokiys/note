@@ -87,16 +87,9 @@
    ![image-20221122111738524](/Users/dokiy.zhang/Documents/TodoList/image-20221122111738524.png)
 
 6. skaffold
-
 7. [看见统计](https://seeing-theory.brown.edu/cn.html#firstPage)
-
-10. vim
-
-    ![键位](/Users/dokiy.zhang/Documents/TodoList/键位.jpg)
-
-11. mac下让窗口停留在最上层，或者点击不切换
-
-10. goreplay
+8. mac下让窗口停留在最上层，或者点击不切换
+9. goreplay
 
 
 
