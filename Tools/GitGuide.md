@@ -515,6 +515,7 @@ git diff <版本号码1(old)> <版本号码2(new)> --stat # 比较指定版本�
 git diff --cached # 比较暂存区的代码和当前分支head的代码
 git diff  ':!<文件/正则>' ':!<文件/正则>'# 比较时排除多个指定文件
 git diff <版本号码1(old)> <版本号码2(new)> --stat  ":(exclude)<文件/正则>"	# 比较版本排除制定文件修改
+git diff <版本号码1(old)> <版本号码2(new)> -G '<regexp>'	# 显示包含匹配到的文件内容
 ```
 
 比较本地 `ahead` 远程的提交

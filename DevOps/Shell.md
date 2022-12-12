@@ -539,6 +539,10 @@ $ cat 1.txt
 3
 $ cat 1.txt | grep -v '1' | grep '2'		# 先排除'1'，再查找'2'
 3
+$ cat 1.txt | grep -C 1 '2' # 查看查找到的包括上下1行
+1
+2
+3
 ```
 
 ### read
@@ -675,8 +679,10 @@ $ echo 'Hello work!' > temp.txt && sed -i 's/Hello/Hola/g' temp.txt && cat temp.
 Hola work!
 # 删除/向后新增/向前新增
 $ sed -i '/target_content/d' temp.txt
-$ sed -i '/target_content/a new_content' temp.txt
-$ sed -i '/target_content/i new_content' temp.txt
+$ sed -i '/target_content/a \\
+new_content' temp.txt
+$ sed -i '/target_content/i \\
+new_content' temp.txt
 # 匹配行中替换某个字符串
 $ sed -i '/target_line/s/target_content/new_content/g' temp.txt
 ```

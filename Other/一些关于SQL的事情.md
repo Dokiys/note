@@ -38,3 +38,6 @@
 * [Aliyun RDS性能诊断](https://help.aliyun.com/document_detail/128447.html)
 
 * `TRUNCATE TABLE [tbl_name]`可以删除某个表中的所有数据
+
+* 有些表的状态（比如：已过期）可以通过软状态表示。实际为某个状态，后端查出来之后再根据业务重新赋值。但是这样会增加状态查询的难度，会使得SQL必须包含业务逻辑。
+
