@@ -49,10 +49,54 @@
    https://github.com/xuexiangjys/flutter_template
    ```
 
-1. 服务网格，dapr
-2. gconv
-3. redis
-4. pprof https://zhuanlan.zhihu.com/p/71529062
-5. skaffold
-6. makefile
+2. 服务网格，dapr
+
+3. gconv
+
+4. redis
+
+5. profiling
+
+   [调试及性能分析](https://missing-semester-cn.github.io/2020/debugging-profiling/)
+   diagnostics
+
+   https://go.dev/doc/diagnostics
+   tracepoints:
+   https://www.cnblogs.com/arnoldlu/p/6241297.html
+   [Using the Linux Kernel Tracepoints](https://www.kernel.org/doc/html/latest/trace/tracepoints.html)
+
+   [Event Tracing](https://www.kernel.org/doc/html/latest/trace/events.html#event-tracing)
+
+   
+
+   Flame Graph: 
+   https://www.infoq.cn/article/a8kmnxdhbwmzxzsytlga
+
+
+   go proof :
+   https://zhuanlan.zhihu.com/p/71529062 
+   [Golang程序性能分析（一）pprof和go-torch](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651444750&idx=3&sn=0809ab92eb29f37292f4de6a671e6efc&scene=21#wechat_redirect)
+   [Golang程序性能分析（二）在Echo和Gin框架中使用pprof](https://link.zhihu.com/?target=https%3A//mp.weixin.qq.com/s%3F__biz%3DMzAxMTA4Njc0OQ%3D%3D%26mid%3D2651444765%26idx%3D3%26sn%3Df3efcca2bb75f8b79e678dc8250a287e%26scene%3D21%23wechat_redirect)
+   [Golang程序性能分析（三）用pprof分析gRPC服务的性能](https://link.zhihu.com/?target=https%3A//mp.weixin.qq.com/s%3F__biz%3DMzAxMTA4Njc0OQ%3D%3D%26mid%3D2651444897%26idx%3D3%26sn%3Db1f224cc8b53fa8bdb49445d8f58c314%26scene%3D21%23wechat_redirect)
+
+   
+
+   go tool trace:
+    https://making.pusher.com/go-tool-trace/
+
+   ![image-20221122111738524](/Users/dokiy.zhang/Documents/TodoList/image-20221122111738524.png)
+
+6. skaffold
+
+7. [看见统计](https://seeing-theory.brown.edu/cn.html#firstPage)
+
+10. vim
+
+    ![键位](/Users/dokiy.zhang/Documents/TodoList/键位.jpg)
+
+11. mac下让窗口停留在最上层，或者点击不切换
+
+10. goreplay
+
+
 
