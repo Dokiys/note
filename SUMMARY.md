@@ -20,6 +20,7 @@
 ## Tools
 
 * [GitGuide](Tools/GitGuide.md)
+* [Hotkey](Tools/Hotkey.md)
 * [Dictionary](Tools/Dictionary.md)
 
 ## Ruby
