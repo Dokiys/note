@@ -88,14 +88,16 @@
 * 新建窗口： Command + T
 * 水平分屏： Command + D
 * 垂直分屏： Command + Shift + D
-* 在最近使用的分屏直接切换.：Command + ' \[ '
+* 在最近使用的分屏直接切换.：Command + `[`
 * 切换标签页： Command +  &lt;-
 * 清屏：Ctrl + L
 * 复制字符串：双击添加到粘贴板 or 选中 + Command + 鼠标拖动到指定位置
 * 光标跳转下/上一个单词： Esc + F/B
-* 光标跳转行首：Ctrl + a
-* 光标跳转行尾：Ctrl + e
-* 从光标删除到命令行尾：Ctrl + k
+* 光标跳转行首：Ctrl + A
+* 光标跳转行尾：Ctrl + E
+* 从光标删除到命令行尾：Ctrl + K
+* 从光标删除到前一个单词：Ctrl + W
+* 撤销删除：Ctrl + `-`
 * 在当前目录打开Finder：键入`open .`
 
 ## VsCode
@@ -103,7 +105,7 @@
 * 全局搜索帮助：Command + Shift + P
 * 全局搜索文件：Command + P
 * 代码格式化：Option + Shift + F
-* 折叠当前代码片段：Option + Command + '['
+* 折叠当前代码片段：Option + Command + `[ `
 
 ## Chrome
 
@@ -141,7 +143,7 @@
 
 
 
-## vim
+## Vim
 
 * 跳转行首：Home 或 Shift + ^
 
@@ -163,6 +165,12 @@
   ```
 
 * 复制/黏贴/撤销：yy / p / u
+
+* 打开文件同时定位到某一内容行: `vim [FILENAME]  +/pattern`
+
+* 打开文件同时定位到某一行: `vim [FILENAME]  +n`
+
+* ![键位](../asset/Tools/Hotkey/键位.jpg)
 
 
 

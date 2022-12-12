@@ -156,7 +156,7 @@ hello work!
 
 tab中的图片宽度：
 
-![700px](../asset/Other/Dictionary/700px.png)
+![700px](../asset/Tools/Dictionary/700px.png)
 
 {% endtab %} 
 
@@ -200,5 +200,5 @@ The third content...
 
 图片宽度：
 
-![750px](../asset/Other/Dictionary/750px.png)
+![750px](../asset/Tools/Dictionary/750px.png)
 
