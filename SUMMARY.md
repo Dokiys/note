@@ -22,6 +22,7 @@
 * [GitGuide](Tools/GitGuide.md)
 * [Hotkey](Tools/Hotkey.md)
 * [Dictionary](Tools/Dictionary.md)
+* [Makefile](Tools/Makefile.md)
 
 ## Ruby
 
