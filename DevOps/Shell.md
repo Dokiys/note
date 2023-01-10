@@ -528,6 +528,14 @@ vars:
 $ envsubst 'ADD' <temp.yml> add.yml
 ```
 
+### find
+
+find可以在指定文件夹中按照文件名查找文件：
+
+```bash
+find ./api -name '*filename' -or -name '*filename2'
+```
+
 ### grep
 
 按行查找内容

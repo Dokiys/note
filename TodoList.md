@@ -51,7 +51,7 @@
 
 2. 服务网格，dapr
 
-3. gconv
+3. gconv https://github.com/golang/example/tree/master/gotypes#initialization-order
 
 4. redis
 
@@ -87,9 +87,5 @@
    ![image-20221122111738524](/Users/dokiy.zhang/Documents/TodoList/image-20221122111738524.png)
 
 6. skaffold
-7. [看见统计](https://seeing-theory.brown.edu/cn.html#firstPage)
 8. mac下让窗口停留在最上层，或者点击不切换
-9. goreplay
-
-
 

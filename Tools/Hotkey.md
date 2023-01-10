@@ -2,6 +2,42 @@
 
 # HotKey
 
+
+
+## MAC
+
+* Chrome检查：Command + Shift + C
+* 重命名文件：选择到文件名的状态下 + Enter
+* 打开文件：Command + O
+* 打开访达：Command + Option + B
+* 反撤销： Command + Shift + Z
+* 推出当前程序：Command + Q
+* 切换同一应用的不同窗口：Command + `
+* 全屏窗口：Command + Control + F
+* 锁屏：Command + Control + Q
+* Finder查看隐藏文件： Command + Shift + .
+* Finder查找文件： Command + Shift + G
+* 切换屏幕：Ctrl + 方向
+
+**命令行**
+
+* 整理启动台
+
+  ```bash
+  defaults write com.apple.dock ResetLaunchPad -bool tru
+  ```
+
+* 图标显示异常
+
+  ```bash
+  sudo find /private/var/folders/ \( -name com.apple.dock.iconcache -or -name com.apple.iconservices \) -exec rm -rfv {} \;
+  sudo rm -rf /Library/Caches/com.apple.iconservices.store;
+  killall Dock
+  killall Finder
+  ```
+
+  
+
 ## IDEA
 
 * 代码整理：Command + Option + L
@@ -46,43 +82,59 @@
 
 
 
-## MAC
+## Postman
 
-* Chrome检查：Command + Shift + C
-* 重命名文件：选择到文件名的状态下 + Enter
-* 打开文件：Command + O
-* 打开访达：Command + Option + B
-* 反撤销： Command + Shift + Z
-* 推出当前程序：Command + Q
-* 切换同一应用的不同窗口：Command + `
-* 全屏窗口：Command + Control + F
-* 锁屏：Command + Control + Q
-* Finder查看隐藏文件： Command + Shift + .
-* Finder查找文件： Command + Shift + G
-* 切换屏幕：Ctrl + 方向
+* 美化JSON：Command + B
+* 发送请求：Command + Enter
 
 
 
-**命令行**
+## VsCode
 
-* 整理启动台
+* 全局搜索帮助：Command + Shift + P
+* 全局搜索文件：Command + P
+* 代码格式化：Option + Shift + F
+* 折叠当前代码片段：Option + Command + `[ `
 
-  ```bash
-  defaults write com.apple.dock ResetLaunchPad -bool tru
+
+
+## Chrome
+
+* 打开最近关闭的tab页：Command + Shift + T
+* 切换tab：Command + Option + <- / ->
+* 放回上/下一页：Command + <- / ->
+* 聚焦光标到地址栏： Command + L
+* 访问网页：搜索栏输入关键字后，Ctrl + Enter
+* 强制刷新(不走304缓存)：Shift + Command + R
+* 普通刷新：Command + R
+
+
+
+## Alfred
+
+* 使用指定应用打开某文件：
+
+  ```
+  1. Alt + Space 打开Alfred搜索栏
+  2. 输入 find [文件名] 搜索到对应文件
+  3. Ctrl 进入到操作页面，并选择 Open 使用默认应用打开文件 
   ```
 
-* 图标显示异常
+* 搜索指定文件后缀：`'` + [文件名] + [空格] + [文件后缀]
 
-  ```bash
-  sudo find /private/var/folders/ \( -name com.apple.dock.iconcache -or -name com.apple.iconservices \) -exec rm -rfv {} \;
-  sudo rm -rf /Library/Caches/com.apple.iconservices.store;
-  killall Dock
-  killall Finder
-  ```
-
-  
+* 模糊搜索：`'` +` *`[搜索内容]
 
 
+
+## EMACS
+
+* 光标跳转行首：Ctrl + A
+* 光标跳转行尾：Ctrl + E
+* 从光标删除到命令行尾：Ctrl + K
+* 从光标删除到前一个单词：Ctrl + W
+* 上/下/左/右： Ctrl + `P`/`N`/`B`/`F`
+* 删除光标(之前)的字符：Ctrl + `D`(`H`)
+* 撤销删除：Ctrl + `- `or `/`
 
 ## iTerm2
 
@@ -95,37 +147,7 @@
 * 清屏：Ctrl + L
 * 复制字符串：双击添加到粘贴板 or 选中 + Command + 鼠标拖动到指定位置
 * 光标跳转下/上一个单词： Esc + F/B
-* 光标跳转行首：Ctrl + A
-* 光标跳转行尾：Ctrl + E
-* 从光标删除到命令行尾：Ctrl + K
-* 从光标删除到前一个单词：Ctrl + W
-* 撤销删除：Ctrl + `-`
 * 在当前目录打开Finder：键入`open .`
-* 上/下/左/右： Ctrl + `P`/`N`/`B`/`F`
-* 删除光标(之前)的字符：Ctrl + `D`(`H`)
-
-## VsCode
-
-* 全局搜索帮助：Command + Shift + P
-* 全局搜索文件：Command + P
-* 代码格式化：Option + Shift + F
-* 折叠当前代码片段：Option + Command + `[ `
-
-## Chrome
-
-* 打开最近关闭的tab页：Command + Shift + T
-* 切换tab：Command + Option + <- / ->
-* 放回上/下一页：Command + <- / ->
-* 聚焦光标到地址栏： Command + L
-* 强制刷新(不走304缓存)：Shift + Command + R
-* 普通刷新：Command + R
-
-## Postman
-
-* 美化JSON：Command + B
-* 发送请求：Command + Enter
-
-
 
 ## Vim
 
@@ -156,16 +178,3 @@
 
 * ![键位](../asset/Tools/Hotkey/键位.jpg)
 
-
-
-## Alfred
-
-* 使用指定应用打开某文件：
-
-  ```
-  1. Alt + Space 打开Alfred搜索栏
-  2. 输入 find [文件名] 搜索到对应文件
-  3. Ctrl 进入到操作页面，并选择 Open 使用默认应用打开文件 
-  ```
-
-  
