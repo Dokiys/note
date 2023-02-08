@@ -51,8 +51,6 @@
 
 2. 服务网格，dapr
 
-3. gconv https://github.com/golang/example/tree/master/gotypes#initialization-order
-
 4. redis
 
 5. profiling
@@ -88,4 +86,5 @@
 
 6. skaffold
 8. mac下让窗口停留在最上层，或者点击不切换
+8. goland grpc client跳转到实现
 
