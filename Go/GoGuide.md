@@ -1562,6 +1562,15 @@ func TestTable(t *testing.T) {
 为了避免不必要的重复执行，一个成功的单元测试将会被缓存，直到当前测试包下的内容有修改。
 即使某个方法存在类似`time.Now()`这种动态生成的变量的时候，比如测试方法包含`time.Now().Unix() < 1668152900`这样的判断，并通过的情况下，**即使该判断存在二义性，因为测试通过了就会被缓存**。所以应该避免在单元测试中使用不确定的参数。
 
+在没有指定文件的情况下`go test`会尝试加载执行目录下的所有`go`文件。如果只想加载部分文件，可以在命令最后通过文件名指定：
+
+```go
+go test --run="[FUNCTION_NAME]" main_test.go
+go test --run="[FUNCTION_NAME]" -v $(ls | grep -v '_test.go' | grep '.go') main_test.go
+```
+
+
+
 ### TestMain
 
 如果测试文件中包含`TestMain(m *testing.M)`，那么生成的测试将调用 `TestMain(m *testing.M)`，而不是直接运行测试。我们可以将此利用，在`TestMain(m *testing.M)`做一些共有的操作：
