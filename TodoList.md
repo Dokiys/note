@@ -1,5 +1,10 @@
 # TODOLIST
 
+1. chatGpt
+
+   https://platform.openai.com/onboarding?app=chat
+   https://sms-activate.org/cn/feedbackTest#
+   
 1. flatter
 
    ```
@@ -87,4 +92,4 @@
 6. skaffold
 8. mac下让窗口停留在最上层，或者点击不切换
 8. goland grpc client跳转到实现
-
+8. DTS

@@ -59,4 +59,4 @@
     and c.TABLE_NAME = 'table_name'
   ```
 
-  
+* 单表继承和多态关联
