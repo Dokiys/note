@@ -35,7 +35,6 @@ git branch [分支名]					// 创建分支
 git checkout [分支名]				// 切换分支
 git checkout -b [分支名]			// 切换同时创建分支
 git branch -m [分支名old] [分支名new]		//重命名
-git reflog show [分支名]			// 查看分支来源
 git branch -d [分支名]				// 删除分支
 git push origin --delete [分支名]			// 删除远程分支
 git branch | xargs git branch \-d			// 删除处当前分支的所有分支
@@ -47,6 +46,12 @@ git branch | grep 'dev*' | xargs git branch \-d	// 删除包含dev的所有分�
 ```bash
 git branch -f [分支名] [提交号]
 # 例如：`git branch -f master HEAD~3`,将master分支强制指向当前分支的第前三个提交
+```
+
+查看分支来源
+
+```bash
+git reflog show [分支名]			// 查看分支来源
 ```
 
 
@@ -717,14 +722,7 @@ git checkout -b totallyNotMaster o/master
 git checkout -b totallyNotMaster -t o/master
 ```
 
-如果遇到报错
-
-```bash
-git checkout -b test -t origin/master
-fatal: Cannot update paths and switch to branch 'test' at the same time.
-Did you intend to checkout 'origin/master' which can not be resolved as commit?
-```
-
+**设置远程仓库**
 可以用`remote`命令查看远程是否可以fetch并用`set-url`选项来修改远程仓库，或者`add`来添加远程仓库
 
 ```bash
@@ -734,8 +732,7 @@ git remote set-url origin [remote repository]
 git remote add [remote repository name] [remote repository]
 ```
 
-
-
+**设置远程分支**
 另一种设置远程追踪分支的方法就是使用：`git branch -u` 命令，
 
 ```bash
@@ -795,14 +792,14 @@ git config  --global user.email 邮箱名
  git config --global core.hooksPath [PATH]
 ```
 
-#### **pre-push** 
+#### **pre-push**
 
 ```bash
 # 添加push前的golint检查
 # 添加到全局
-wget -qO ~/workspace/git/hooks/pre-push  https://raw.githubusercontent.com/Dokiys/example/main/shell/git_hooks/pre_push_golint_check && git config --global core.hooksPath ~/workspace/git/hooks && chmod +x ~/workspace/git/hooks/pre-push
+wget -qO ~/workspace/git/hooks/pre-push  https://raw.githubusercontent.com/Dokiys/example/main/shell/git_hooks/pre_push_check && git config --global core.hooksPath ~/workspace/git/hooks && chmod +x ~/workspace/git/hooks/pre-push
 # 添加到项目
-wget -qO .git/hooks/pre-push  https://raw.githubusercontent.com/Dokiys/example/main/shell/git_hooks/pre_push_golint_check && git config core.hooksPath .git/hooks && chmod +x .git/hooks/pre-push
+wget -qO .git/hooks/pre-push  https://raw.githubusercontent.com/Dokiys/example/main/shell/git_hooks/pre_push_check && git config core.hooksPath .git/hooks && chmod +x .git/hooks/pre-push
 ```
 
 #### **pre-commit** 
@@ -1103,7 +1100,7 @@ $ git rev-list --objects --all | grep "$(git verify-pack -v .git/objects/pack/*.
 
 ```bash
 # 3. 删除指定的大文件
-git filter-branch --force --index-filter "git rm -rf --cached --ignore-unmatch [filename]" --prune-empty --tag-name-filter cat -- --all
+git filer-branch --force --index-filter "git rm -rf --cached --ignore-unmatch [filename]" --prune-empty --tag-name-filter cat -- --all
 ```
 
 `filter-branch` ：命令通过一个`filter`来重写历史提交，这个`filter`针对指定的所有分支运行  
