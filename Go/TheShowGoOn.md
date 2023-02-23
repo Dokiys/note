@@ -379,3 +379,16 @@ func (c *Context) Next() {
 	}
 }
 ```
+
+
+
+## if语句的注释方法
+
+```go
+if volume.Spec.ClaimRef == nil {
+  // do something...
+} else /* pv.Spec.ClaimRef != nil */ {
+  // do something...
+}
+```
+
