@@ -34,6 +34,7 @@
 
 ## Other
 
+* [AboutCoding](Other/AboutCoding.md)
 * [RabbitMQ](Other/RabbitMQ.md)
 * [Elasticsearch](Other/Elasticsearch.md)
 * [JWT](Other/JWT.md)
