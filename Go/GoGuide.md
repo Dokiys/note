@@ -2387,6 +2387,18 @@ func ExampleStu_Study() {
 
 
 
+## golangci-lint
+
+golangci-lint 集成了各种go语言的静态检测工具，包括语法检测（lint），注释风格（style），错误处理（bugs），圈复杂度(cyclop)等各种工具。可以通过以下命令安装：
+
+```bash
+go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+```
+
+安装后可以通过`golangci-lint linters `查看开启配置的检查器。运行目录下文件名为`.golangci.yml`的文件可以被读取为配置。配置内容可以参考[这里](https://golangci-lint.run/usage/configuration/)。
+
+
+
 # 项目结构示例
 
 小型项目：
