@@ -758,5 +758,7 @@ ls $(pbpaste) | grep .go
 
 
 
+### The Silver Searcher
 
+相较于`grep`的文本搜索，更适合搜索大量的文件搜索。
 

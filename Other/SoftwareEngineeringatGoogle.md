@@ -205,3 +205,21 @@ At Google, we have our own internal version of the principles of “humility, re
 * Puts the user first: Has empathy and respect for users of Google’s products and pursues actions that are in their best interests. 
 * Cares about the team: Has empathy and respect for coworkers and actively works to help them without being asked, improving team cohesion.
 * Does the right thing: Has a strong sense of ethics about everything they do; willing to make difficult or inconvenient decisions to protect the integrity of the team and product.
+
+
+
+## Knowledge Sharing
+
+Your organization understands your problem domain better than some random person on the internet; your organization should be able to answer most of its own questions and permits people to admit to a lack of knowledge.
+
+### Challenges to Learning
+
+Sharing expertise across an organization is not an easy task. Google has experienced a number of these challenges, especially as the company has scaled:    
+
+* Lack of psychological safety: 
+  An environment in which people are afraid to take risks or make mistakes in front of others because they fear being punished for it.
+* Information islands: 
+  Knowledge fragmentation that occurs in different parts of an organization that don’t communicate with one another, each group develops its own way of doing things, and and these might or might not conflict.
+* Single point of failure (SPOF):
+  A bottleneck that occurs when critical information is available from only a single person. This is related to bus factor.
+* 
