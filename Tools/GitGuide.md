@@ -8,249 +8,108 @@ Git 保存了提交的历史记录。
 
 
 
-## Git分支
+## git commit
 
-### git commit
-
-通过`git commit`命令可以将修改保存成了一个新的提交记录 `C2`。`C2` 的父节点是 `C1`，父节点是当前提交中变更的基础。
+通过`git commit`命令可以将修改保存成了一个新的提交记录 `C2`（我们暂时这么叫，实际上是一串很长的hash值）。`C2` 的父节点是 `C1`，父节点是当前提交中变更的基础。Git 还可以修改最后一次提交的描述信息，当然，如果`push`之后是没法修改的：
 
 ```bash
+# 进行一次提交
 git commit <filename> -m"提交说明"
-```
-
-Git 还可以修改最后一次提交的描述信息，当然，如果`push`之后是没法修改的：
-
- ```bash
+# 修改最近一次提交信息
 git commit --amend
- ```
-
-
-
-### git branch
-
-Git 的分支也非常轻量。它们只是简单地指向某个提交纪录。即使创建再多分的支也不会造成储存或内存上的开销，并且按逻辑分解工作到不同的分支要比维护那些特别臃肿的分支简单多了。
-
-```bash
-git branch [分支名]					// 创建分支
-git checkout [分支名]				// 切换分支
-git checkout -b [分支名]			// 切换同时创建分支
-git branch -m [分支名old] [分支名new]		//重命名
-git branch -d [分支名]				// 删除分支
-git push origin --delete [分支名]			// 删除远程分支
-git branch | xargs git branch \-d			// 删除处当前分支的所有分支
-git branch | grep 'dev*' | xargs git branch \-d	// 删除包含dev的所有分支
 ```
-
-强制修改分支位置
-
-```bash
-git branch -f [分支名] [提交号]
-# 例如：`git branch -f master HEAD~3`,将master分支强制指向当前分支的第前三个提交
-```
-
-查看分支来源
-
-```bash
-git reflog show [分支名]			// 查看分支来源
-```
-
-
-
-### git merge
-
-**没事别瞎merge！！确定需要之后再merge！！**
-
-将指定分支合并到当前分支之后。
-
-```bash
-git merge [分支名]
-```
-
-`merge`命令只会将选择的分支合并到当前分支，当前分支中的修改不会保存到`merge`到分支中。
-
-```bash
-git merge --no-ff 					# 在提交时，创建一个merge的commit信息，然后再进行合并
-git merge [分支1] [分支2]			# 将分支2合并到分支1之后
-git merge --abort						# merge产生冲突时放弃merge
-```
-
-
-
-### git rebase
-
-`rebase`会将当前分支移动到指定的分支之后，并将该分支最新提交作为指定分支的一次修改，而不是对其进行合并，`rebase`很容易出现冲突！！**不能在一个共享的分支上进行Git rebase操作。**
-
-```bash
-git rebase [分支名]
-```
-
-如果当前分支和制定的`rebase`分支来自同一继承，那么会将当前分支的引用直接指向制定分支。
-
-在整理提交时，如果你不清楚你想要的提交记录的哈希值，以利用交互式的 rebase。
-
-交互式 rebase 指的是使用带参数 `--interactive` 的 rebase 命令, 简写为 `-i`
-增加了这个选项后, Git 会打开一个 UI 界面并列出将要被复制到目标分支的备选提交记录，它还会显示每个提交记录的哈希值和提交说明，提交说明有助于你理解这个提交进行了哪些更改。假设我们有如下提交：
-
-```bash
-git log 
-commit 4232037057c6805805547366a1d7a05a0df4a63a (HEAD -> feature/t)
-Author: Dokiy <zhangzongqi@fancydigital.com.cn>
-Date:   Wed Apr 13 10:51:27 2022 +0800
-
-    2
-
-commit 84076eb827eddbb8735472924bde9ced976dc88f
-Author: Dokiy <zhangzongqi@fancydigital.com.cn>
-Date:   Wed Apr 13 10:51:22 2022 +0800
-
-    1
-
-commit a6ab3f7beb2c16caff1433ba224f6e96f873b6ec (origin/master, origin/HEAD, master)
-Author: 4javier <4javiereg4@gmail.com>
-Date:   Wed Apr 13 01:23:33 2022 +0200
-
-    docs: fix grammar (#45455)
-    PR Close #45455
-```
-
-从`HEAD～2`到最新提交开始修改：
-
-```bash
-git rebase -i HEAD~2
-###[Dokiy]: 修改一下内容并保存将会改变顺序
-pick 84076eb827 1
-pick 4232037057 2
-
-###[Dokiy]: 以下是指令说明
-# Rebase a6ab3f7beb..4232037057 onto a6ab3f7beb (2 commands)
-#
-# Commands:
-# p, pick <commit> = use commit
-# r, reword <commit> = use commit, but edit the commit message
-# e, edit <commit> = use commit, but stop for amending
-# s, squash <commit> = use commit, but meld into previous commit
-# f, fixup <commit> = like "squash", but discard this commit's log message
-# x, exec <command> = run command (the rest of the line) using shell
-# b, break = stop here (continue rebase later with 'git rebase --continue')
-# d, drop <commit> = remove commit
-# l, label <label> = label current HEAD with a name
-# t, reset <label> = reset HEAD to a label
-# m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
-# .       create a merge commit using the original merge commit's
-# .       message (or the oneline, if no original merge commit was
-# .       specified). Use -c <commit> to reword the commit message.
-...
-```
-
-修改内容为一下内容并保存：
-
-```bash
-pick 84076eb827 1
-squash 4232037057 2
-```
-
-进入到修改提交注释的界面，直接保存：
-
-```bash
-# This is a combination of 2 commits.
-# This is the 1st commit message:
-
-1
-
-# This is the commit message #2:
-
-2
-```
-
-```bash
-git log
-commit 493a535d93b041b3693cdf0c3b520ce9112b2a3a (HEAD -> feature/t)
-Author: Dokiy <zhangzongqi@fancydigital.com.cn>
-Date:   Wed Apr 13 10:51:22 2022 +0800
-
-    1
-
-    2
-
-commit a6ab3f7beb2c16caff1433ba224f6e96f873b6ec (origin/master, origin/HEAD, master)
-Author: 4javier <4javiereg4@gmail.com>
-Date:   Wed Apr 13 01:23:33 2022 +0200
-
-    docs: fix grammar (#45455)
-    PR Close #45455
-```
-
-最后两个分支被合并了
-
-
-
-
 
 ### 相对引用
 
-HEAD 是一个对当前检出记录的符号引用 —— 也就是指向你正在其基础上进行工作的提交记录。
-
+HEAD 是一个对当前检出记录的符号引用，也就是指向你正在其基础上进行工作的提交记录。
 HEAD 总是指向当前分支上最近一次提交记录。
-
-HEAD 通常情况下是指向分支名的
-
+HEAD 通常情况下是指向分支名的。
 分离的 HEAD 就是让其指向了某个具体的提交记录而不是分支名。
-
-可以利用`checkout`命令并指定提交记录的hash码让HEAD指向具体的提交
+可以利用`checkout`命令并指定提交记录的hash码让HEAD指向具体的提交：
 
 ```bash
 git checkout [提交记录hash码]
 ```
 
-
-
 git的hash值基于 SHA-1，共 40 位。例如： `fed2da64c0efc5293610bdd892f82a58e8cbc5d8`
+哈希值指定提交记录很不方便，所以 Git 引入了相对引用。可以从一个分支使用相对引用切换到具体的提交记录
 
-哈希值指定提交记录很不方便，所以 Git 引入了相对引用。可以从一个分支使用鲜菇蒂引用切换到具体的提交记录
-
-- 使用 `^` 向上移动 1 个提交记录
-- 使用 `~<num>` 向上移动多个提交记录，如 `~3`
+- 使用 `^` 表示之前 1 个提交记录
+- 使用 `~<num>` 之前多个提交记录，如 `~3`
 
 ```bash
 git checkout [分支名]^
-
 git checkout [分支名]~3
 ```
 
 
 
-### 提交撤销
+## git branch
 
-主要有两种方法用来撤销变更 —— `git reset` & `git revert`。
-
-`git reset` 通过把分支记录回退几个提交记录来实现撤销改动。你可以将这想象成“改写历史”。`git reset` 向上移动分支，原来指向的提交记录就跟从来没有提交过一样。
+Git 的分支也非常轻量。它们只是简单地指向某个提交纪录。即使创建再多分的支也不会造成储存或内存上的开销，并且按逻辑分解工作到不同的分支要比维护那些特别臃肿的分支简单多了。
 
 ```bash
-git reset [提交号]
-# 例如：git reset HEAD^1
-git reset --hard origin/[分支名]		# => 可以将放弃本地分支为push的提交，强制拉取远程分支
+git branch [分支名]					# 创建分支
+git checkout [分支名]				# 切换分支
+git checkout -b [分支名]			# 切换同时创建分支
+git branch -m [分支名old] [分支名new]		#重命名
+git branch -d [分支名]				# 删除分支
 ```
 
-`git revert` 会将指定的提交记录的**上一个提交记录**作为一个新的提交
+进阶命令：
 
 ```bash
-git revert [提交号]
-# 例如`git revert HEAD
-```
+# 删除包含dev的所有分支
+git branch | grep 'dev*' | xargs git branch \-d	
+# 查看分支来源
+git reflog show [分支名]			
 
-放弃本地未提及commit，强制拉取远程仓库分支
-
-```bash
-git fetch --all
-git reset origin/master
-# reset --mixed：默认参数，保留工作目录，并重置暂存区
-# reset --hard：不保留暂存区和工作区
-# reset --soft：保留工作区，并把重置 HEAD 所带来的差异放到暂存区
+# 如果想给分支添加描述信息可以使用：
+git config branch.[分支名].description '分支描述信息'
+git config branch.[分支名].description  						# 查看分支描述信息
 ```
 
 
 
-### cherry-pick
+## git merge
+
+**没事别瞎merge！！确定需要之后再merge！！**
+
+将指定分支合并到当前分支之后。`merge`命令只会将选择的分支合并到当前分支，当前分支中的修改不会保存到`merge`到分支中。
+
+```bash
+# 将分支2合并到分支1之后
+git merge [分支1] [分支2]	
+# 将指定分支合并到当前分支
+git merge [分支名]
+# merge产生冲突时放弃merge 
+git merge --abort		
+```
+
+进阶命令：
+
+```bash
+# 在提交时会将[分支名]中所有的内容作为一个新的commit提交
+# 然后再合并到当前分支
+git merge --no-ff [分支名]
+```
+
+
+
+## git rebase
+
+`rebase`会将指定的提交，直接放在指定分支**之后**。`rebase`很容易出现冲突！！**不要在一个共享的分支上进行Git rebase操作。**
+
+```bash
+git rebase [提交1] [提交2] [提交3]
+# 也可以直接指定分支名，按照该分支中的提交顺序将所有的提交rebase到当前分支
+git rebase [分支名]
+```
+<a id="GitRebase" href="#GitRebaseExample">参考示例</a>。
+
+
+
+## git cherry-pick
 
 实现“我想要把这个提交放到这里, 那个提交放到刚才那个提交的后面”
 
@@ -269,108 +128,69 @@ git checkout [需要使用该代码的分支]
 git cherry-pick [commit id] # 提交该 commit 到当前分支
 ```
 
-**一次cherry-pick实践**
+<a id="GitCherryPick" href="#GitCherryPickExample">参考示例</a>。
 
-背景：在共享的开发中，二进制文件通常不应该被提交到远程仓库。一旦提交之后就会被git保存在历史记录中，这将占用大量的空间。并且即使在后续的提交中进行了删除，之前的二进制文件记录也会被保存在历史记录中。
 
-在一次开发中，不小心吧二进制文件提交到了远程仓库，好在还没有合并到主分支。坏在提交二进制文件的记录之后已经有了十几次提交。
-重新修改的思路就是，找到提交二进制文件的位置，然后切出一个新的分支。修改之后，将原来分支之后每一个提交记录`cherry-pick`到新切出的分支。
+
+## git revert
+
+主要有两种方法用来撤销变更`git reset` 和 `git revert`。
+`git revert` 会将指定的提交记录的**上一个提交记录**作为一个新的提交，如果与当前分支有冲突，则需要解决冲突。
 
 ```bash
-# 首先我们需要找到需要修改的提交并修改，比如我这里是
-➜  workspace git:(error_branch) git checout 14ddcb9 && git checkout -b fix_cherry_pick
-# 修改完成后强制覆盖原来的提交
-➜  workspace git:(fix_cherry_pick) git add . && git commit --amend
-# 这时候我们需要回到原来的分支查看[14ddcb9]之后所有的提交
-➜  workspace git:(fix_cherry_pick) git checkout feat/add_api
+git revert [提交号]
 ```
 
+## git reset
+
+`git reset` 通过把分支记录回退几个提交记录来实现撤销改动。你可以将这想象成“改写历史”。`git reset` 向上移动分支，原来指向的提交记录就跟从来没有提交过一样。
+
 ```bash
-# 查询自【14ddcb9】之后的提交记录
-➜  workspace git:(error_branch) git --no-pager log --after="$(git show -s --format='%at' 14ddcb9)" --first-parent --format=format:"%h" --reverse feat/eticket_api_migration_archive ^14ddcb9 | tr '\n' ' '
-641eef3 418022f 81b1e50...6b781f7 77441cd
-#### 这里解释一下这条命令 ####
-# --no-pager: 指定一次输出所有的记录，而不采用分页
-# --after="$(git show -s --format='%at' 14ddcb9)"： 设置查看从某某时间开始的记录
-# git show -s --format='%at' 14ddcb9： 可以获取到<commit:14ddcb9>的提交时间
-# --first-parent： 因为我这个提交里面存在merge其他分支的情况，所有只查看merge的那一条提交
-# --format=format:"%h" 设置log输出的格式， %H指定输出完整的hash值
-# --reverse：设置倒序输出提交，方便进行cherry-pick
-# ^14ddcb9: 排除<commit:14ddcb9>这个提交
-# | tr '\n' ' '： 将换行输出转变成空格输出
+git reset [提交号]
+# 例如：git reset HEAD^1
+git reset --hard origin/[分支名]		# => 可以将放弃本地分支为push的提交，强制拉取远程分支
 ```
 
-获取到这这些提交记录之后，我们可以回到刚刚的`fix_cherry_pick`直接使用`cherry-pick`整理提交：
+放弃本地未提及commit，强制拉取远程仓库分支
 
 ```bash
-➜  workspace git:(error_branch) git checkout fix_cherry_pick
-➜  workspace git:(fix_cherry_pick) git cherry_pick 641eef3 418022f 81b1e50...6b781f7 77441cd
-[fix_cherry_pick 192ded3] Add
- Date: Thu Aug 11 10:09:28 2022 +0800
- 1 file changed, 208 insertions(+), 249 deletions(-)
-error: commit c28e6e04726decdd52e6514bf4e58c594a907d5d is a merge but no -m option was given.
-```
-
-这时候遇到了一个错误，这是因为`<commit:c28e6e0>`这个提交是一个merge的操作，而merge有可能会出现冲突，git并不知道如何去处理这些冲突，所以需要我们手动去处理：
-
-```bash
-➜  workspace git:(fix_cherry_pick) git merge c28e6e04726decdd52e6514bf4e58c594a907d5d
-Auto-merging a.go
-Auto-merging b.go
-CONFLICT (content): Merge conflict in b.go
-Automatic merge failed; fix conflicts and then commit the result.
-```
-
-处理完冲突之后提交，并继续`cherry-pick`，直到完成所有的提交即可：
-
-```bash
-➜  workspace git:(fix_cherry_pick) git cherry-pick --continue
+git fetch --all
+git reset origin/master
+# reset --mixed：默认参数，保留工作目录，并重置暂存区
+# reset --hard：不保留暂存区和工作区
+# reset --soft：保留工作区，并把重置 HEAD 所带来的差异放到暂存区
 ```
 
 
 
-### git tag
+## git tag
 
 `tag`可以用于永远指向某个提交记录的标识呢，比如软件发布新的大版本，或者是修正一些重要的 Bug 或是增加了某些新特性。
 
 ```bash
-git tag [标签名] [提交号]
-# 例如：`git tag V1 C1`
-```
+# 例如：git tag V1 C1
+git tag [标签名] [提交号]	
 
-`tag`查看：
-
-```bash
-git tag	# => 查看当前仓库所有tag
-git tag -l ‘v0.1.*’ # => 查看匹配的tag
-```
-
-`tag`命令还可以用来归档文件，通过`-m`选项可以添加标签注释，`-n`选项来查看注释信息
-
-```bash
+# 查看当前仓库所有tag
+git tag	
+# 查看匹配的tag
+git tag -l ‘v0.1.*’ 
+# 添加标签注释
 git tag [标签名] [提交号] -m '注释信息'
+# 查看注释信息
 git tag -n
-```
 
-`-d`选项用于删除`tag`
-
- ```bash
+# 删除tag
 git tag -d [标签名]
- ```
-
-推到远程：
-
-```bash
+# 推到远程仓库
 git push --tags
 ```
 
 
 
+## git describe
 
-
-### Git Describe
-
-`git describe`用来描述离你最近的锚点（也就是标签tag）
+`git describe`用来描述离指定`ref`最近的锚点（也就是标签tag）
 
 ```bash
 git describe <ref>
@@ -382,76 +202,11 @@ git describe <ref>
 
 >  <tag>\_<numCommits>\_g<hash>
 
-`tag` 表示的是离 `ref` 最近的标签， `numCommits` 是表示这个 `ref` 与 `tag` 相差有多少个提交记录， `hash` 表示的是你所给定的 `ref` 所表示的提交记录哈希值的前几位。
-
-当 `ref` 提交记录上有某个标签时，则只输出标签名称
-
-如果想给分支添加描述信息可以使用：
-
-```bash
-git config branch.[分支名].description '分支描述信息'
-git config branch.[分支名].description  						# 查看分支描述信息
-```
+`tag` 表示的是离 `ref` 最近的标签， `numCommits` 是表示这个 `ref` 与 `tag` 相差有多少个提交记录， `hash` 表示的是你所给定的 `ref` 所表示的提交记录哈希值的前几位。当 `ref` 提交记录上有某个标签时，则只输出标签名称。
 
 
 
-## Git文件
-
-### 文件撤销
-
-1. 未使用 git add 缓存代码时
-
-   ```bash
-   git checkout -- [filepathname]
-   git checkout head . //撤销所有文件
-   ```
-
-2. 已经使用了 git add 缓存了代码
-
-   ```bash
-   git reset HEAD filepathname //放弃文件的缓存
-   git reset HEAD //放弃所有缓存
-   ```
-
-3. 已经用 git commit 提交了代码，需要全部撤回
-
-   ```bash
-   git reset --hard HEAD^
-   ```
-
-4. 对单个已提交文件撤回
-
-   ```bash
-   $ git log <fileName>
-   $ git checkout <commit-id> <fileName>
-   $ git commit
-   ```
-
-   如果不行修改提交记录并撤回某文件可以：
-
-   ```bash
-   $ git log <fileName>
-   $ git reset <commit-id> <fileName>
-   ```
-
-   再撤销对此文件的修改
-
-   ```bash
-   $ git checkout <fileName>
-   ```
-
-   最后amend一下
-
-   ```bash
-   //对上一次的提交进行修改，可以使用该命令。也可以修改提交说明。
-   $ git commit --amend 
-   ```
-
-5. [撤销提交记录](#提交撤销)
-
-
-
-### 进度暂存
+## git stash
 
 `git stash`可以将对当前分支的缓存区和工作区的修改保存到`list`，此时`git status`查看当前工作区是干净的。
 
@@ -507,7 +262,7 @@ git merge [COMMIT_ID] 	# 合并提交的信息
 
 
 
-### diff 比较文件
+## git diff
 
 ```bash
 git diff <版本号码1(old)> <版本号码2(new)>
@@ -530,7 +285,7 @@ git log <分支名> ^origin/<分支名> 	# 查看指定分支 ahead 指定的远
 
 
 
-### Untracked文件
+## git clean
 
 ```bash
 git clean -f		# 清除untracked文件
@@ -552,37 +307,61 @@ Git 远程仓库相当的操作实际可以归纳为两点：
 
 * 从远程仓库获取数据。
 
-  
 
-### git clone
-
-`git clone` 命令在真实的环境下的作用是在**本地**创建一个远程仓库的拷贝（比如从 github.com）
+`git clone` 命令在真实的环境下的作用是在**本地**创建一个远程仓库的拷贝（比如从 github.com），创建之后默认会讲ssh地址作为远程仓库。
 
 ```bash
 git clone [ssh地址]
-```
-
-如果忘记了当前项目对应远程仓库可以通过以下命令查看：
-
-```bash
+# 查看远程仓库
 git remote -v
-```
-
-以及存在的本地仓库想要与远程管理可以使用：
-
-```bash
+# 设置远程仓库
 git remote add origin [Git远程仓库url]
 ```
 
-
-
-### 远程分支
-
-远程分支反映了远程仓库(在你上次和它通信时)的**状态**。这会有助于你理解本地的工作与公共工作的差别。
-
+远程仓库的分支反映了远程仓库(在你上次和它同步时)的**状态**。这会有助于你理解本地的工作与公共工作的差别。
 在你检出时自动进入分离 HEAD 状态。Git 这么做是出于不能直接在这些分支上进行操作的原因, 你必须在别的地方完成你的工作, （更新了远程分支之后）再用远程分享你的工作成果。
 
+### 远程跟踪
 
+`master` 和 `o/master` 的关联关系就是由分支的“remote tracking”属性决定的。`master` 被设定为跟踪 `o/master`
+
+当你克隆时，Git 会为远程仓库中的每个分支在本地仓库中创建一个远程分支（比如 `o/master`）。然后再创建一个跟踪远程仓库中活动分支的本地分支，默认情况下这个本地分支会被命名为 `master`。
+
+可以让任意分支跟踪 `o/master`, 然后该分支会像 `master` 分支一样得到隐含的 push 目的地以及 merge 的目标。
+例如：以下命令就可以创建一个名为 `totallyNotMaster` 的分支，它跟踪远程分支 `o/master`。
+
+```bash
+git checkout -b totallyNotMaster o/master
+git checkout -b totallyNotMaster -t o/master
+```
+
+#### **设置远程仓库**
+
+可以用`remote`命令查看远程是否可以fetch并用`set-url`选项来修改远程仓库，或者`add`来添加远程仓库
+
+```bash
+git remote -v
+git remote set-url origin [remote repository]
+
+git remote add [remote repository name] [remote repository]
+```
+
+#### **设置远程分支**
+
+另一种设置远程追踪分支的方法就是使用：`git branch -u` 命令，
+
+```bash
+git branch -u o/master foo
+//如果当前就在 foo 分支上, 还可以省略 foo：
+git branch -u o/master
+```
+
+远程有分支更新时，本地可能没有获取新的分支，可以使用：
+
+```bash
+# 更新本地的远程仓库列表
+git fetch --all
+```
 
 ### git fetch
 
@@ -590,15 +369,12 @@ git remote add origin [Git远程仓库url]
 
 `git fetch` 完成了仅有的但是很重要的两步:
 
-- 从远程仓库下载本地仓库中缺失的提交记录
-- 更新远程分支指针(如 `o/master`)
+- 从远程仓库下载本地仓库中缺失的提交记录（但不会直接合并到对应分支）
+- 更新远程分支指针（如 `o/master`）
 
 `git fetch` 实际上将本地仓库中的远程分支更新成了远程仓库相应分支最新的状态。
-
 `git fetch` 通常通过互联网（使用 `http://` 或 `git://` 协议) 与远程仓库通信。
-
-`git fetch` 并不会改变你本地仓库的状态。它不会更新你的 `master` 分支，也不会修改你磁盘上的文件。
-
+`git fetch` 并不会改变你本地仓库的状态。它**不会更新你的分支**，也不会修改你磁盘上的文件。
 `git fetch` 的参数和 `git push` 极其相似。他们的概念是相同的，只是方向相反罢了（因为现在你是下载，而非上传）
 
 ```bash
@@ -614,8 +390,6 @@ git fetch origin foo^:master
 ```bash
 git fetch origin :bar			#即从远程仓库fetch空到分支bar，即删除bar分支。
 ```
-
-
 
 ### git pull
 
@@ -649,8 +423,6 @@ git pull --rebase
 ```
 
 该命令会从远程仓库获取到最新的提交并将当前分支合并到该提交上。
-
-
 
 ### git push
 
@@ -703,65 +475,20 @@ git push origin --delete <分支名>
 
 
 
-
-
-### 远程跟踪
-
-`master` 和 `o/master` 的关联关系就是由分支的“remote tracking”属性决定的。`master` 被设定为跟踪 `o/master`
-
-当你克隆时, Git 会为远程仓库中的每个分支在本地仓库中创建一个远程分支（比如 `o/master`）。然后再创建一个跟踪远程仓库中活动分支的本地分支，默认情况下这个本地分支会被命名为 `master`。
-
-可以让任意分支跟踪 `o/master`, 然后该分支会像 `master` 分支一样得到隐含的 push 目的地以及 merge 的目标。
-
-例如：以下命令就可以创建一个名为 `totallyNotMaster` 的分支，它跟踪远程分支 `o/master`。
-
-```bash
-git checkout -b totallyNotMaster o/master
-git checkout -b totallyNotMaster -t o/master
-```
-
-**设置远程仓库**
-可以用`remote`命令查看远程是否可以fetch并用`set-url`选项来修改远程仓库，或者`add`来添加远程仓库
-
-```bash
-git remote -v
-git remote set-url origin [remote repository]
-
-git remote add [remote repository name] [remote repository]
-```
-
-**设置远程分支**
-另一种设置远程追踪分支的方法就是使用：`git branch -u` 命令，
-
-```bash
-git branch -u o/master foo
-//如果当前就在 foo 分支上, 还可以省略 foo：
-git branch -u o/master
-```
-
-远程有分支更新时，本地可能没有获取新的分支，可以使用：
-
-```bash
-# 更新本地的远程仓库列表
-git fetch --all
-```
-
-
-
 ## git config
 
-### 用户信息
-
- 修改用户名和邮箱
+查看配置信息
 
 ```bash
-git config user.name 用户名
-git config user.email 邮箱
+git config --global  --list
 ```
 
-全局修改添加`--gloabl`参数：
-
 ```bash
+# 修改用户名和邮箱
+git config user.name 用户名
+git config user.email 邮箱
+
+# 全局修改
 git config  --global user.name 用户名
 git config  --global user.email 邮箱名
 ```
@@ -818,21 +545,23 @@ wget -qO .git/hooks/pre-commit  https://raw.githubusercontent.com/Dokiys/example
 
 `.gitignore`是一个没有后缀的文本文件，需要更`.git`文件夹放在同一级目录。具体语法如下，更多例子可参考[这里](https://www.atlassian.com/git/tutorials/saving-changes/gitignore)：
 
->`#`: 表示注释行
->
->`dir/`: 表示忽略整个`dir`文件夹
->
->`/README`: 忽略当前目录下的`README`文件
->
->`**/cover.out`：忽略所有目录下的`cover.out`文件
->
->`*.png`: 忽略所有以png为后缀的文件
->
->`!a.png`：不忽略`a.png`文件
->
->`[123]*`: 忽略以1或2或3开头的文件
->
->`[abc]?`: 忽略以a或b或c开头的并且只有两个字符的文件名的文件
+```bash
+#: 表示注释行
+# 表示忽略整个dir文件夹
+dir/ 
+# 忽略当前目录下的README文件
+/README 
+# 忽略所有目录下的cover.out文件
+**/cover.out 
+# 忽略所有以png为后缀的文件
+*.png 
+# 不忽略a.png文件
+!a.png 
+# 忽略以1或2或3开头的文件
+[123]* 
+# 忽略以a或b或c开头的并且只有两个字符的文件名的文件
+[abc]? 
+```
 
 **注：**需要注意的是，`.gitignore`默认会搜索所有路径下的文件。比如项目根目录与一级目录下存在同名文件夹：
 
@@ -860,41 +589,17 @@ git config --get core.excludesFile		# 查看忽略配置文件路径
 
 ## git log
 
-### 统计提交
-
-统计某用户提交：
-
 ```bash
-git log --author="$(git config --get user.name)" --pretty=tformat: --numstat | gawk '{ add += $1 ; subs += $2 ; loc += $1 - $2 } END { printf "增加的行数:%s 删除的行数:%s 总行数: %s\n",add,subs,loc }'
-```
-
-统计某用户时间范围内的提交：
-
-```bash
-git log --author="$(git config --get user.name)" --since='2021-04-01' --until='2021-07-01' --pretty=tformat: --numstat | gawk '{ add += $1 ; subs += $2 ; loc += $1 - $2 } END { printf "增加的行数:%s 删除的行数:%s 总行数: %s\n",add,subs,loc }'
-```
-
-统计所有用户提交：
-
-```bash
-git log --format='%aN' | sort -u | while read name; do echo -en "$name\t"; git log --author="$name" --pretty=tformat: --numstat | awk '{ add += $1; subs += $2; loc += $1 - $2 } END { printf "added lines: %s, removed lines: %s, total lines: %s\n", add, subs, loc }' -; done
-```
-
-### 文件变更记录
-
-```bash
+# 查看某文件变更记录
 git log -- [filepath]
+
+# 图形化查看当前分支体检记录
+git log --graph --oneline		
+# 只查看当前分支的提交和Merge提交
+git log --graph --oneline --min-pare
+# 只查看当前分支的提交和Merge提交nts=2	
+git log --graph --oneline --merges	
 ```
-
-### 图像化展示
-
-```bash
-git log --graph --oneline		# 图形化查看当前分支体检记录
-git log --graph --oneline --min-parents=2	# 只查看当前分支的提交和Merge提交
-git log --graph --oneline --merges	# 只查看当前分支的提交和Merge提交
-```
-
-
 
 # Git规范
 
@@ -1081,6 +786,42 @@ git remote set-url origin [repository_url]								# 4. 设置回来
 
 
 
+## 撤销
+
+```bash
+# 未使用 git add 缓存代码时
+git checkout -- [文件名/路径]
+# 撤销所有文件
+git checkout head . 
+```
+
+```bash
+# 已经使用了 git add 缓存了代码
+git reset HEAD [文件名/路径] 
+# 放弃所有缓存
+git reset HEAD 
+```
+
+```bash
+# 已经用 git commit 提交了代码，需要全部撤回
+git reset --hard HEAD^
+```
+
+```bash
+# 对单个已提交文件撤回
+git checkout [提交] [文件名/路径]
+git reset [提交] [文件名/路径]
+```
+
+```bash
+# 对上一次的提交进行修改，可以使用该命令。也可以修改提交说明。
+$ git commit --amend 
+```
+
+如果要撤销或者重新排序提交记录可以参考[撤销提交记录](#git reset)和[git cherry-pick](#git cherry-pick)。
+
+
+
 ## 删除历史提交大文件
 
 ```bash
@@ -1132,9 +873,188 @@ $ git push --tags --force
 # 6. 其他的存储库拉取时也需要删除旧的提交，清理本地仓库
 $ git for-each-ref --format='delete %(refname)' refs/original | git update-ref --stdin
 $ git reflog expire --expire=now --all
-$ git gc --prune=now
+$ git gc --prune=now·
+```
+
+参考：[Git清理删除历史提交文件](https://www.jianshu.com/p/7ace3767986a?utm_campaign=maleskine&utm_content=note&utm_medium=seo_notes&utm_source=recommendation)
+
+
+
+## rebase实践
+
+添加参数 `--interactive`或者`-i`可以进入交互式的 rebase。<a id="GitRebaseExample" href="#GitRebase">↵</a>
+增加了这个选项后, Git 会打开一个 UI 界面并列出将要被复制到目标分支的备选提交记录，它还会显示每个提交记录的哈希值和提交说明，提交说明有助于你理解这个提交进行了哪些更改。假设我们有如下提交：
+
+```bash
+git log 
+commit 4232037057c6805805547366a1d7a05a0df4a63a (HEAD -> feature/t)
+Author: Dokiy <zhang@fanal.com.cn>
+Date:   Wed Apr 13 10:51:27 2022 +0800
+
+    2
+
+commit 84076eb827eddbb8735472924bde9ced976dc88f
+Author: Dokiy <zhang@fanal.com.cn>
+Date:   Wed Apr 13 10:51:22 2022 +0800
+
+    1
+
+commit a6ab3f7beb2c16caff1433ba224f6e96f873b6ec (origin/master, origin/HEAD, master)
+Author: 4javier <4javiereg4@gmail.com>
+Date:   Wed Apr 13 01:23:33 2022 +0200
+
+    docs: fix grammar (#45455)
+    PR Close #45455
+```
+
+从`HEAD～2`到最新提交开始修改：
+
+```bash
+git rebase -i HEAD~2
+###[Dokiy]: 修改一下内容并保存将会改变顺序
+pick 84076eb827 1
+pick 4232037057 2
+
+###[Dokiy]: 以下是指令说明
+# Rebase a6ab3f7beb..4232037057 onto a6ab3f7beb (2 commands)
+#
+# Commands:
+# p, pick <commit> = use commit
+# r, reword <commit> = use commit, but edit the commit message
+# e, edit <commit> = use commit, but stop for amending
+# s, squash <commit> = use commit, but meld into previous commit
+# f, fixup <commit> = like "squash", but discard this commit's log message
+# x, exec <command> = run command (the rest of the line) using shell
+# b, break = stop here (continue rebase later with 'git rebase --continue')
+# d, drop <commit> = remove commit
+# l, label <label> = label current HEAD with a name
+# t, reset <label> = reset HEAD to a label
+# m, merge [-C <commit> | -c <commit>] <label> [# <oneline>]
+# .       create a merge commit using the original merge commit's
+# .       message (or the oneline, if no original merge commit was
+# .       specified). Use -c <commit> to reword the commit message.
+...
+```
+
+修改内容为一下内容并保存：
+
+```bash
+pick 84076eb827 1
+squash 4232037057 2
+```
+
+进入到修改提交注释的界面，直接保存：
+
+```bash
+# This is a combination of 2 commits.
+# This is the 1st commit message:
+
+1
+
+# This is the commit message #2:
+
+2
+```
+
+```bash
+git log
+commit 493a535d93b041b3693cdf0c3b520ce9112b2a3a (HEAD -> feature/t)
+Author: Dokiy <zhangzongqi@fancydigital.com.cn>
+Date:   Wed Apr 13 10:51:22 2022 +0800
+
+    1
+
+    2
+
+commit a6ab3f7beb2c16caff1433ba224f6e96f873b6ec (origin/master, origin/HEAD, master)
+Author: 4javier <4javiereg4@gmail.com>
+Date:   Wed Apr 13 01:23:33 2022 +0200
+
+    docs: fix grammar (#45455)
+    PR Close #45455
+```
+
+最后两个分支被合并了
+
+
+
+## 一次cherry-pick实践
+
+背景：在共享的开发中，二进制文件通常不应该被提交到远程仓库。一旦提交之后就会被git保存在历史记录中，这将占用大量的空间。并且即使在后续的提交中进行了删除，之前的二进制文件记录也会被保存在历史记录中。<a id="GitCherryPickExample" href="#GitCherryPick">↵</a>
+
+在一次开发中，不小心吧二进制文件提交到了远程仓库，好在还没有合并到主分支。坏在提交二进制文件的记录之后已经有了十几次提交。
+重新修改的思路就是，找到提交二进制文件的位置，然后切出一个新的分支。修改之后，将原来分支之后每一个提交记录`cherry-pick`到新切出的分支。
+
+```bash
+# 首先我们需要找到需要修改的提交并修改，比如我这里是
+➜  workspace git:(error_branch) git checout 14ddcb9 && git checkout -b fix_cherry_pick
+# 修改完成后强制覆盖原来的提交
+➜  workspace git:(fix_cherry_pick) git add . && git commit --amend
+# 这时候我们需要回到原来的分支查看[14ddcb9]之后所有的提交
+➜  workspace git:(fix_cherry_pick) git checkout feat/add_api
+```
+
+```bash
+# 查询自【14ddcb9】之后的提交记录
+➜  workspace git:(error_branch) git --no-pager log --after="$(git show -s --format='%at' 14ddcb9)" --first-parent --format=format:"%h" --reverse feat/eticket_api_migration_archive ^14ddcb9 | tr '\n' ' '
+641eef3 418022f 81b1e50...6b781f7 77441cd
+#### 这里解释一下这条命令 ####
+# --no-pager: 指定一次输出所有的记录，而不采用分页
+# --after="$(git show -s --format='%at' 14ddcb9)"： 设置查看从某某时间开始的记录
+# git show -s --format='%at' 14ddcb9： 可以获取到<commit:14ddcb9>的提交时间
+# --first-parent： 因为我这个提交里面存在merge其他分支的情况，所有只查看merge的那一条提交
+# --format=format:"%h" 设置log输出的格式， %H指定输出完整的hash值
+# --reverse：设置倒序输出提交，方便进行cherry-pick
+# ^14ddcb9: 排除<commit:14ddcb9>这个提交
+# | tr '\n' ' '： 将换行输出转变成空格输出
+```
+
+获取到这这些提交记录之后，我们可以回到刚刚的`fix_cherry_pick`直接使用`cherry-pick`整理提交：
+
+```bash
+➜  workspace git:(error_branch) git checkout fix_cherry_pick
+➜  workspace git:(fix_cherry_pick) git cherry_pick 641eef3 418022f 81b1e50...6b781f7 77441cd
+[fix_cherry_pick 192ded3] Add
+ Date: Thu Aug 11 10:09:28 2022 +0800
+ 1 file changed, 208 insertions(+), 249 deletions(-)
+error: commit c28e6e04726decdd52e6514bf4e58c594a907d5d is a merge but no -m option was given.
+```
+
+这时候遇到了一个错误，这是因为`<commit:c28e6e0>`这个提交是一个merge的操作，而merge有可能会出现冲突，git并不知道如何去处理这些冲突，所以需要我们手动去处理：
+
+```bash
+➜  workspace git:(fix_cherry_pick) git merge c28e6e04726decdd52e6514bf4e58c594a907d5d
+Auto-merging a.go
+Auto-merging b.go
+CONFLICT (content): Merge conflict in b.go
+Automatic merge failed; fix conflicts and then commit the result.
+```
+
+处理完冲突之后提交，并继续`cherry-pick`，直到完成所有的提交即可：
+
+```bash
+➜  workspace git:(fix_cherry_pick) git cherry-pick --continue
 ```
 
 
 
-参考：[Git清理删除历史提交文件](https://www.jianshu.com/p/7ace3767986a?utm_campaign=maleskine&utm_content=note&utm_medium=seo_notes&utm_source=recommendation)
+## 统计用户提交
+
+统计某用户提交：
+
+```bash
+git log --author="$(git config --get user.name)" --pretty=tformat: --numstat | gawk '{ add += $1 ; subs += $2 ; loc += $1 - $2 } END { printf "增加的行数:%s 删除的行数:%s 总行数: %s\n",add,subs,loc }'
+```
+
+统计某用户时间范围内的提交：
+
+```bash
+git log --author="$(git config --get user.name)" --since='2021-04-01' --until='2021-07-01' --pretty=tformat: --numstat | gawk '{ add += $1 ; subs += $2 ; loc += $1 - $2 } END { printf "增加的行数:%s 删除的行数:%s 总行数: %s\n",add,subs,loc }'
+```
+
+统计所有用户提交：
+
+```bash
+git log --format='%aN' | sort -u | while read name; do echo -en "$name\t"; git log --author="$name" --pretty=tformat: --numstat | awk '{ add += $1; subs += $2; loc += $1 - $2 } END { printf "added lines: %s, removed lines: %s, total lines: %s\n", add, subs, loc }' -; done
+```
+
