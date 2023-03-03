@@ -705,7 +705,7 @@ $ sed -i '/target_line/s/target_content/new_content/g' temp.txt
 安装：
 
 ```bash
-$ go get github.com/mattn/goreman
+$ go install github.com/mattn/goreman
 ```
 
 Goreman基于命令行同级目录下的`Procfile`文件来运行，采用`[进程名]:[shell脚本]`的格式：

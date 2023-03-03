@@ -1,10 +1,5 @@
 # TODOLIST
 
-1. chatGpt
-
-   https://platform.openai.com/onboarding?app=chat
-   https://sms-activate.org/cn/feedbackTest#
-   
 1. flatter
 
    ```
@@ -56,9 +51,11 @@
 
 2. 服务网格，dapr
 
-4. redis
+3. redis
 
-5. profiling
+   lua
+
+4. profiling
 
    [调试及性能分析](https://missing-semester-cn.github.io/2020/debugging-profiling/)
    diagnostics
@@ -90,6 +87,16 @@
    ![image-20221122111738524](/Users/dokiy.zhang/Documents/TodoList/image-20221122111738524.png)
 
 6. skaffold
-8. mac下让窗口停留在最上层，或者点击不切换
+
+7. mac下让窗口停留在最上层，或者点击不切换
+
 8. goland grpc client跳转到实现
-8. DTS
+
+9. DTS
+
+10. 快捷键打开程序坞上隐藏的应用
+
+11. history 让某些命令始终存留
+
+    history 内容同步
+

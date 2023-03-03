@@ -13,11 +13,12 @@
 * 反撤销： Command + Shift + Z
 * 推出当前程序：Command + Q
 * 切换同一应用的不同窗口：Command + `
-* 全屏窗口：Command + Control + F
+* 全屏窗口：Command + Control + F 或者 Command + Enter
 * 锁屏：Command + Control + Q
 * Finder查看隐藏文件： Command + Shift + .
 * Finder查找文件： Command + Shift + G
 * 切换屏幕：Ctrl + 方向
+* 隐藏所有窗口： Command + Option + H
 
 **命令行**
 
@@ -79,6 +80,7 @@
 * 切换窗口： Command + Shift + `
 * 复制光标 Caret Cloning： Option + Option(长按) + 方向上/下
 * 跳转到指定行：Command + L
+* 查看当前文件/包下的结构： Command + F12 ( fn + ' + ' )
 
 
 
@@ -177,4 +179,3 @@
 * 打开文件同时定位到某一行: `vim [FILENAME]  +n`
 
 * ![键位](../asset/Tools/Hotkey/键位.jpg)
-
