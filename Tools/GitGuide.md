@@ -56,8 +56,6 @@ git branch -m [分支名old] [分支名new]		#重命名
 git branch -d [分支名]				# 删除分支
 ```
 
-进阶命令：
-
 ```bash
 # 删除包含dev的所有分支
 git branch | grep 'dev*' | xargs git branch \-d	
@@ -68,6 +66,20 @@ git reflog show [分支名]
 git config branch.[分支名].description '分支描述信息'
 git config branch.[分支名].description  						# 查看分支描述信息
 ```
+
+### 相对引用
+
+对于分支也可以使用相对引用：
+
+* 使用`@{-<n>}` e.g. `@{-1}` 来表示之前切换的第n个分支
+
+```bash
+git checkout branch1
+git checkout branch2
+git checkout @{-1} # 切换到 branch1 分支
+```
+
+
 
 
 
@@ -85,8 +97,6 @@ git merge [分支名]
 # merge产生冲突时放弃merge 
 git merge --abort		
 ```
-
-进阶命令：
 
 ```bash
 # 在提交时会将[分支名]中所有的内容作为一个新的commit提交
@@ -527,7 +537,7 @@ wget -qO ~/workspace/git/hooks/pre-push  https://raw.githubusercontent.com/Dokiy
 wget -qO .git/hooks/pre-push  https://raw.githubusercontent.com/Dokiys/example/main/shell/git_hooks/pre_push_check && git config core.hooksPath .git/hooks && chmod +x .git/hooks/pre-push
 ```
 
-#### **pre-commit** 
+#### **pre-commit**
 
 ```bash
 wget -qO .git/hooks/pre-commit  https://raw.githubusercontent.com/Dokiys/example/main/shell/git_hooks/pre_commit_filesize_check && git config core.hooksPath .git/hooks && chmod +x .git/hooks/pre-commit

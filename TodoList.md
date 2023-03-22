@@ -51,9 +51,7 @@
 
 2. 服务网格，dapr
 
-3. redis
-
-   lua
+2. skaffold
 
 4. profiling
 
@@ -72,7 +70,6 @@
    Flame Graph: 
    https://www.infoq.cn/article/a8kmnxdhbwmzxzsytlga
 
-
    go proof :
    https://zhuanlan.zhihu.com/p/71529062 
    [Golang程序性能分析（一）pprof和go-torch](https://mp.weixin.qq.com/s?__biz=MzAxMTA4Njc0OQ==&mid=2651444750&idx=3&sn=0809ab92eb29f37292f4de6a671e6efc&scene=21#wechat_redirect)
@@ -86,17 +83,4 @@
 
    ![image-20221122111738524](/Users/dokiy.zhang/Documents/TodoList/image-20221122111738524.png)
 
-6. skaffold
-
-7. mac下让窗口停留在最上层，或者点击不切换
-
-8. goland grpc client跳转到实现
-
-9. DTS
-
-10. 快捷键打开程序坞上隐藏的应用
-
-11. history 让某些命令始终存留
-
-    history 内容同步
-
+   

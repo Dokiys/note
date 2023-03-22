@@ -1,26 +1,32 @@
-
-
 # HotKey
-
-
 
 ## MAC
 
 * Chrome检查：Command + Shift + C
-* 重命名文件：选择到文件名的状态下 + Enter
-* 打开文件：Command + O
-* 打开访达：Command + Option + B
-* 反撤销： Command + Shift + Z
-* 推出当前程序：Command + Q
-* 切换同一应用的不同窗口：Command + `
-* 全屏窗口：Command + Control + F 或者 Command + Enter
-* 锁屏：Command + Control + Q
-* Finder查看隐藏文件： Command + Shift + .
-* Finder查找文件： Command + Shift + G
-* 切换屏幕：Ctrl + 方向
-* 隐藏所有窗口： Command + Option + H
 
-**命令行**
+* 重命名文件：选择到文件名的状态下 + Enter
+
+* 打开文件：Command + O
+
+* 打开访达：Command + Option + B
+
+* 反撤销： Command + Shift + Z
+
+* 推出当前程序：Command + Q
+
+* 切换同一应用的不同窗口：Command + `
+
+* 全屏窗口：Command + Control + F 或者 Command + Enter
+
+* 锁屏：Command + Control + Q
+
+* Finder查看隐藏文件： Command + Shift + .
+
+* Finder查找文件： Command + Shift + G
+
+* 切换屏幕：Ctrl + 方向
+
+* 隐藏所有窗口： Command + Option + H
 
 * 整理启动台
 
@@ -37,7 +43,11 @@
   killall Finder
   ```
 
-  
+* 设置App 快捷键
+
+  【系统设置】=> 【键盘】 => 【键盘快捷键】=> 【App 快捷键】
+
+
 
 ## IDEA
 

@@ -488,6 +488,24 @@ $ cat 1.txt | awk -v OFS='\t,\t' '{print$1,$2}'
 $ cat 1.txt | awk '$2=="1" || $2=="2" {print $0}'
 ```
 
+一个awk给history去重的例子：
+
+```bash
+# history_bck 保留的zsh_history格式如下
+# 	: 1678093501:0;gnum 1 50
+# 	: 1678093501:0;gnum 1 50 | pbcopy
+# 	: 1678093501:0;gnum 1 60 | pbcopy
+# 第一次awk是为了取出命令
+# 第二次awk是为了保留顺序去重:
+# 	这里写的 awk 命令是!x[$0]++，意思是，首先创建一个 map 叫x，
+# 	然后用当前行的全文$0作为 map 的 key，到 map 中查找相应的 
+#		value，如果没找到，则整个表达式的值为真，可以执行之后的语句；如果找到了，则表达式的值为假，跳过这一行。
+# 第三次awk按照新的顺序写入
+cat history_bck | awk -F ";" '{for (i=2;i<=NF;i++)printf("%s ", $i);print ""}' | awk '!x[$0]++' | awk -F " " -v datetime=$(date +%s) '{printf(": %s:0;%s", datetime, $0);print ""}'
+```
+
+
+
 
 
 ### dirname

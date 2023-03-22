@@ -2295,6 +2295,59 @@ go list -m all
 go clean -modcache
 ```
 
+### go work
+
+go 自1.18版本后引入了`workspace`的概念，可以简单理解为是将原来`go.mod`中需要临时替换本地库的`replace`找了一个新家。比如，之前我们需要临时使用本地包，需要修改`go.mod`：
+
+```
+module workspace
+
+go 1.18
+
+require golang.org/x/example v0.0.0-20220412213650-2e68773dfca0
+
+// 临时替换
+replace golang.org/x/example v0.0.0-20220412213650-2e68773dfca0 => ./example
+```
+
+这样会导致对`go.mod`的反复修改，`workspace`通过在`go.work`文件中编写原来的`replace`语句以此来保证`go.mod`的正确性。我们仍然可以不对`go.mod`进行任何改变：
+
+```
+module workspace
+
+go 1.18
+
+require golang.org/x/example v0.0.0-20220412213650-2e68773dfca0
+```
+
+然后通过在`go.mod`文件的同级目录执行`go work init `来创建一个`workspace`，这条命令会自动为我们创建一个`go.work`文件，我们需要为我们的`workspace`指定包含的包。（go 在1.15以后使用`go.mod`来表示一个包）我们可以直接执行`go use .`来指定这个`workspace`包含当前路径下的`go.mod`文件。
+
+然后指定`golang.org/x/example`替换为我们本地的包：
+
+```
+go 1.18
+
+use .
+
+// 临时替换
+replace golang.org/x/example v0.0.0-20220412213650-2e68773dfca0 => ./example
+```
+
+这样就可以使用本地的包进行调试了。
+
+在这个示例里面如果`./example/go.mod`中的`module`名就是`golang.org/x/example`，我们也可以直接使用`go work use ./exmple`命令来指定，执行后`go.work`文件的内容如下：
+
+```
+go 1.18
+
+use (
+	.
+	./example
+)
+```
+
+当我们不需要再使用本地的包时，直接删除掉`go.work`的文件，一切就恢复了原状。
+
 
 
 ## generate
