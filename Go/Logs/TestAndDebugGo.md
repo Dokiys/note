@@ -29,6 +29,8 @@ dlv test -run="TestCallCommon" main_test.go common.go call_common.go call_common
 Type 'help' for list of commands.
 ```
 
+注意，这里因为是对测试方法进行调试，所以使用的`dlv test`。如果是对主程序进行调试应当使用`dlv debug`
+
 ```bash
 (dlv) b call_common_test.go:7		# b 添加断点
 Breakpoint 1 set at 0x10485b9ec for command-line-arguments.TestCallCommon.func1() ./call_common_test.go:7
@@ -95,3 +97,54 @@ Process restarted with PID 18993
 =>   8:         })
      9: }
 ```
+
+
+
+## Goland Remote Debug
+
+通过`--headless `选项可以仅启动`debug server`，然后我们可以通过Goland的远程链接，进行远程调试。现在我们的代码如下：
+
+```go
+package main
+
+import (
+	"net/http"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/render"
+)
+
+func main() {
+	r := gin.Default()
+
+	r.GET("/", handler)
+	if err := r.Run(":" + os.Args[1]); err != nil {
+		panic(err)
+	}
+}
+
+func handler(c *gin.Context) {
+	c.Render(http.StatusOK, render.Data{
+		ContentType: "text/plain; charset=utf-8",
+		Data:        []byte("ok"),
+	})
+}
+```
+
+在启动`debuge server`之前，我们需要先编译。值的注意的是我们需要禁用编译优化：
+
+```bash
+go build -gcflags "all=-N -l" -o dlv_test .
+```
+
+然后通过以下命令启动：
+
+```bash
+dlv --listen=:2345 --headless=true --continue --api-version=2 --accept-multiclient exec dlv_test -- ':8080'
+```
+
+这里的其他参数可以通过`dlv -h`来查看；`--`之后的参数将会被传入到`dlv_test`程序中。
+
+此时`dlv server`已经启动起来了，我们需要在Goland中链接并进行调试。打开`Run => Edit Configurations... => ➕ [Go Remote] `然后设置Host即可。然后就可以像本地打断点一样，`GET`请求`localhost:8080/`直接调试即可。
+
