@@ -115,5 +115,5 @@ http_user_agent:#"Linux Chrome"
 * | SELECT min(PV) FROM  (SELECT count(1) as PV FROM log GROUP BY request_method)
 ```
 
-[**优化查询](https://help.aliyun.com/document_detail/63794.html)   
+[优化查询](https://help.aliyun.com/document_detail/63794.html)   
 [分析案例](https://help.aliyun.com/document_detail/63662.html)

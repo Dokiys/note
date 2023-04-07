@@ -1988,6 +1988,10 @@ total:                  (statements)    100.0%
 go tool cover -html=cover.out
 ```
 
+```go
+go test -run="$(pbpaste)" --coverprofile=cover.out && go tool cover -html=cover.out
+```
+
 
 
 ## Example
@@ -2097,7 +2101,7 @@ go version go1.18.2 darwin/amd64
 
 可以看到已经安装成功
 
-# 命令行工具
+# 工具
 
 ## 构建
 
@@ -2449,6 +2453,12 @@ go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 ```
 
 安装后可以通过`golangci-lint linters `查看开启配置的检查器。运行目录下文件名为`.golangci.yml`的文件可以被读取为配置。配置内容可以参考[这里](https://golangci-lint.run/usage/configuration/)。
+
+
+
+## Web Go Playground
+
+go官网提供了[运行环境](https://go.dev/play/)，且可以生成链接用于分享代码片段。
 
 
 
