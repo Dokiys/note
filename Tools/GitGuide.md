@@ -892,6 +892,8 @@ $ git gc --prune=now·
 
 ## rebase实践
 
+### 合并提交
+
 添加参数 `--interactive`或者`-i`可以进入交互式的 rebase。<a id="GitRebaseExample" href="#GitRebase">↵</a>
 增加了这个选项后, Git 会打开一个 UI 界面并列出将要被复制到目标分支的备选提交记录，它还会显示每个提交记录的哈希值和提交说明，提交说明有助于你理解这个提交进行了哪些更改。假设我们有如下提交：
 
@@ -985,6 +987,22 @@ Date:   Wed Apr 13 01:23:33 2022 +0200
 ```
 
 最后两个分支被合并了
+
+#### 修改之前 的提交信息
+
+首先通过`git log`找到需要更改的提交记录的hash，比如`6ea8799`
+
+然后通过`git rebase -i 6ea8799`进入到交互页面，将对应的提交从`pick`修改为`edit`：
+
+```
+  1 pick f851603 feat: build pe
+  2 pick 05a7a09 fix: go mod
+  3 edit 6ea8799 fmt: domain
+```
+
+通过`git commit --amend`重新修改提交的信息
+
+最后使用`git rebase --continue` 结束
 
 
 

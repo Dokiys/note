@@ -780,3 +780,13 @@ ls $(pbpaste) | grep .go
 
 相较于`grep`的文本搜索，更适合搜索大量的文件搜索。
 
+
+
+## rename
+
+批量修改文件名
+
+```bash
+rename 's/coupon_/ticket_/' *.go
+```
+

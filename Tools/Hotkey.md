@@ -16,6 +16,8 @@
 
 * 切换同一应用的不同窗口：Command + `
 
+* 关闭整个窗口：Command + Shift + W
+
 * 全屏窗口：Command + Control + F 或者 Command + Enter
 
 * 锁屏：Command + Control + Q
@@ -119,6 +121,7 @@
 * 访问网页：搜索栏输入关键字后，Ctrl + Enter
 * 强制刷新(不走304缓存)：Shift + Command + R
 * 普通刷新：Command + R
+* 打开pdf到指定页面：可以在ULR栏添加后缀`#page=109`
 
 
 
