@@ -46,17 +46,17 @@
 * ORDER BY 处理相同值的数据时，服务器会以任意顺序返回。当 ORDER BY 与 LIMIT 一起用时，可能会影响总体的执行计划，从而导致返回的顺序不一样。比如：    
 
   ```sql
-  SELECT * FROM users where user_id = 3 order by create_at desc LIMIT 2,10;
-  SELECT * FROM users where user_id = 3 order by create_at desc LIMIT 3,10;
+  SELECT * FROM users WHERE user_id = 3 ORDER BY create_at DESC LIMIT 2,10;
+  SELECT * FROM users WHERE user_id = 3 ORDER BY create_at DESC LIMIT 3,10;
   ```
 
 * 一般数据库都会专门有一个库来保存用户创建的数据库/表信息。比如，在Mysql的`infomation_schema`库中保存了所有的数据库/表信息，可以通过提供的视图来查看`tabale`信息和`column`信息：    
 
   ```sql
-  select c.TABLE_NAME, c.COLUMN_NAME, c.COLUMN_TYPE, c.COLUMN_COMMENT
-  from INFORMATION_SCHEMA.Columns c
+  SELECT c.TABLE_NAME, c.COLUMN_NAME, c.COLUMN_TYPE, c.COLUMN_COMMENT
+  FROM INFORMATION_SCHEMA.Columns c
   WHERE c.`TABLE_SCHEMA` = 'database_name'
-    and c.TABLE_NAME = 'table_name'
+    AND c.TABLE_NAME = 'table_name'
   ```
 
 * 单表继承和多态关联
@@ -68,4 +68,24 @@
   ```
   <窗口函数> over (partition by <用于分组的列名>
                   order by <用于排序的列名>)
+  ```
+  
+* 目前的绝大部分数据库都支持虚拟列（Generated Column）的语法，并且支持在虚拟列上创建索引。
 
+  ```mysql
+  CREATE TABLE mytable (
+    id INT PRIMARY KEY,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    full_name VARCHAR(100) GENERATED ALWAYS AS (CONCAT(first_name, ' ', last_name)) VIRTUAL,
+    INDEX idx_full_name (full_name)
+  );
+  ```
+
+  ```mysql
+  ALTER TABLE mytable
+  	ADD COLUMN full_name VARCHAR(128) GENERATED ALWAYS AS (IFNULL(JSON_UNQUOTE(JSON_EXTRACT(customer_info, '$.openid')), '')) VIRTUAL,
+  	ADD INDEX idx_openid (openid);
+  ```
+
+  

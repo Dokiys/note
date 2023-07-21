@@ -361,7 +361,7 @@ ENTRYPOINT ["/app/hello_work"]
 
 
 
-#### 逆构建
+#### 逆向构建
 
 如果想查看一个镜像的构建过程，可以通过`docker history`来查看，例如：
 

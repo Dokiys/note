@@ -2134,6 +2134,27 @@ go build github.com/google/wire/cmd/wire ./ && ls | grep wire
 > wire
 ```
 
+此外添加`-x`和`-v`参数可以输出构建时每一步执行的操作。
+
+
+
+go1.18版本之后，在执行`go build`时会将版本信息嵌入到二进制文件当中。我们可以通过`go version -m [binaries]` 来查看具体信息：
+```bash
+$ go version -m /usr/local/bin/gmfs
+/usr/local/bin/gmfs: go1.20.2
+	path	github.com/Dokiys/gmfs/cmd/gmfs
+	mod	github.com/Dokiys/gmfs	v0.2.0	h1:cfrv2a4sQDajtKBSfwosFzwfQjMXCWoJk9NRt4ozvpM=
+	build	-buildmode=exe
+	build	-compiler=gc
+	build	CGO_ENABLED=1
+	build	CGO_CFLAGS=
+	build	CGO_CPPFLAGS=
+	build	CGO_CXXFLAGS=
+	build	CGO_LDFLAGS=
+	build	GOARCH=arm64
+	build	GOOS=darwin
+```
+
 
 
 ### go install
@@ -2250,7 +2271,7 @@ go mod init [项目名]
 go get [包名]
 ```
 
-如果引入的包较多，还可以直接更改`go.mod`文件，然后运行`go mod tidy`，来自动下载依赖。以下是一个修改过的简单示例：
+`go get`会下载并缓存最新的版本，也可以指定特定的版本。如果引入的包较多，还可以直接更改`go.mod`文件，然后运行`go mod tidy`，来自动下载依赖。以下是一个修改过的简单示例：
 
 ```go
 module go_test
@@ -2267,6 +2288,7 @@ require (
 其中包含了被注释了`// indirect`的间接引入的包。
 如果引入的包符合`gomod`的命名规范，将会附带版本号，如`gopkg.in/yaml.v2 v2.4.0`。
 否则就会自动生成一个版本号其中包含提交时间和提交的hash值，如：`golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect`
+**值得注意的是：**修改`go.mod`文件然后执行`go mod tidy`更新依赖的方式如果遇到存在同一个间接引入的依赖需要不同版本时会抛出错误。这时候可以通过`go get`来更新间接引入的依赖。
 
 **引用分支**
 
@@ -2298,6 +2320,8 @@ go list -m all
 # 清除已经下载的包
 go clean -modcache
 ```
+
+
 
 ### go work
 
