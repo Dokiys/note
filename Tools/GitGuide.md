@@ -1071,13 +1071,13 @@ Automatic merge failed; fix conflicts and then commit the result.
 统计某用户提交：
 
 ```bash
-git log --author="$(git config --get user.name)" --pretty=tformat: --numstat | gawk '{ add += $1 ; subs += $2 ; loc += $1 - $2 } END { printf "增加的行数:%s 删除的行数:%s 总行数: %s\n",add,subs,loc }'
+git log --author="$(git config --get user.name)" --pretty=tformat: --numstat | awk '{ add += $1 ; subs += $2 ; loc += $1 - $2 } END { printf "增加的行数:%s 删除的行数:%s 总行数: %s\n",add,subs,loc }'
 ```
 
 统计某用户时间范围内的提交：
 
 ```bash
-git log --author="$(git config --get user.name)" --since='2021-04-01' --until='2021-07-01' --pretty=tformat: --numstat | gawk '{ add += $1 ; subs += $2 ; loc += $1 - $2 } END { printf "增加的行数:%s 删除的行数:%s 总行数: %s\n",add,subs,loc }'
+git log --author="$(git config --get user.name)" --since='2021-04-01' --until='2021-07-01' --pretty=tformat: --numstat | awk '{ add += $1 ; subs += $2 ; loc += $1 - $2 } END { printf "增加的行数:%s 删除的行数:%s 总行数: %s\n",add,subs,loc }'
 ```
 
 统计所有用户提交：

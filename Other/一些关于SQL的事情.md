@@ -70,7 +70,7 @@
                   order by <用于排序的列名>)
   ```
   
-* 目前的绝大部分数据库都支持虚拟列（Generated Column）的语法，并且支持在虚拟列上创建索引。
+* 目前的绝大部分数据库都支持生成列（Generated Column）的语法，生成列是在存储时计算并存储结果，因此可以在查询中直接引用生成列，而不需要额外的计算开销，并且支持在生成列上创建索引。
 
   ```mysql
   CREATE TABLE mytable (
@@ -88,4 +88,32 @@
   	ADD INDEX idx_openid (openid);
   ```
 
+* 与生成列相关的还有虚拟列（Virtual Column），虚拟列在表中并不实际存储数据，它只是在查询时计算并返回结果。
+  ```mysql
+  CREATE TABLE example (
+      id INT,
+      data JSON,
+      virtual_col INT AS (JSON_EXTRACT(data, '$.value')) VIRTUAL
+  );
+  ```
+
+* 关于JSON的一些SQL
+  ```sql
+  UPDATE person p
+  SET p.rule=JSON_SET(p.rule, '$.info.age',
+  						  CAST(p.rule -> '$.info.age' - 10 AS UNSIGNED))
+  WHERE p.id = 1
+    AND (p.rule -> '$.info.age' - 10) >= 0;
+  ```
+
+* 在`ORDER BY`中，可以利用`CASE WHEN`或者`IF`来对某个列进行指定值的排序， 比如希望将18岁的人优先展示：
+  ```sql
+  ORDER BY IF(age = 18, 0, 1) DESC;
+  ```
   
+* 通过一个冗余表去做某些操作的幂等。比如有一个操作需要幂等，请求时携带一个`request_no`，且一次请求可能会入库多条记录。我们可以创建一个冗余表，比如叫`record_idempotent`其中就一个主键`request_no`。另外有一个记录表`record`记录实际的业务信息同时也需要有`request_no`用于幂等返回，但在`record`表中`request_no`并不是唯一键。也就是说`record_idempotent.request_no`用于做并发写入，`record.request_no`用于幂等返回。
+  执行操作时，在一个事务里向`record_idempotent`插入数据，同时插入一条或者多条`record`记录。如果存在并发则后插入的数据因为`record_idempotent`表的唯一键抛出错误而回滚。
+  但是在执行插入数据之前，应当先在`record`中根据`request_no`查询是否存在，以保证幂等返回。
+  
+* MySQL在`ORDER BY`进行排序时，通常还需要判断是否符合`WHERE`条件。所以某种意义上只要进行了排序，就需要对数据进行全部扫描才能保证排序的准确，这种情形就是`Using filesort`。
+  由于索引是自带排序的，所以就会有一种特殊的情况，即排序的字段被索引字段全包含。此时MySQL就不再需要对数据进行全部扫描。

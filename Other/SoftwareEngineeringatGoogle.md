@@ -286,4 +286,147 @@ But as with most—or perhaps all—engineering processes, there’s always room
 
 ## Engineering for Equity
 
-todo
+-
+
+
+
+## How to Lead a Team
+
+### Managers and Tech Leads (and Both)
+
+At Google, we recognize two different leader‐ ship roles. A Manager is a leader of people, whereas a Tech Lead leads technology efforts.
+
+### Moving from an Individual Contributor Role to a Leadership Role
+
+“servant leadership,” which is a nice way of saying the most important thing you can do as a leader is to serve your team. As a servant leader, you should strive to create an atmosphere of humility, respect, and trust. This might mean removing bureaucratic obstacles that a team member can’t remove by themselves, helping a team achieve consensus, or even buying dinner for the team when they’re working late at the office.
+
+#### The Engineering Manager
+
+The present-day concept of the pointy-haired manager is partially a carryover, first from military hierarchy and later adopted by the Industrial Revolution—more than a hundred years ago! Factories began popping up everywhere, and workers required supervisors to manage them, and because it was easy to replace these workers, the managers had little motivation to treat their employees well or improve conditions for them. And this method worked well for many years.
+
+The [carrot-and-stick](https://zh.wikipedia.org/zh-tw/%E8%83%A1%E8%98%BF%E8%94%94%E5%8A%A0%E5%A4%A7%E6%A3%92) method of management survived the transition from the factory to the modern office in the middle part of the twentieth century when employees would work at the same job for years and years. This continues today in some industries. 
+
+Unlike the replaceable assembly-line worker, software engineers need nurturing, time, and space to think and create. If there’s one thing you remember from this chapter, make it this:
+
+> Traditional managers worry about how to get things done, whereas great managers worry about what things get done (and trust their team to figure out how to do it).
+
+
+
+### Antipatterns
+
+And nowhere is hope more overused as a strategy than in dealing with a low performer. Most team leaders grit their teeth, avert their eyes, and just hope that the low performer either magically improves or just goes away. The benefit of dealing with a low performer as quickly as possible is that you can put yourself in the position of helping them up or out. 
+
+Many leads sometimes work extra hard to maintain friendships with their team members. This can be a recipe for disaster. Don’t confuse friendship with leading with a soft touch: when you hold power over someone’s career, they might feel pressure to artificially reciprocate gestures of friendship. Remember that you can lead a team and build consensus without being a close friend of your team.  If the friend who is being managed is not selfmanaging and is not a hard worker, it can be stressful for everyone. 
+
+Big personal egos are difficult to handle on any team, especially in the team’s leader. 
+
+
+
+### Positive Patterns
+
+You’ll usually gain respect from people when you apologize, because apologizing tells people that you are level headed, good at assessing situations, and—coming back to humility, respect, and trust—humble.
+
+Another way of thinking about this is the maxim that the leader is always on stage. You are always being watched: not just when you run a meeting or give a talk, but even when you’re just sitting at your desk answering emails. Your peers are watching you for subtle clues in your body language, your reactions to small talk, and your signals as you eat lunch.
+
+When a team member asks you for advice, you usually go leaping into solution mode, but that is the last place you should be. The person asking for advice typically doesn’t want *you* to solve their problem, but rather to help them solve it.
+
+One of the most common things a team leader does is to build consensus, it’s one way you can lead without any actual authority. If your team is looking to move quickly, sometimes it will voluntarily concede authority and direction to one or more team leads. Even though this might look like a dictatorship or oligarchy, when it’s done voluntarily, it’s a form of consensus.
+
+ “I won’t lie to you, but I will tell you when I can’t tell you something or if I just don’t know.”
+
+Giving a little extra slack to a team member who is currently having a tough time at home can make them a lot more willing to put in longer hours when your team has a tight deadline to hit later.
+
+There are two types of motivation: *extrinsic* and *intrinsic*. In his book *Drive*, Dan Pink explains that the way to make people the happiest and most productive isn’t to motivate them extrinsically (e.g., throw piles of cash at them); rather, you need to work to increase their intrinsic motivation(e.g., make them make them want something).
+
+Of course, all the autonomy and mastery in the world isn’t going to help motivate someone if they’re doing work for no reason at all, which is why you need to give their work purpose.
+
+
+
+## Leading at Scale
+
+Leading a team of teams is often more about organizing people rather than being a technical wizard.
+
+
+
+## Measuring Engineering Productivity
+
+### Why Should We Measure Engineering Productivity?
+
+Adding more people will be necessary to increase the scope of your business, but, the communication overhead costs will not scale linearly as you add additional personnel. As a result, you won’t be able to scale the scope of your business linearly to the size of your engineering organization.
+So let's think about: What should we measure? How identifies meaningful metrics that will identify the problematic. And how to use this metric to track improvements to productivity.
+
+### Triage: Is It Even Worth Measuring?
+
+Before measuring, we must consider followering questions: 
+
+* If the data supports your expected result, what action will be taken?
+* Who is going to decide to take action on the result, and when would they do it?
+
+For most time, you will found there are many good reasons to not measure:
+
+* You can’t afford to change the process/tools right now
+* Any results will soon be invalidated by other factors
+* The only metrics available are not precise enough to measure the problem and can be confounded by other factors
+
+### Selecting Meaningful Metrics with Goals and Signals
+
+Google uses the Goals/Signals/Metrics (GSM) framework to guide metrics creation.
+
+* A goal is a desired end result(It should be written in terms of a desired property, without reference to any metric).
+* A signal is how you might know that you’ve achieved the end result(It is the way that we will know we’ve achieved our goal). 
+* A metric is proxy for a signal witch we actually can measure(It is where we finally determine how we will measure the signal.).
+
+The GSM framework encourages several desirable properties when creating metrics. First, by creating goals first, then signals, and finally metrics, it prevents the streetlight effect(If you look only where you can see, you might not be looking in the right place). 
+There is not a 1:1 relationship between signals and goals. And usually, neither of metrics really provide the underlying truth.  If some metrics show different results, it signals that possibly one of them is incorrect and we need to explore further. If they are the same, we just have more confidence that we have reached some kind of truth. Additionally, some signals might not have any associated metric, so that the metrics selected are not telling the complete story. Google uses qualitative data to validate metrics and ensure that they are capturing the intended signal.
+
+### Using Data to Validate Metrics
+
+-
+
+### Taking Action and Tracking Results
+
+We should always assume that engineers will make the appropriate trade-offs if they
+have the proper data available and the suitable tools at their disposal.
+
+
+
+# Part III. Processes
+
+## Style Guides and Rules
+
+### Why Have Rules?
+
+As an organization grows, the established rules and guidelines shape the common vocabulary of coding. A common vocabulary allows engineers to concentrate on what their code needs to say rather than how they’re saying it.
+The interpretation of “good” and “bad” varies by organization, depending on what the organization cares about. We must first recognize what a given organization values; we use rules and guidance to encourage and discourage behavior accordingly. So when defining a set of rules, the first question is "What goal are we trying to advance?".
+
+### Creating the Rules
+
+#### Guiding Principles
+
+There is a number of overarching principles that guide the development of our rules, which must:
+
+* Pull their weight
+* Optimize for the reader
+* Be consistent
+* Avoid error-prone and surprising constructs
+* Concede to practicalities when necessary
+
+**Pull their weight**: Not everything should go into a style guide. There is a nonzero cost in asking all of the engineers in an organization to learn and adapt to any new rule that is set. If just one or two engineers are getting something wrong, adding to everyone’s mental load by creating new rules doesn’t scale.
+
+**Optimize for the reader**: Given the passage of time, our code will be read far more frequently than it is written. Google engineers value “simple to read” over “simple to write.” Given the style guide rule, require that engineers leave explicit evidence of intended behavior in their code.  We aim for local reasoning, where the goal is clear understanding of what’s happening at the call site without needing to find and reference other code, including the function’s implementation.
+Most style guide rules covering comments are also designed to support this goal of in-place evidence for readers. Documentation comments describe the design or intent of the code that follows. Implementation comments justify or highlight nonobvious choices, explain tricky bits, and underscore important parts of the code. 
+
+**Be consistent**: Consistency is what enables any engi‐ neer to jump into an unfamiliar part of the codebase and get to work fairly quickly. A local project can have its unique personality, but its tools are the same, its techniques are the same, its libraries are the same, and it all Just Works.
+
+**Avoid error-prone and surprising constructs**: Complex features often have subtle pitfalls not obvious at first glance. Using these features without thoroughly understanding their complexities makes it easy to misuse them and introduce bugs. 
+
+**Concede to practicalities**: Some of the rules in our style guides will encounter cases that warrant exceptions, and that’s OK. 
+
+#### The Style Guide
+
+Google's style guides also include limitations on new and not-yet-well-understood language features. For these new features, at the outset, we are sometimes not sure of the proper guidance to give. The goal is to preemptively install safety fences around a feature’s potential pitfalls while we all go through the learning process. At the same time, before everyone takes off running, limiting use gives us a chance to watch the usage patterns that develop and extract best practices from the examples we observe. As adoption spreads, engineers wanting to use the new features in different ways discuss their examples with the style guide owners, asking for allowances to permit additional use cases beyond those covered by the initial restrictions. Watching the waiver requests that come in, we get a sense of how the feature is getting used and eventually collect enough examples to generalize good practice from bad. After we have that information, we can circle back to the restrictive ruling and amend it to allow wider use.
+
+### Changing the Rules
+
+If a rule is causing engineers to invest effort to circumvent it, we might need to reexamine the benefits the rule was sup‐ posed to provide. Noticing when a rule is ready for another look is an important part of the process that keeps our rule set relevant and up to date. 
+Documenting the reasoning behind a given decision gives us the advantage of being able to recognize when things need to change. With influencing factors clearly noted, we are able to identify when changes related to one or more of these factors warrant reevaluating the rule.
