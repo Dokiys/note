@@ -609,7 +609,13 @@ git log --graph --oneline
 git log --graph --oneline --min-pare
 # 只查看当前分支的提交和Merge提交nts=2	
 git log --graph --oneline --merges	
+# 按照自定义格式输出 
+git config --global alias.logline "log --pretty='%C(yellow)%h%C(cyan) %aN%C(reset)%C(auto)%d %Creset%s' --graph"
 ```
+
+参考：
+https://git-scm.com/docs/git-log#_pretty_formats
+https://www.cnblogs.com/bellkosmos/p/5923439.html
 
 # Git规范
 

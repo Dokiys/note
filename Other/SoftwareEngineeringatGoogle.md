@@ -428,5 +428,59 @@ Google's style guides also include limitations on new and not-yet-well-understoo
 
 ### Changing the Rules
 
-If a rule is causing engineers to invest effort to circumvent it, we might need to reexamine the benefits the rule was sup‐ posed to provide. Noticing when a rule is ready for another look is an important part of the process that keeps our rule set relevant and up to date. 
+If a rule is causing engineers to invest effort to circumvent it, we might need to reexamine the benefits the rule was supposed to provide. Noticing when a rule is ready for another look is an important part of the process that keeps our rule set relevant and up to date. 
 Documenting the reasoning behind a given decision gives us the advantage of being able to recognize when things need to change. With influencing factors clearly noted, we are able to identify when changes related to one or more of these factors warrant reevaluating the rule.
+
+### The Process
+
+Proposals for style guide updates are framed with this view, identifying an existing problem and presenting the proposed change as a way to fix it. “Problems,” in this process are proven with patterns found in existing code. Given a demonstrated problem, because we have the detailed reasoning behind the existing style guide decision, we can reevaluate, checking whether a differ‐ ent conclusion now makes more sense.
+
+At Google, most changes to our style guides begin with community discussion. In fact, the C++ style arbiter group currently consists of four members. This might seem strange: having an odd number of committee members would prevent tied votes in case of a split decision. However, because of the nature of the decision making approach, where nothing is “because I think it should be this way” and everything is an evaluation of trade-off, decisions are made by consensus rather than by voting. The four-member group is happily functional as-is.
+
+### Applying the Rules
+
+Automated rule enforcement ensures that rules are not dropped or forgotten as time passes or as an organization scales up. An engineer checking for rule compliance depends on either memory or documentation, both of which can fail. As long as our tooling stays up to date, in sync with our rule changes, we know that our rules are being applied by all our engineers for all our projects.
+
+Many rules covering language usage can be enforced with static analysis tools. 
+Error checking tools take a set of rules or patterns and verify that a given code sample fully complies. Everybody must comply with the rules, so everybody uses the tools that check them.
+Automated style checkers and formatters enforce consistent formatting within code. Everybody enforce use of these formatters with presubmit checks.
+
+
+
+## Code Review
+
+A well-designed code review process and a culture of taking code review seriously provides the following benefits:
+
+* Checks code correctness 
+* Ensures the code change is comprehensible to other engineers 
+* Enforces consistency across the codebase 
+* Psychologically promotes team ownership 
+* Enables knowledge sharing 
+* Provides a historical record of the code review itself
+
+**Code correctness**
+A reviewer shouldn’t propose alternatives because of personal opinion. Reviewers can propose alternatives, but only if they improve comprehension (by being less complex, for example) or functionality (by being more efficient, for example). In general, engineers are encouraged to approve changes that improve the codebase rather than wait for consensus on a more “perfect” solution. This focus tends to speed up code reviews.
+
+**Comprehension of Code**
+Unlike the deference reviewers should give authors regarding design decisions, it’s often useful to treat questions on code comprehension using the maxim “the customer is always right.” This doesn’t mean that you need to change your approach or your logic in response to the criticism, but it does mean that you might
+need to explain it more clearly.
+
+**Code Consistency**
+A readability approver is tasked with reviewing code to ensure that it follows agreedon best practices for that particular programming language, is consistent with the codebase for that language within Google’s code repository, and avoids being overly complex. Having code that is consistent across the codebase improves comprehension for all of engineering, and this consistency even affects the process of code review itself. 
+
+**Psychological and Cultural Benefits**
+The code review process forces an author to not only let others have input, but to compromise for the sake of the greater good.  The code review process provides a mechanism to mitigate what might otherwise be an emotionally charged interaction. Code review, when it works best, provides not only a challenge to an engineer’s assumptions, but also does so in a prescribed, neutral manner, acting to temper any criticism which might otherwise be directed to the author if provided in an unsolicited manner. 
+The process of initiating a code review also forces all authors to take a little extra care with their changes. Many software engineers are not perfectionists; most will admit that code that “gets the job done” is better than code that is perfect but that takes too long to develop. Without code review, it’s natural that many of us would cut corners, even with the full intention of correcting such defects later. 
+
+**Knowledge Sharing**
+Part of the code review process of feedback and confirmation involves asking ques‐ tions on why the change is done in a particular way. This exchange of information facilitates knowledge sharing. 
+
+### Code Review Best Practices
+
+In general, reviewers should defer to authors on particular approaches and only point out alternatives if the author’s approach is deficient. Reviewers should be careful about jumping to conclusions based on a code author’s particular approach. It’s better to ask questions on why something was done the way it was before assuming that approach is wrong.
+
+To write code for peers. Remember that part of the responsibility of an author is to make sure this code is understandable and maintainable for the future. 
+
+If you disagree with a reviewer’s comment, let them know, and let them know why and don’t mark a comment as resolved until each side has had a chance to offer alternatives. One common way is to offer an alternative and ask the reviewer to PTAL(please take another look). Remember that code review is a learning opportunity for both the reviewer and the author.
+
+The first line of change description should be a summary of the entire change. And the description should still go into detail on what is being changed and why. A description of “Bug fix” is not helpful to a reviewer or a future code archeologist. 
