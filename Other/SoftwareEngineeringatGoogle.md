@@ -484,3 +484,48 @@ To write code for peers. Remember that part of the responsibility of an author i
 If you disagree with a reviewer’s comment, let them know, and let them know why and don’t mark a comment as resolved until each side has had a chance to offer alternatives. One common way is to offer an alternative and ask the reviewer to PTAL(please take another look). Remember that code review is a learning opportunity for both the reviewer and the author.
 
 The first line of change description should be a summary of the entire change. And the description should still go into detail on what is being changed and why. A description of “Bug fix” is not helpful to a reviewer or a future code archeologist. 
+
+### Types of Code Reviews
+
+* Greenfield reviews and new feature development 
+* Behavioral changes, improvements, and optimizations 
+* Bug fixes and rollbacks 
+* Refactorings and large-scale changes
+
+**Greenfiedl Code Reviews**:
+A greenfield review should ensure that an API matches an agreed design and is tested fully, with all API endpoints having some form of unit test, and that those tests fail when the code’s assumptions change.    
+
+Of course, the introduction of entirely new code should not come as a surprise. 
+A code review is not the time to debate design decisions already made in the past.    
+
+**Bug fixes and rollbacks**:
+At Google, we’ve seen developers start to depend on new code very quickly after it is submitted, and rollbacks sometimes break these developers as a result.
+
+
+
+## Documentation
+
+### What Qualifies as Documentation?
+
+When we refer to “documentation,” we’re talking about every supplemental text that an engineer needs to write to do their job: not only standalone documents, but code comments as well.
+
+### Why Is Documentation Needed
+
+Unlike testing, which quickly provides benefits to a programmer, documentation generally requires more effort up front and doesn’t provide clear benefits to an author until later. But, like investments in testing, the investment made in documentation will pay for itself over time. After all, you might write a document only once,1 but it will be read hundreds, perhaps thousands of times afterward; its initial cost is amortized across all the future readers. Documentation should help answer questions like these:
+
+* Why were these design decisions made?
+* Why did we implement this code in this manner?
+* Why did I implement this code in this manner, if you’re looking at your own code two years later?
+
+Even to the writer, documentation provides the following benefits:
+
+* Often, the writing of the documentation itself leads engineers to reevaluate design decisions that otherwise wouldn’t be questioned. If you can’t explain it and can’t define it, you probably haven’t designed it well enough.
+* Tricks in code should be avoided, in any case, but good comments help out a great deal when you’re staring at code you wrote two years ago, trying to figure out what’s wrong.
+
+### Documentation Is Like Code
+
+Documentation should be no different: it’s a tool, written in a different language (usually English) to accomplish a particular task. Like a programming language, it has rules, a particular syntax, and style decisions, often to accomplish a similar purpose as that within code: enforce consistency, improve clarity, and avoid (comprehension) errors. Within technical documentation, grammar is important not because one needs rules, but to standardize the voice and avoid confusing or distracting the reader. 
+Of course, documents with different owners can still conflict with one another (like most code style conflict). In those cases (also like most code style conflict), it is important to designate canonical documentation: determine the primary source and consolidate other associated documents into that primary source (or deprecate the duplicates). 
+One other way to promote canonical documents is to associate them directly with the code they document by placing them directly under source control and alongside the source code itself.
+
+The more engineers treat documentation as “one of ” the necessary tasks of software development, the less they will resent the upfront costs of writing, and the more they will reap the long-term benefits.
