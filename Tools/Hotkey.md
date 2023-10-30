@@ -94,6 +94,7 @@
 * 跳转到指定行：Command + L
 * 查看当前文件/包下的结构： Command + F12 ( fn + ' + ' )
 * 跳转到当前匹配的另一个括号处：Ctrl + M
+* Debug时快速打开参数的值：Option + Shift + Click
 
 
 

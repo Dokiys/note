@@ -79,7 +79,20 @@ git checkout branch2
 git checkout @{-1} # 切换到 branch1 分支
 ```
 
+### 常用示例
 
+查找某提交存在于哪些分支：
+```bash
+git branch -l --contains <commit id>	// 本地分支
+git branch -r --contains <commit id>	// 远程分支
+git branch -all --contains <commit id>	// 所有分支
+```
+
+查询已经被合并到当前分支的其他所有分支：
+
+```bash
+gitnp branch --merged
+```
 
 
 
