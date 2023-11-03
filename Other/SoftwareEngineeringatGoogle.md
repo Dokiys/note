@@ -529,3 +529,27 @@ Of course, documents with different owners can still conflict with one another (
 One other way to promote canonical documents is to associate them directly with the code they document by placing them directly under source control and alongside the source code itself.
 
 The more engineers treat documentation as “one of ” the necessary tasks of software development, the less they will resent the upfront costs of writing, and the more they will reap the long-term benefits.
+
+> #### Case Study: The Google Wiki
+>
+> When Google was much smaller and leaner, it had few technical writers. The easiest way to share information was through our own internal wiki (GooWiki). But as Google scaled, problems with a wiki-style approach became apparent.
+> There were no true owners for documents, many became obsolete, only a few of which seemed to be maintained, and most were specific to certain teams with certain permissions and assumptions.
+> The people who could fix the documents were not the people who used them. New users discovering bad documents either couldn’t confirm that the documents were wrong or didn’t have an easy way to report errors.
+> The way to improve the situation was to move important documentation under the same sort of source control that was being used to track code changes. Documents began to have their own owners.
+
+### Know Your Audience
+
+One of the most important mistakes that engineers make when writing documentation is to write only for themselves. Think about writing like you do about testing or any other process you need to do as an engineer. Write to your audience, in the voice and style that they expect. 
+
+### Types of Audiences
+
+In some cases, different audiences require different writing styles, but in most cases, the trick is to write in a way that applies as broadly to your different audience groups as possible. Write descriptively enough to explain complex topics to people unfamiliar with the topic, but don’t lose or annoy experts. Writing a short document often requires you to write a longer one (getting all the information down) and then doing an edit pass, removing duplicate information where you can.
+Another important audience distinction is based on how a user encounters a document:
+
+* Seekers are engineers who know what they want and want to know if what they are looking at fits the bill. 
+* Stumblers might not know exactly what they want. They might have only a vague idea of how to implement what they are working with.
+
+It’s also useful to identify when a doc is not appropriate for an audience. A lot of documents at Google begin with a “TL;DR statement” such as “TL;DR: if you are not interested in C++ compilers at Google, you can stop reading now.”
+
+### Documentation Types
+
