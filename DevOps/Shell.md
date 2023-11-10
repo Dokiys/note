@@ -597,6 +597,11 @@ Linux命令行下可以通过`scp`命令传输文件，添加`-r`选项可以传
 > [bysj ~]$ scp -r /path/local_filename username@servername:/path 
 ```
 
+通过跳板机下载文件到本地
+```bash
+> [bysj ~]$ scp -P 22 -o 'ProxyJump=[登录跳板机的用户名]@[登录跳板机的Host]:[登录跳板机的Port]' [跳板机跳转的用户名]@[跳板机跳转的机器Host]:[要下载的文件路径] [下载到本地的路径]
+```
+
 ### shift
 
 ```bash
