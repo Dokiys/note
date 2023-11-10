@@ -511,7 +511,7 @@ When we refer to “documentation,” we’re talking about every supplemental t
 
 ### Why Is Documentation Needed
 
-Unlike testing, which quickly provides benefits to a programmer, documentation generally requires more effort up front and doesn’t provide clear benefits to an author until later. But, like investments in testing, the investment made in documentation will pay for itself over time. After all, you might write a document only once,1 but it will be read hundreds, perhaps thousands of times afterward; its initial cost is amortized across all the future readers. Documentation should help answer questions like these:
+Unlike testing, which quickly provides benefits to a programmer, documentation generally requires more effort up front and doesn’t provide clear benefits to an author until later. But, like investments in testing, the investment made in documentation will pay for itself over time. After all, you might write a document only once, but it will be read hundreds, perhaps thousands of times afterward; its initial cost is amortized across all the future readers. Documentation should help answer questions like these:
 
 * Why were these design decisions made?
 * Why did we implement this code in this manner?
@@ -541,7 +541,7 @@ The more engineers treat documentation as “one of ” the necessary tasks of s
 
 One of the most important mistakes that engineers make when writing documentation is to write only for themselves. Think about writing like you do about testing or any other process you need to do as an engineer. Write to your audience, in the voice and style that they expect. 
 
-### Types of Audiences
+#### Types of Audiences
 
 In some cases, different audiences require different writing styles, but in most cases, the trick is to write in a way that applies as broadly to your different audience groups as possible. Write descriptively enough to explain complex topics to people unfamiliar with the topic, but don’t lose or annoy experts. Writing a short document often requires you to write a longer one (getting all the information down) and then doing an edit pass, removing duplicate information where you can.
 Another important audience distinction is based on how a user encounters a document:
@@ -552,4 +552,333 @@ Another important audience distinction is based on how a user encounters a docum
 It’s also useful to identify when a doc is not appropriate for an audience. A lot of documents at Google begin with a “TL;DR statement” such as “TL;DR: if you are not interested in C++ compilers at Google, you can stop reading now.”
 
 ### Documentation Types
+
+Design documents, code comments, how-to documents, project pages, and more. These all count as “documentation.” Make sure your document has a singular purpose, and if adding something to that page doesn’t make sense, you probably want to find, or even create, another document for that purpose.
+
+#### Reference Documentation
+
+Reference documentation should be single-sourced as much as possible. Most reference documentation, even when provided as separate documentation from the code, is generated from comments within the codebase itself.
+The key win for seekers(who know what they want) is a consistently commented codebase so that they can quickly scan an API and find what they are looking for. The key win for stumblers(who don’t know what they want) is clearly identifying the purpose of an API, often at the top of a file header.
+
+**File comments**
+Generally, a file comment should begin with an outline of what’s contained in the code you are reading.(Any API that cannot be succinctly described in the first paragraph or two is usually the sign of an API that is not well thought out.)
+
+```
+// -----------------------------------------------------------------------------
+// str_cat.h
+// -----------------------------------------------------------------------------
+//
+// This header file contains functions for efficiently concatenating and appending
+// strings: StrCat() and StrAppend(). Most of the work within these routines is
+// actually handled through use of a special AlphaNum type, which was designed
+// to be used as a parameter type that efficiently manages conversion to
+// strings and avoids copies in the above operations.
+```
+
+**Class comments**
+Generally, class com‐ ments should be “nouned” with documentation emphasizing their object aspect. That is, say, “The Foo class contains x, y, z, allows you to do Bar, and has the following Baz aspects,” and so on.
+
+```
+// -----------------------------------------------------------------------------
+// AlphaNum
+// -----------------------------------------------------------------------------
+//
+// The AlphaNum class acts as the main parameter type for StrCat() and
+// StrAppend(), providing efficient conversion of numeric, boolean, and
+// hexadecimal values (through the Hex type) into strings.
+```
+
+**Function comments**
+Function comments should stress the active nature of their use, beginning with an indicative verb describing what the function does and what is returned.
+
+```
+// StrCat()
+//
+// Merges the given strings or numbers, using no delimiter(s),
+// returning the merged result as a string.
+```
+
+#### Design Docs
+
+The development of a design document is one of the first processes an engi‐ neer undertakes before deploying a new system. A good design document should cover the goals of the design, its implementation strategy, and propose key design decisions with an emphasis on their individual trade-offs.
+
+#### Tutorials
+
+Every software engineer, when they join a new team, will want to get up to speed as quickly as possible. 
+Often, the best time to write a tutorial, if one does not yet exist, is when you first join a team. Get a notepad to take notes, and write down everything you need to do along the way; try not to assume any particular setup, permissions, or domain knowledge(or state that clearly in the beginning of the tutorial as a set of prerequisites.).
+
+**Example: A bad tutorial** 
+
+1. Download the package from our server at http://example.com 
+2. Copy the shell script to your home directory 
+3. Execute the shell script 
+4. The foobar system will communicate with the authentication system 
+5. Once authenticated, foobar will bootstrap a new database named “baz” 
+6. Test “baz” by executing a SQL command on the command line 
+7. Type: CREATE DATABASE my_foobar_db;
+
+Steps 4 and 5 happen on the server end. It’s unclear whether the user needs to do anything(but actually they don’t), so those side effects can be mentioned as part of step 3. As well, it’s unclear whether step 6 and step 7 are different. (Actually they aren’t.) Combine all atomic user operations into single steps so that the user knows they need to do something at each step in the process.
+
+**Example: A bad tutorial made better** 
+
+1. Download the package from our server at http://example.com: 
+   ```bash
+   $ curl -I http://example.com 
+   ```
+
+2. Copy the shell script to your home directory: 
+   ```bash
+   $ cp foobar.sh 
+   ```
+
+3. Execute the shell script in your home directory:
+   ```bash
+   $ cd ~; foobar.sh
+   ```
+
+   The foobar system will first communicate with the authentication system. Once authenticated, foobar will bootstrap a new database named “baz” and open an input shell.
+
+4. Test “baz” by executing a SQL command on the command line:
+   ```bash
+   baz:$ CREATE DATABASE my_foobar_db;
+   ```
+
+#### Conceptual Documentation
+
+One problem engineers face when writing conceptual documentation is that it often cannot be embedded directly within the source code because there isn’t a canonical location to place it. The only logical place to document such complex behavior is through a separate conceptual document. (The package comments provided by godoc in the Go allow to write conceptual documents very well. Such as [doc.go](https://go.dev/src/pkg/encoding/gob/doc.go))
+
+### Documentation Philosophy
+
+#### Deprecating Documents
+
+When a document no longer serves any purpose, either remove it or identify it as obsolete (and, if available, indicate where to go for new information). 
+At Google, documents note the last time a document was reviewed.
+
+
+
+## Testing Overview
+
+Teams with good tests can review and accept changes to their project with confidence because all important behaviors of their project are continuously verified. 
+
+We define a "flaky" test result as a test that exhibits both a passing and a failing result with the same code. If test flakiness continues to grow, team will experience a loss of confidence in the tests. After that happens, engi‐ neers will stop reacting to test failures, eliminating any value the test suite provided.
+
+Tests should assume as little as possible about the outside environment.(Such as the order in which the tests are run;  should not rely on a shared database).
+“a test should be obvious upon inspection.” Because there are no tests for the tests themselves, they are often revisited only when something breaks and require manual review as an important check on correctness. So so make sure you write the test you’d like to read!
+
+There are two distinct dimensions for every test case: size and scope. Size refers to the resources that are required to run a test case: things like memory, processes, and time. Scope refers to the specific code paths we are verifying. 
+
+### Designing a Test Suite
+
+To recap, size refers to the resources consumed by a test and what it is allowed to do, and scope refers to how much code a test is intended to validate.
+
+#### Test Size
+
+A test’s size is determined not by its number of lines of code, but by how it runs, what it is allowed to do, and how many resources it consumes. In brief, small tests run in a single process, medium tests run on a single machine, and large tests run wherever they want.
+
+**Small tests:** The primary constraint is that small tests must run in a single shread. This means that you can’t run a server and have a separate test process connect to it. And they aren’t allowed to sleep, perform I/O operations, and access the network or disk. All this is to make sure the tests can effectively run as fast as the CPU can handle.
+**Medium tests:** It can span multiple processes, use threads, and can make blocking calls, including network calls, to localhost(but aren’t allowed to make network calls to any system which isn’t something we can guarantee in general). 
+**Large tests:** Large tests remove the localhost restriction. Teams at Google will frequently isolate their large tests from their small or medium tests, running them only during the build and release process so as not to impact developer workflow.
+
+#### Test Scope
+
+**Narrow-scoped tests:** Commonly called “unit tests”, are designed to focus an individual class or method.
+**Medium-scoped tests:** Commonly called integration tests, are designed to verify interactions between a small number of components; It’s possible to write a business logic.
+**Large-scoped tests:** Commonly referred to by names like functional tests, end-to-end tests, or system tests, are designed to validate the interaction of several distinct parts of the system.
+
+Google recommended mix of tests is determined by our two primary goals: engineering productivity and product confidence. When considering your own mix, you might want a different balance.
+
+#### The Beyoncé Rule
+
+“If you liked it, then you shoulda put a test on it.” The Beyoncé Rule is often invoked by infrastructure teams that are responsible for making changes across the entire codebase. If unrelated infrastructure changes pass all of your tests but still break your team’s product, you are on the hook for fixing it and adding the additional tests.
+
+#### A Note on Code Coverage
+
+Code coverage is often held up as the gold standard metric for understanding test quality, and that is somewhat unfortunate. It is possible to exercise a lot of lines of code with a few tests, never checking that each line is doing anything useful. That’s because code coverage only measures that a line was invoked, not what happened as a result. 
+It is common for teams to establish a bar for expected code coverage—for instance, 80%. At first, that sounds eminently reason‐ able; surely you want to have at least that much coverage. In practice, what happens is that instead of treating 80% like a floor, engineers treat it like a ceiling. Soon, changes begin landing with no more than 80% coverage. After all, why do more work than the metric requires? 
+A better way to approach the quality of your test suite is to think about the behaviors that are tested.
+
+### Testing at Google Scale
+
+#### The Pitfalls of a Large Test Suite
+
+Brittle tests—those that over-specify expected outcomes or rely on extensive and complicated boilerplate—can actually resist change. These poorly written tests can fail even when unrelated changes are made(Brittle tests usually appear in an abuse of mocking frameworks). 
+If a test suite is causing more harm than good, eventually engineers will find a way to get their job done, tests or no tests.
+
+### History of Testing at Google
+
+#### Orientation Classes
+
+The pioneers of automated testing at Google knew that at the rate the company was growing, new engineers would quickly outnumber existing team members. If they could reach all the new hires in the company, it could be an extremely effective avenue for introducing cultural change. 
+The new hires had no idea that they were being used as trojan horses to sneak this idea into their unsuspecting teams. As Nooglers joined their teams following orientation, they began writing tests and questioning those on the team who didn’t.
+
+#### Testing on the Toilet
+
+The goal of TotT was fairly simple: actively raise awareness about testing across the entire company. The Testing Grouplet considered the idea of a regular email newsletter, but given the heavy volume of email everyone deals with at Google, it was likely to become lost in the noise. But the bathroom is one place that everyone must visit at least once each day, no matter what. 
+To say the reaction was polarized is an understatement; some saw it as an invasion of personal space, and they objected strongly. Mailing lists lit up with complaints, but the TotT creators were content: the people complaining were still talking about testing.
+A good TotT episode contains something an engineer can take back to the desk immediately and try. 
+
+### The Limits of Automated Testing
+
+Automated testing is not suitable for all testing tasks. For example, testing the quality of search results often involves human judgment. 
+Exploratory Testing does not apply either. Exploratory Testing is a fundamentally creative endeavor in which someone treats the application under test as a puzzle to be broken, maybe by executing an unexpected set of steps or by inserting unexpected data. 
+
+
+
+## Unit Testing
+
+Compared to broader-scoped tests, unit tests have many properties that make them an excellent way to optimize productivity:
+
+* They can serve as documentation and examples, showing engineers how to use the part of the system being tested and how that system is intended to work.
+
+### The Importance of Maintainability
+
+Imagine this scenario: 
+
+> Mary wants to add a simple new feature to the product. Perhaps requiring only a couple dozen lines of code. But when she goes to check in her change, she gets a screen full of errors back from the automated testing system. 
+> She spends the rest of the day going through those failures one by one. In each case, the change introduced no actual bug, but broke some of the assumptions that the test made about the internal structure of the code, requiring those tests to be updated. 
+> Often, she has difficulty figuring out what the tests were trying to do in the first place, and the hacks she adds to fix them make those tests even more difficult to understand in the future. Ultimately, what should have been a quick job ends up taking hours or even days of busywork.
+
+Here, testing had the opposite of its intended effect by draining productivity rather than improving it while not meaningfully increasing the quality of the code under test. The problems Mary ran into weren’t her fault, and there was nothing she could have done to avoid them: bad tests must be fixed before they are checked in, lest they impose a drag on future engineers.  
+Broadly speaking, the issues she encountered fall into two categories. First, the tests she was working with were brittle: they broke in response to a harmless and unrelated change that introduced no real bugs. Second, the tests were unclear: after they were failing, it was difficult to determine what was wrong, how to fix it, and what those tests were supposed to be doing in the first place.
+
+### Preventing Brittle Tests
+
+A brittle test is one that fails in the face of an unrelated change to production code that does not introduce any real bugs. Such tests must be diagnosed and fixed by engineers as part of their work. If a team regularly writes brittle tests, test maintenance will inevitably consume a larger and larger proportion of the team’s time as they are forced to comb through an increasing number of failures in an ever-growing test suite.
+
+#### Strive for Unchanging Tests
+
+The ideal test is unchanging: after it’s written, it never needs to change unless the requirements of the system under test change. Fundamentally, there are four kinds of changes and we should expect tests to respond to:
+
+* *Pure refactorings:* The system’s tests shouldn’t need to change. 
+* *New features:* The engineer must write new tests to cover the new behaviors, but they shouldn’t need to change any existing tests.
+* *Bug fixes:* The bug fix should include that missing test case. Typically shouldn’t require updates to existing tests .
+* *Behavior changes:* Note that such changes tend to be significantly more expensive than the other three types. It's the one case when we expect to have to make updates to the system’s existing tests.
+
+#### Test via Public APIs
+
+Consider follows example, which validates a transaction and saves it to a database.
+
+```java
+public void processTransaction(Transaction transaction) {
+    if (isValid(transaction)) {
+        saveToDatabase(transaction);
+    }
+}
+private boolean isValid(Transaction t) {
+    return t.getAmount() < t.getSender().getBalance();
+}
+private void saveToDatabase(Transaction t) {
+    String s = t.getSender() + "," + t.getRecipient() + "," + t.getAmount();
+    database.put(t.getId(), s);
+}
+public void setAccountBalance(String accountName, int balance) {
+    // Write the balance to the database directly
+}
+public void getAccountBalance(String accountName) {
+    // Read transactions from the database to determine the account balance
+}
+```
+
+A tempting way to test this code would be to remove the “private” visibility modifiers and test the implementation logic directly, as follows:
+
+```java
+@Test
+public void emptyAccountShouldNotBeValid() {
+    assertThat(processor.isValid(newTransaction().setSender(EMPTY_ACCOUNT)))
+        .isFalse();
+}
+@Test
+public void shouldSaveSerializedData() {
+    processor.saveToDatabase(newTransaction()
+        .setId(123)
+        .setSender("me")
+        .setRecipient("you")
+        .setAmount(100));
+    assertThat(database.get(123)).isEqualTo("me,you,100");
+}
+```
+
+This test is brittle. It interacts with the transaction processor in a much different way than its real users would: it peers into the system’s internal state and calls methods that aren’t publicly exposed as part of the system’s API. And almost any refactoring of the system under test would cause the test to break(such as renaming its methods, factoring them out into a helper class, or changing the serialization format), even if such a change would be invisible to the class’s real users. 
+Instead, the same test coverage can be achieved by testing only against the class’s pub‐ lic API, as follows:
+
+```java
+@Test
+public void shouldTransferFunds() {
+    processor.setAccountBalance("me", 150);
+    processor.setAccountBalance("you", 20);
+    processor.processTransaction(newTransaction()
+        .setSender("me")
+        .setRecipient("you")
+        .setAmount(100));
+    assertThat(processor.getAccountBalance("me")).isEqualTo(50);
+    assertThat(processor.getAccountBalance("you")).isEqualTo(120);
+}
+@Test
+public void shouldNotPerformInvalidTransactions() {
+    processor.setAccountBalance("me", 50);
+    processor.setAccountBalance("you", 20);
+    processor.processTransaction(newTransaction()
+        .setSender("me")
+        .setRecipient("you")
+        .setAmount(100));
+    assertThat(processor.getAccountBalance("me")).isEqualTo(50);
+    assertThat(processor.getAccountBalance("you")).isEqualTo(20);
+}
+```
+
+Such tests are more realistic and less brittle because they form explicit contracts: if such a test breaks, it implies that an existing user of the system will also be broken. Testing only these contracts means that you’re free to do whatever internal refactoring of the system you want without having to worry about making tedious changes to tests. 
+
+It’s not always clear what constitutes a “public API,” and the question really gets to the heart of what a “unit” is in unit testing. **Units can be as small as an individual function or as broad as a set of several related packages/modules.** When we say “public API” in this context, we’re really talking about the API exposed by that unit to third parties outside of the team that owns the code(This doesn’t align with the notion of visibility provided by some programming languages; Such as implicit and explicit in Go). 
+
+Defining an appropriate scope for a unit and hence what should be considered the public API is more art than science, but here are some rules of thumb:
+
+* If a method or class exists only to support one or two other classes (i.e., it is a “helper class”), it probably shouldn’t be considered its own unit, and its function‐ ality should be tested through those classes instead of directly.
+* If a package or class is designed to be accessible by anyone without having to consult with its owners, it almost certainly constitutes a unit that should be tested directly, where its tests access the unit in the same way that the users would.
+* If a package or class can be accessed only by the people who own it, but it is designed to provide a general piece of functionality useful in a range of contexts (i.e., it is a “middleware”), it should also be considered a unit and tested directly. Without this unit test, a gap in test coverage could be introduced if one of the library’s users (and its tests) were ever removed.
+
+At Google, we’ve found that engineers sometimes need to be persuaded that testing via public APIs is better than testing against implementation details. The reluctance is understandable because it’s often much easier to write tests focused on the piece of code you just wrote rather than figuring out how that code affects the system as a whole. Nevertheless, it valuable to encourage such practices, as the extra upfront effort pays for itself many times over in reduced maintenance burden. Testing against public APIs make ensure that your tests fail only in the event of meaningful changes to your system.
+
+#### Test State, Not Interactions
+
+ In general, there are two ways to verify that a system under test behaves as expected. *With state testing*, you observe the system itself to see what it looks like after invoking with it(Such as test a function with a success return). *With interaction testing*, you instead check that the system took an expected sequence of actions on its collaborators in response to invoking it(Such as test a function return different errors). 
+Interaction tests tend to be more brittle than state tests for the same reason that it’s more brittle to test a private method than to test a public method: interaction tests check *how* a system arrived at its result, whereas usually you should care only *what* the result is. For example: 
+
+```java
+@Test
+public void shouldWriteToDatabase() {
+    accounts.createUser("foobar");
+  
+    // just verify is database put 'foobar' into storage
+    verify(database).put("foobar"); 
+}
+```
+
+There are a couple different ways it could go wrong:
+
+* If a bug in the system under test causes the record to be deleted from the data‐ base shortly after it was written, the test will pass even though we would have wanted it to fail.
+* If the system under test is refactored to call a slightly different API to write an equivalent record, the test will fail even though we would have wanted it to pass.
+
+It’s much less brittle to directly test against the state of the system, as demonstrated in follows:
+
+```java
+@Test
+public void shouldCreateUsers() {
+    accounts.createUser("foobar");
+    assertThat(accounts.getUser("foobar")).isNotNull();
+}
+```
+
+The most common reason for problematic interaction tests is an over reliance on mocking frameworks. We tend to prefer the use of real objects in favor of mocked objects, as long as the real objects are fast and deterministic.
+
+### Writing Clear Tests
+
+Failure is a good thing—test failures provide useful signals to engineers, and are one of the main ways that a unit test provides value. Test failures happen for one of two reasons:
+
+* The system under test has a problem or is incomplete. This is exactly what tests are designed for. 
+* The test itself is flawed, this means that the test is brittle. 
+
+When a test fails, an engineer’s first job is to identify which of these cases the failure falls into and then to diagnose the actual problem. A clear test is one whose purpose for existing and reason for failing is immediately clear to the engineer diagnosing a failure. 
+As code database, it’s entirely possible that a failing test might have been written years ago by an engineer no longer on the team, leaving no way to figure out its purpose. In the worst case, these obscure tests just end up getting deleted when engineers can’t figure out how to fix them. It indicates that the test has been providing zero value for perhaps the entire period it has existed (which could have been years).
+
+#### Make Your Tests Complete and Concise
 
