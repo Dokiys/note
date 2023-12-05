@@ -787,11 +787,30 @@ ls $(pbpaste) | grep .go
 
 
 
-## rename
+### rename
 
 批量修改文件名
 
 ```bash
 rename 's/coupon_/ticket_/' *.go
+```
+
+
+
+### openssl
+
+生成padding格式为pkcs1的私钥：
+
+```bash
+key_size=2048
+
+openssl genpkey -algorithm RSA -outform PEM -out private_key.pem -pkeyopt rsa_keygen_bits:$key_size
+openssl rsa -in private_key.pem -outform PEM -out private_key_pkcs1.pem
+```
+
+生成私钥：
+
+```bash
+openssl rsa -in private_key_pkcs1.pem -pubout -outform PEM -out $public_key_file
 ```
 

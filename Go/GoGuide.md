@@ -1463,7 +1463,7 @@ writer.Flush()
 ```go
 func Fib(i int) (result int) {
 	if i <= 2 {
-		return 1
+		return 1 
 	}
 
 	return Fib(i-1) + Fib(i-2)
@@ -1722,7 +1722,17 @@ ok      hellogo/test    6.368s
 
 ```
 
-由于`Fib()`函数直接在栈上调用，所有内存分配为0
+由于`Fib()`函数直接在栈上调用，所有内存分配为0 
+值得注意的是，Benchmark 测试会现执行一次，然后再从`i=0`依次递增进行处理，比如下面这段代码的输出，为`0 0 1 2 3 `而非`0 1 2 3 `：
+
+```go
+func BenchmarkTest(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		fmt.Printf("%d ", i)
+		if i == 3 { panic("end") }
+	}
+}
+```
 
 
 

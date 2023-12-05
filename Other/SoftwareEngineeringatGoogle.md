@@ -882,3 +882,433 @@ As code database, it’s entirely possible that a failing test might have been w
 
 #### Make Your Tests Complete and Concise
 
+Two high-level properties that help tests achieve clarity are completeness and conciseness. It means *a test’s body should contain all of the information needed to understand it without containing any irrelevant or distracting information.* The following two can be used for comparison:
+
+```java
+@Test
+public void shouldPerformAddition() {
+    Calculator calculator = new Calculator(new RoundingStrategy(),
+        "unused", ENABLE_COSINE_FEATURE, 0.01, calculusEngine, false);
+    int result = calculator.calculate(newTestCalculation());
+    assertThat(result).isEqualTo(5); // Where did this number come from?
+}
+```
+
+```java
+@Test
+public void shouldPerformAddition() {
+    Calculator calculator = newCalculator();
+    int result = calculator.calculate(newCalculation(2, Operation.PLUS, 3));
+    assertThat(result).isEqualTo(5);
+}
+```
+
+The implementation of a method or class greatly affects how to write test methods. Good code should make it easy to write tests. In other words, our code should be designed with testing in mind. When a function or class can be easily tested, its functionality is clear and can be described.
+
+#### Test Behaviors, Not Methods
+
+Consider the snippet of code as follows:
+```java
+public void displayTransactionResults(User user, Transaction transaction) {
+    ui.showMessage("You bought a " + transaction.getItemName());
+    if (user.getBalance() < LOW_BALANCE_THRESHOLD) {
+        ui.showMessage("Warning: your balance is low!");
+    }
+}
+```
+
+```java
+// A method-driven test
+@Test
+public void testDisplayTransactionResults() {
+    transactionProcessor.displayTransactionResults(
+        newUserWithBalance(
+            LOW_BALANCE_THRESHOLD.plus(dollars(2))),
+        new Transaction("Some Item", dollars(3)));
+    assertThat(ui.getText()).contains("You bought a Some Item");
+    assertThat(ui.getText()).contains("your balance is low");
+}
+```
+
+With such tests, it’s likely that the test started out covering only the first method. Later, an engineer expanded the test when the second message was added (This would violate the idea of immutable testing we discussed earlier). This modification sets a bad precedent: as the method under test becomes more complex and implements more functionality, its unit test will become increasingly convoluted and grow more and more difficult to work with.
+
+There’s a better way: rather than writing a test for each method, write a test for each behavior. A behavior is any guarantee that a system makes about how it will respond to a series of inputs while in a particular state. Behaviors can often be expressed using the words “given,” “when,” and “then”: “Given that a bank account is empty, when attempting to withdraw money from it, then the transaction is rejected.” For example:
+
+```java
+// A behavior-driven test
+@Test
+public void displayTransactionResults_showsItemName() {
+    transactionProcessor.displayTransactionResults(
+        new User(), new Transaction("Some Item"));
+    assertThat(ui.getText()).contains("You bought a Some Item");
+}
+@Test
+public void displayTransactionResults_showsLowBalanceWarning() {
+    transactionProcessor.displayTransactionResults(
+        newUserWithBalance(
+            LOW_BALANCE_THRESHOLD.plus(dollars(2))),
+        new Transaction("Some Item", dollars(3)));
+    assertThat(ui.getText()).contains("your balance is low");
+}
+```
+
+Behavior-driven tests tend to be clearer than method-oriented tests for several reasons. 
+
+* First, they read more like natural language. 
+* Second, they more clearly express cause and effect because each test is more limited in scope. 
+* Finally, each test is short and descriptive makes it easier to see what functionality is already tested and encourages engineers to add new streamlined test methods instead of piling onto existing methods.
+
+##### Structure tests to emphasize behaviors
+
+Remember that every behavior has three parts: a “given” component that defines how the system is set up, a “when” component that defines the action to be taken on the system, and a “then” component that validates the result. *Be careful to ensure that you’re not inadvertently testing multiple behaviors at the same time.* 
+There are two examples:
+
+```java
+@Test
+public void transferFundsShouldMoveMoneyBetweenAccounts() {
+    // Given two accounts with initial balances of $150 and $20
+    Account account1 = newAccountWithBalance(usd(150));
+    Account account2 = newAccountWithBalance(usd(20));
+  
+    // When transferring $100 from the first to the second account
+    bank.transferFunds(account1, account2, usd(100));
+  
+    // Then the new account balances should reflect the transfer
+    assertThat(account1.getBalance()).isEqualTo(usd(50));
+    assertThat(account2.getBalance()).isEqualTo(usd(120));
+}
+```
+
+```java
+@Test
+public void shouldTimeOutConnections() {
+    // Given two users
+    User user1 = newUser();
+    User user2 = newUser();
+    // And an empty connection pool with a 10-minute timeout
+    Pool pool = newPool(Duration.minutes(10));
+  
+    // When connecting both users to the pool
+    pool.connect(user1);
+    pool.connect(user2);
+  
+    // Then the pool should have two connections
+    assertThat(pool.getConnections()).hasSize(2);
+  
+    // When waiting for 20 minutes
+    clock.advance(Duration.minutes(20));
+  
+    // Then the pool should have no connections
+    assertThat(pool.getConnections()).isEmpty();
+    // And each user should be disconnected
+    assertThat(user1.isConnected()).isFalse();
+    assertThat(user2.isConnected()).isFalse();
+}
+```
+
+##### Name tests after the behavior being tested
+
+The test name is the first or only token visible in failure reports, so it’s your best opportunity to communicate the problem when the test breaks. For examples: 
+
+```
+multiplyingTwoPositiveNumbersShouldReturnAPositiveNumber
+multiply_postiveAndNegative_returnsNegative
+divide_byZero_throwsException
+```
+
+A good trick if you’re stuck is to try starting the test name with the word “should.” Such names also help ensure that the test stays focused on a single behavior: if you need to use the word “and” in a test name, there’s a good chance that you’re actually testing multiple behaviors and should be writing multiple tests! 
+
+#### Don’t Put Logic in Tests
+
+```java
+@Test
+public void shouldNavigateToAlbumsPage() {
+    String baseUrl = "http://photos.google.com/";
+    Navigator nav = new Navigator(baseUrl);
+    nav.goToAlbumPage();
+    assertThat(nav.getCurrentUrl()).isEqualTo(baseUrl + "/albums");
+}
+```
+
+There only one logic here, string concatenation(`baseUrl + "/albums"`). But if we simplify the test by removing that one bit of logic, a bug immediately becomes clear. 
+
+```java
+@Test
+public void shouldNavigateToPhotosPage() {
+        Navigator nav = new Navigator("http://photos.google.com/");
+        nav.goToPhotosPage();
+        assertThat(nav.getCurrentUrl()))
+    .isEqualTo("http://photos.google.com//albums"); // Oops!
+}
+```
+
+#### Write Clear Failure Messages
+
+One last aspect of clarity has to do with what an engineer sees when it fails.  It should clearly express the desired outcome, the actual outcome, and any relevant parameters. Consider the follows  failure message:
+
+```
+Test failed: account is closed
+```
+
+```
+Expected an account in state CLOSED, but got account:
+ <{name: "my-account", state: "OPEN"}
+```
+
+Another example in java:
+```java
+Set < String > colors = ImmutableSet.of("red", "green", "blue");
+assertTrue(colors.contains("orange")); // JUnit
+assertThat(colors).contains("orange"); // Truth
+```
+
+The first assertion only receives a Boolean value,  it is only able to give a generic error message like “expected  but was false”. The second assertion explicitly receives the subject of the assertion, it is able to give a much more useful error message: AssertionError: [red, green, blue] should have contained orange.”
+It should always be possible to manually specify the important information in the failure message, even if languages havn't such helpers. Such as, test assertions in Go:
+
+```go
+result := Add(2, 3)
+if result != 5 {
+  t.Errorf("Add(2, 3) = %v, want %v", result, 5)
+}
+```
+
+### Tests and Code Sharing: DAMP, Not DRY
+
+Different with production code should achieve DRY—"Don’t Repeat Yourself". Good tests are designed to be stable, and in fact you usually want them to break when the system being tested changes. So test code should often strive to be DAMP—"Descriptive And Meaningful Phrases."
+
+#### Shared Values
+
+Many tests are structured by defining a set of shared values to be used by tests and then by defining the tests that cover various cases for how these values interact.  But it causes problems as the test suite grows. For one, it can be difficult to understand *why a particular value was chosen for a test*. A better way to avoid verbose is to construct data using helper methods. 
+```go
+func newTestPerson(opts ...func(people *Person)) *Person {
+	p := &Person{
+		Name:  "default name",
+		Phone: "default phone",
+		Addr:  "default addr",
+	}
+	for _, opt := range opts {
+		opt(p)
+	}
+
+	return p
+}
+```
+
+#### Shared Setup
+
+A related way that tests shared code is via setup/initialization logic. Many test frameworks allow engineers to define methods to execute before each test in a suite is run. It is useful when the majority of tests don’t care about the specific arguments used to construct those objects and can let them stay in their default states.
+One risk in using setup methods is that a reader of the test needs to go hunting to discover where has done something. 
+
+#### Defining Test Infrastructure
+
+It can also be valuable to share code(helper method and so on) across multiple test suites, we refer to this sort of code as test infrastructure. Carefully designed test infrastructure can make unit tests much easier to write. 
+Most of the test infrastructure that most engineers use comes in the form of well-known third-party libraries like JUnit. A huge number of such libraries are available, and standardizing on them within an organization should happen as early and universally as possible.
+
+### Conclusion
+
+With great power comes great responsibility, and careless use of unit testing can result in a system that requires much more effort to maintain and takes much more effort to change without actually improving our confidence in said system.
+
+
+
+## Test Doubles
+
+A test double is an object or function that can stand in for a real implementation in a test and behaves similarly to the real implementation. The use of test doubles is often referred to as mocking, but we avoid that term in this chapter because, as we’ll see, that term is also used to refer to more specific aspects of test doubles. 
+
+### The Impact of Test Doubles on Software Development
+
+The concepts introduced here are discussed in more depth throughout this chapter:
+
+* *Testability*: It should be possible for tests to swap out real implementations with test doubles. 
+* *Applicability*:  In many cases, test doubles are not suitable and engineers should prefer to use real implementations instead.
+* *Fidelity*: Fidelity refers to how closely the behavior of a test double resembles the behavior of the real implementation that it’s replacing. 
+
+### Test Doubles at Google
+
+It wasn’t until several years that mocking frameworks first came into use at Google, googlers realized though these tests were easy to write, we suffered greatly given that they required constant effort to maintain while rarely finding bugs.
+
+### Basic Concepts
+
+#### An Example Test Double
+
+Imagine an ecommerce site that needs to process credit card payments.
+```java
+class PaymentProcessor {
+    private CreditCardService creditCardService;
+    ...
+    boolean makePayment(CreditCard creditCard, Money amount) {
+        if (creditCard.isExpired()) {
+            return false;
+        }
+        boolean success =
+            creditCardService.chargeCreditCard(creditCard, amount);
+        return success;
+    }
+}
+```
+
+It would be infeasible to use a real credit card service in a test, but a test double could be used in its place to simulate the behavior of the real system. The follows is the simplest test double:
+
+```java
+class TestDoubleCreditCardService implements CreditCardService {
+    @Override
+    public boolean chargeCreditCard(CreditCard creditCard, Money amount) {
+        return true;
+    }
+}
+```
+
+Although this test double doesn’t look very useful, using it in a test still allows us to test some of the logic in the makePayment() method. We can validate that the method behaves properly when the credit card is expired:
+
+```java
+@Test public void cardIsExpired_returnFalse() {
+    boolean success = paymentProcessor.makePayment(EXPIRED_CARD, AMOUNT);
+    assertThat(success).isFalse();
+}
+```
+
+#### Seams
+
+Code is said to be testable if it is written in a way that makes it possible to write unit tests for the code. A seam is a way to make code testable by allowing for the use of test doubles—it makes it possible to use different dependencies for the system under test rather than the dependencies used in a production environment. 
+Dependency injection is a common technique for introducing seams. In short, when a class utilizes dependency injection, any classes it needs to use are passed to it rather than instantiated directly, making it possible for these dependencies to be substituted in tests. As follows:
+
+```java
+class PaymentProcessor {
+    private CreditCardService creditCardService;
+    PaymentProcessor(CreditCardService creditCardService) {
+            this.creditCardService = creditCardService;
+        }
+        ...
+}
+```
+
+```java
+PaymentProcessor paymentProcessor =
+ new PaymentProcessor(new TestDoubleCreditCardService());
+```
+
+To reduce boilerplate associated with manually specifying constructors, automated dependency injection frameworks can be used for constructing object graphs automatically. For example, Guice and Dagger for Java code, [wire](https://github.com/google/wire) for Go.
+With dynamically typed languages such as Python or JavaScript, dependency injection is less important in these languages. It is possible to dynamically replace individual functions or object methods. 
+
+Writing testable code requires an upfront investment. It is especially critical early in the lifetime of a codebase because the later testability is taken into account, the more difficult it is to apply to a codebase. Code written without testing in mind typically needs to be refactored or rewritten before you can add appropriate tests.
+
+#### Mocking Frameworks
+
+A mocking framework is a software library that makes it easier to create test doubles within tests; it allows you to replace an object with a mock, which is a test double whose behavior is specified inline in a test. The follows demonstrate the use of Mockito, a mocking framework for Java. 
+
+```java
+class PaymentProcessorTest {
+    ...
+    PaymentProcessor paymentProcessor;
+    // Create a test double of CreditCardService with just one line of code.
+    @Mock CreditCardService mockCreditCardService;
+    @Before public void setUp() {
+        // Pass in the test double to the system under test.
+        paymentProcessor = new PaymentProcessor(mockCreditCardService);
+    }
+    @Test public void chargeCreditCardFails_returnFalse() {
+        // Give some behavior to the test double: it will return false
+        // anytime the chargeCreditCard() method is called. The usage of
+        // “any()” for the method’s arguments tells the test double to
+        // return false regardless of which arguments are passed.
+        when(mockCreditCardService.chargeCreditCard(any(), any())
+            .thenReturn(false); boolean success = paymentProcessor.makePayment(CREDIT_CARD, AMOUNT); assertThat(success).isFalse();
+        }
+    }
+}
+```
+
+### Techniques for Using Test Doubles
+
+#### Faking
+
+A fake is a lightweight implementation of an API that behaves similar to the *real implementation* but isn’t suitable for production; Writing a fake can be challenging because you need to ensure that it has similar behavior to the real imple‐ mentation, now and in the future. For example:
+
+```java
+// Creating the fake is fast and easy.
+AuthorizationService fakeAuthorizationService =
+    new FakeAuthorizationService();
+AccessManager accessManager = new AccessManager(fakeAuthorizationService):
+
+// Unknown user IDs shouldn’t have access.
+assertFalse(accessManager.userHasAccess(USER_ID));
+
+// The user ID should have access after it is added to
+// the authorization service.
+fakeAuthorizationService.addAuthorizedUser(new User(USER_ID));
+assertThat(accessManager.userHasAccess(USER_ID)).isTrue();
+```
+
+#### Stubbing
+
+Stubbing is the process of giving behavior to a function that otherwise has no behav‐ ior on its own—you specify to the function exactly what values to return (that is, you stub the return values). For example:
+
+ ```java
+ // Pass in a test double that was created by a mocking framework.
+ AccessManager accessManager = new AccessManager(mockAuthorizationService):
+ 
+ // The user ID shouldn’t have access if null is returned.
+ when(mockAuthorizationService.lookupUser(USER_ID)).thenReturn(null);
+ assertThat(accessManager.userHasAccess(USER_ID)).isFalse();
+ 
+ // The user ID should have access if a non-null value is returned.
+ when(mockAuthorizationService.lookupUser(USER_ID)).thenReturn(USER);
+ assertThat(accessManager.userHasAccess(USER_ID)).isTrue();
+ ```
+
+#### Interaction Testing
+
+Interaction testing is a way to validate how a function is called without actually calling the implementation of the function. Interaction testing is sometimes called mocking. We avoid this terminology in this chapter because it can be confused with mocking frameworks. 
+A test should fail if a function isn’t called the correct way(called times, arguments). For example, the `verify(...)` method from the Mockito mocking framework is used to validate that `lookupUser()` is called as expected.
+
+```java
+// Pass in a test double that was created by a mocking framework.
+AccessManager accessManager = new AccessManager(mockAuthorizationService);
+accessManager.userHasAccess(USER_ID);
+
+// The test will fail if accessManager.userHasAccess(USER_ID) didn’t call
+// mockAuthorizationService.lookupUser(USER_ID).
+verify(mockAuthorizationService).lookupUser(USER_ID);
+```
+
+#### Real Implementations
+
+Preferring real implementations in tests is known as classical testing. There is also a style of testing known as mockist testing, in which the preference is to use mocking frameworks instead of real implementations. 
+Our first choice for tests is to use the real implementations of the system under test’s dependencies; that is, the same implementations that are used in production code. 
+
+> **Case Study: @DoNotMock**
+>
+> At Google, If an engineer attempts to use a mocking framework to create an instance of a class or interface that has been annotated as @DoNotMock, as demonstrated as follow, they will see an error directing them to use a more suitable test strategy:
+> ```java
+> @DoNotMock("Use SimpleQuery.create() instead of mocking.")
+> public abstract class Query {
+>     public abstract String getQueryValue();
+> }
+> ```
+>
+> Why would an API owner care? In short, it severely constrains the API owner’s ability to make changes to their implementation over time.
+
+However, for more complex code, using a real implementation often isn’t feasible.
+
+**Execution time**
+Real implementation usually cost more time, if a real implementation cost you could sustain?
+
+**Determinism**
+A test is deterministic if, for a given version of the system under test, running the test always results in the same outcome; that is, the test either always passes or always fails. In contrast, a test is nondeterministic if its outcome can change, even if the sys‐ tem under test remains unchanged. 
+A common cause of nondeterminism is code that is not hermetic; A real implementation can be much more complex compared to a test double, which increases the likelihood that it will be nondeterministic.
+
+**Dependency construction**
+When using a real implementation, you need to construct all of its dependencies. A test double often has no dependencies(Although it should). As an extreme example, imagine trying to create the object it would be time consuming to determine how to construct each individual object. 
+
+```
+Foo foo = new Foo(new A(new B(new C()), new D()), new E(), ..., new Z());
+```
+
+How tempting the follow is:
+
+```
+@Mock Foo mockFoo;
+```
+
+But a trade-off still needs to be made when considering whether convinece or fidelity. *Rather than manually constructing the object in tests, the ideal solution is to use the same object construction code that is used in the production code.*
+
+### Faking

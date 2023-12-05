@@ -117,3 +117,21 @@
   
 * MySQL在`ORDER BY`进行排序时，通常还需要判断是否符合`WHERE`条件。所以某种意义上只要进行了排序，就需要对数据进行全部扫描才能保证排序的准确，这种情形就是`Using filesort`。
   由于索引是自带排序的，所以就会有一种特殊的情况，即排序的字段被索引字段全包含。此时MySQL就不再需要对数据进行全部扫描。
+  
+* 关联表可以减少数据写操作，但会增加读数据的负担。减轻读数据的负担可以考虑不使用关联表，通过冗余的数据以及在写操作时的预先处理，减轻数据库读操作的负担。
+
+* 如下语法可以将查询出来的SQL直接插入数据表
+  ```sql
+  INSERT INTO target_table (column1, column2, column3, ...)
+  SELECT column1, column2, column3, ...
+  FROM source_table
+  WHERE condition;
+  ```
+
+* `INSERT INTO`通过`IGNORE`关键字可以忽略掉插入时遇到的主键重复错误：
+
+  ```sql
+  INSERT IGNORE INTO target_table (column1, column2, column3, ...)
+  ```
+
+  
