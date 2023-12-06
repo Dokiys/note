@@ -372,5 +372,242 @@ grant_type => authorization_code
 
 
 
+# Auth中的加密/加签实践
 
+生成公/私钥：
+
+```bash
+# 生成私钥(openssl默认使用PKCS8生成私钥，这里将其转成PKCS1)
+openssl genpkey -algorithm RSA -outform PEM -out private_key.pem -pkeyopt rsa_keygen_bits:2048
+openssl rsa -in private_key.pem -outform PEM -out private_key_pkcs1.pem
+# 生成公钥
+openssl rsa -in private_key_pkcs1.pem -pubout -outform PEM -out public_key.pem
+```
+
+生成客户端的secret只需要随机生成字符串即可。
+
+用户的密码应当经过加密后以密文的形式存储到数据库，可以使用`bcrypt`对密码进行加密，以及验证：
+
+```go
+func GenBcrypt(pwd []byte) ([]byte, error) {
+	return bcrypt.GenerateFromPassword(pwd, bcrypt.DefaultCost)
+}
+
+func ValidateBcrypt(pwd, hashed []byte) (ok bool, err error) {
+	if err = bcrypt.CompareHashAndPassword(hashed, pwd); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+```
+
+用户登录后，返回的code应当使用私钥加签之后返回：
+```go
+
+func RSASign(data []byte, pemPriKey []byte, hash crypto.Hash) (string, error) {
+	h := hash.New()
+	h.Write(data)
+	var hashed = h.Sum(nil)
+
+	pk, err := parsePrivateKey(pemPriKey)
+	if err != nil {
+		return "", err
+	}
+
+	// 先对原始消息进行哈希计算，然后再对哈希值进行签名
+	bs, err := rsa.SignPKCS1v15(nil, pk, hash, hashed)
+
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(bs), nil
+}
+
+func parsePrivateKey(privateKey []byte) (*rsa.PrivateKey, error) {
+	block, _ := pem.Decode(privateKey)
+	if block == nil {
+		return nil, errors.New("PrivateKey format error")
+	}
+
+	switch block.Type {
+	case "RSA PRIVATE KEY", "PRIVATE KEY":
+		return x509.ParsePKCS1PrivateKey(block.Bytes)
+	default:
+		return nil, errors.New("PrivateKey type error")
+	}
+}
+```
+
+在客户端通过code换取accessToken时进行验证是否被篡改：
+
+```go
+func RSAVerify(src []byte, sign string, pemPubKey []byte, hash crypto.Hash) error {
+	h := hash.New()
+	h.Write(src)
+	var hashed = h.Sum(nil)
+
+	signData, err := base64.StdEncoding.DecodeString(sign)
+	if err != nil {
+		return err
+	}
+
+	pk, err := parsePublicKey(pemPubKey)
+	if err != nil {
+		return err
+	}
+
+	err = rsa.VerifyPKCS1v15(pk, hash, hashed, signData)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+
+func parsePublicKey(publicKey []byte) (*rsa.PublicKey, error) {
+	block, _ := pem.Decode(publicKey)
+	if block == nil {
+		return nil, errors.New("PublicKey format error")
+	}
+
+	pubInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
+	if err != nil {
+		return nil, err
+	}
+	if pub, ok := pubInterface.(*rsa.PublicKey); ok {
+		return pub, nil
+	}
+
+	return nil, errors.New("PublicKey type error")
+}
+```
+
+```go
+func RSAEncrypt(msg, pemPubKey []byte) (string, error) {
+	pk, err := parsePublicKey(pemPubKey)
+	if err != nil {
+		return "", err
+	}
+	// 添加随机值以确保相同的 msg 不会产生同样的 ciphertext
+	ciphertext, err := rsa.EncryptPKCS1v15(rand.Reader, pk, msg)
+	if err != nil {
+		return "", err
+	}
+	return base64.StdEncoding.EncodeToString(ciphertext), nil
+}
+
+func RSADecrypt(encrypted string, pemPriKey []byte) (string, error) {
+	ciphertext, err := base64.StdEncoding.DecodeString(encrypted)
+	if err != nil {
+		return "", err
+	}
+
+	pk, err := parsePrivateKey(pemPriKey)
+	if err != nil {
+		return "", err
+	}
+
+	msg, err := rsa.DecryptPKCS1v15(nil, pk, ciphertext)
+	if err != nil {
+		return "", err
+	}
+	return string(msg), err
+}
+```
+
+为了确保客户端发送的请求没有被篡改，以及确认客户端的身份，服务端可以要求客户端对请求进行签名。常见的做法是将业务参数以及部分重要的请求头参数进行签名，并随着请求一起发送到服务端进行验证。加签的密钥便是分发给客户端的`secret`，比如：
+
+```go
+拼接报文参数
+除sign参数外的所有参数按照ASCII顺序排序后，以"参数名1=参数值1&参数名2=参数值2"的方式拼接所有参数
+
+在尾部拼接双方约定的密钥"KEY=xxxxx"
+
+签名值计算
+MD5-32加密后再转成HEX大写格式，即为签名值，并赋给sign参数。
+
+注：当参数值为null或为空时不参与签名串拼接
+```
+
+```go
+func Sign(values url.Values, appSecret string) string {
+	text := encode(values) + "&KEY=" + appSecret
+
+	algorithm := md5.New()
+	algorithm.Write([]byte(text))
+	ciphertext := algorithm.Sum(nil)
+
+	return strings.ToUpper(hex.EncodeToString(ciphertext))
+}
+
+func encode(v url.Values) string {
+	if v == nil {
+		return ""
+	}
+
+	var buf bytes.Buffer
+	var keys = make([]string, 0, len(v))
+	for k := range v {
+		if v.Get(k) == "" || k == "sign" {
+			continue
+		}
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	for _, k := range keys {
+		var prefix = k + "="
+		for _, v := range v[k] {
+			if buf.Len() > 0 {
+				buf.WriteByte('&')
+			}
+			buf.WriteString(prefix)
+			buf.WriteString(v)
+		}
+	}
+
+	return buf.String()
+}
+```
+
+最后生成`JWT`返回：
+```go
+
+type Claims[T any] struct {
+	jwt.RegisteredClaims
+	Data T `json:"data,omitempty"`
+}
+
+func GenJwtToken[T any](key []byte, data T, expire time.Duration) (string, error) {
+	claims := Claims[T]{
+		Data: data,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(expire)),
+		},
+	}
+
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString(key)
+}
+
+func ParseJwtToken[T any](keyFunc jwt.Keyfunc, token string, data T) (*Claims[T], error) {
+	tokenClaims, err := jwt.ParseWithClaims(token, &Claims[T]{
+		Data: data,
+	}, keyFunc)
+	if err != nil {
+		return nil, err
+	}
+	if tokenClaims == nil || !tokenClaims.Valid {
+		return nil, errors.New("parse token failed")
+	}
+
+	claims, ok := tokenClaims.Claims.(*Claims[T])
+	if !ok {
+		return nil, errors.New("token claims type invalid")
+	}
+
+	return claims, nil
+}
+```
 
