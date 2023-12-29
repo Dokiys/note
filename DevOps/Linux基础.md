@@ -1,3 +1,7 @@
+# 终端
+
+[命令行界面 (CLI)、终端 (Terminal)、Shell、TTY，傻傻分不清楚？](https://prinsss.github.io/the-difference-between-cli-terminal-shell-tty/)
+
 # 操作系统与CPU架构
 
 首先我们需要明确*CPU*是硬件层面的东西，操作系统是软件层面的东西。一台计算机通常有运算器、控制器、存储设备、输入设备、输出设备五个部分组成。

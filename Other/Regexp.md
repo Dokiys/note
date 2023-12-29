@@ -171,3 +171,13 @@ Linux下可以通过`man 7 regex`查看相关帮助。
 ```bash
 \.[^.]*$
 ```
+
+
+
+**匹配proto文件中的validate：**
+
+```bash
+# 匹配以[(validate.rules)并接以换行或者任意字符为在前内容的 '];'
+(?<=\[\(validate.rules\)[\s\S.]*)\];
+```
+

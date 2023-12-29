@@ -48,6 +48,8 @@
 * 设置App 快捷键
 
   【系统设置】=> 【键盘】 => 【键盘快捷键】=> 【App 快捷键】
+  
+* 截图软件录屏：Command + Shift + 5
 
 
 
@@ -95,6 +97,7 @@
 * 查看当前文件/包下的结构： Command + F12 ( fn + ' + ' )
 * 跳转到当前匹配的另一个括号处：Ctrl + M
 * Debug时快速打开参数的值：Option + Shift + Click
+* 循环扩展单词：Option + / （自定义快捷键为：Ctrl + Command + P）
 
 
 
@@ -124,6 +127,8 @@
 * 强制刷新(不走304缓存)：Shift + Command + R
 * 普通刷新：Command + R
 * 打开pdf到指定页面：可以在ULR栏添加后缀`#page=109`
+* 截全屏：调出【开发者工具】，Command + Shift + P 执行命令：【Capture full size screenshot】
+  如果页面内存在下拉框，可以尝试按照修改页面样式：将`html.body`和对应下拉框`Styles`中的`overflow`样式取消勾选
 
 
 
