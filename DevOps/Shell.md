@@ -750,6 +750,23 @@ goreman run start PROCESS_NAME		# 启动某个进程
 goreman run restart PROCESS_NAME	# 重启某个进程
 ```
 
+
+
+### expect
+
+```shell
+expect -c '
+  set timeout 300	#设置超时时间
+  spawn make deploy project=deploy/eticket/admin # 通过spawn执行外部命令
+  expect "Press Ctrl+C to exit"	# 等待期待值
+  send_user "执行成功，准备退出" # 打印信息到控制台
+  send "\x03"	# 键入
+  interact
+'
+```
+
+
+
 ### terminalizer
 
 `terminalizer`可以记录我们的命令行信息，并生成gif图片：
@@ -771,6 +788,8 @@ $ exit
 ```bash
 $ terminalizer render demo -o=./demo.gif
 ```
+
+
 
 ###  参数后置
 

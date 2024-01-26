@@ -56,48 +56,100 @@
 ## IDEA
 
 * 代码整理：Command + Option + L
+
 * 返回上一光标：Command + Option + &lt;-
+
 * 折叠所有块：Command + CapsLock + ' - '
+
 * 折叠当前快：Command + '-' / '+'
+
 * 打开所有块：Command + CapsLock + ' + '
+
 * 添加自定义代码块折叠：Command + Option + T  -&gt;  
+
 * 分屏：某文件的Tab栏上右键，选择Split Vertically 或 Split Horizontally
+
 * 查看最近文件：Command + E
+
 * 复制代码位置：Command + Option +  CapsLock + C
+
 * 进入方法/进入方法调用处：Command  + B
+
 * 进入接口实现：Command + Option + B
+
 * 搜索出的内容分屏展示：Shift + Command + F 打开搜索并选中内容后，Shift + Enter
+
 * 运行单元测试：Shift + Control + R
+
 * 文件重命名：Shift + F6
+
 * 代码移行：Shift + Option + 方向上/下
+
 * 定位到当前文件位置：Option + F1，然后数字1
+
 * 查找代码：Command + F，然后Esc可以关闭查找窗口
+
 * 向上一行插入空行：Command + Option + Enter
+
 * 向下一行插入空行：Shift + Enter
+
 * 选中行/当前行 向 上/下 移动：Shift + Option + 方向上/下
+
 * 选中/当前所在方法 与 上/下 一个方法调换位置：Shift + Command + 方向上/下
+
 * 批量修改某参数名：光标选中变量后Shift+F6
+
 * 查找文件：点击Project导航框，直接输入关键字
+
 * 全局查找文件：Shift + Command + O
+
 * 查找类型：Command + O
+
 * 打开Terminal： Option + F12
+
 * 快速生成测试方法：光标在方法上，Command + N
+
 * 使结构体实现某接口：光标选择到结构体，Option + Enter
+
 * 窗口查看方法内容：Command + Y
+
 * 光标跳转到上一个方法：Shift + Ctrl + 方向上/下
+
 * 切换Tool Window：长按Ctrl + Tab 或者 Command + E
+
 * 提取方法：Command  + Option + M
+
 * 在下一行复制选择的代码：Command + D
+
 * 加选当前选中的内容：Ctrl + G
+
 * 光标快速跳转到代码块开始/结束处：Option + 方向上 可以加选代码块，在加方向键左/右 即可
+
 * 光标快速跳转到代码块开始/结束处：Command + Option + `[` or `]`
+
 * 切换窗口： Command + Shift + `
+
 * 复制光标 Caret Cloning： Option + Option(长按) + 方向上/下
+
 * 跳转到指定行：Command + L
+
 * 查看当前文件/包下的结构： Command + F12 ( fn + ' + ' )
+
 * 跳转到当前匹配的另一个括号处：Ctrl + M
+
 * Debug时快速打开参数的值：Option + Shift + Click
+
 * 循环扩展单词：Option + / （自定义快捷键为：Ctrl + Command + P）
+
+* 修改SQL检测：[Preference => Editor => Language Injections] 分别添加如下记录：
+
+  ```
+  + goStringLiteralThatMatches(" *DELETE +(\\* +)?FROM .*;[\n\t\r]?")
+  + goStringLiteralThatMatches(" *INSERT +((OR +)?IGNORE +)?INTO .*;[\n\t\r]?")
+  + goStringLiteralThatMatches(" *SELECT .*FROM .*;[\n\t\r]*")
+  + goStringLiteralThatMatches(" *UPDATE .*SET .*;[\n\t\r]?")
+  + goStringLiteralThatMatches(".* = ? .*;[\n\t\r]?")
+  ```
 
 
 

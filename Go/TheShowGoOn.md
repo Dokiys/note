@@ -392,3 +392,16 @@ if volume.Spec.ClaimRef == nil {
 }
 ```
 
+
+
+## 使用接口将内部类的导出
+
+```go
+type Repo[T any] interface {}
+type repo[T any] struct {}
+
+func NewRepo[T any]() Repo[T] {
+	return &repo[T]{}
+}
+```
+
