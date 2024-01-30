@@ -225,3 +225,61 @@ func TestHttpServerMiddleware(t *testing.T) {
 }
 ```
 
+以下是一些常见的服务端中间件的简单实现：
+
+```go
+func NewServerRecoverMiddleware() ServerMiddleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			defer func() {
+				if rec := recover(); rec != nil {
+					fmt.Println(rec)
+					var stackInfo = make([]byte, 1<<16) // 64k
+					idx := runtime.Stack(stackInfo, false)
+					fmt.Println(string(stackInfo[0:idx]))
+				}
+			}()
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+```
+
+```go
+func NewServerCorsMiddleware() ServerMiddleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Set CORS headers for all responses
+			w.Header().Set("Access-Control-Allow-Origin", "*")
+
+			// Handle pre-flight OPTIONS request
+			if r.Method == http.MethodOptions {
+				// Include other necessary headers for pre-flight response
+				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS")
+				w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Length, Content-Type")
+				w.Header().Set("Access-Control-Max-Age", "86400") // Cache pre-flight response for 24 hours
+
+				// Respond with HTTP 204 No Content status
+				w.WriteHeader(http.StatusNoContent)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+```
+
+```go
+func NewServerLimiterMiddleware() ServerMiddleware {
+	var limit = rate.NewLimiter(rate.Every(time.Second), 1)
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if limit.Allow() {
+				next.ServeHTTP(w, r)
+			}
+			w.WriteHeader(http.StatusNotAcceptable)
+		})
+	}
+}
+```
+
