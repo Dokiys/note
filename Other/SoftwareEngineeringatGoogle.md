@@ -1240,7 +1240,7 @@ assertThat(accessManager.userHasAccess(USER_ID)).isTrue();
 
 #### Stubbing
 
-Stubbing is the process of giving behavior to a function that otherwise has no behav‐ ior on its own—you specify to the function exactly what values to return (that is, you stub the return values). For example:
+Stubbing is the process of giving behavior to a function that otherwise has no behavior on its own—you specify to the function exactly what values to return (that is, you stub the return values). For example:
 
  ```java
  // Pass in a test double that was created by a mocking framework.
@@ -1293,7 +1293,7 @@ However, for more complex code, using a real implementation often isn’t feasib
 Real implementation usually cost more time, if a real implementation cost you could sustain?
 
 **Determinism**
-A test is deterministic if, for a given version of the system under test, running the test always results in the same outcome; that is, the test either always passes or always fails. In contrast, a test is nondeterministic if its outcome can change, even if the sys‐ tem under test remains unchanged. 
+A test is deterministic if, for a given version of the system under test, running the test always results in the same outcome; that is, the test either always passes or always fails. In contrast, a test is nondeterministic if its outcome can change, even if the system under test remains unchanged. 
 A common cause of nondeterminism is code that is not hermetic; A real implementation can be much more complex compared to a test double, which increases the likelihood that it will be nondeterministic.
 
 **Dependency construction**
@@ -1312,3 +1312,155 @@ How tempting the follow is:
 But a trade-off still needs to be made when considering whether convinece or fidelity. *Rather than manually constructing the object in tests, the ideal solution is to use the same object construction code that is used in the production code.*
 
 ### Faking
+
+If using a real implementation is not feasible within a test, the best option is often to use a fake in its place. Fake execute quickly and allow you to effectively test your code. At the other end of the spectrum, in a software organization where fakes are rare, velocity will be slower because engineers can end up struggling with using real implementations that lead to slow and flaky tests. 
+The follow illustrates a fake file system.
+
+```c++
+// This fake implements the FileSystem interface. This interface is also
+// used by the real implementation.
+public class FakeFileSystem implements FileSystem {
+	// Stores a map of file name to file contents. The files are stored in
+	// memory instead of on disk since tests shouldn’t need to do disk I/O.
+	private Map<String, String> files = new HashMap<>();
+	@Override
+	    public void writeFile(String fileName, String contents) {
+		// Add the file name and contents to the map.
+		files.add(fileName, contents);
+	}
+	@Override
+	    public String readFile(String fileName) {
+		String contents = files.get(fileName);
+		// The real implementation will throw this exception if the
+		// file isn’t found, so the fake must throw it too.
+		if (contents == null) {
+			throw new FileNotFoundException(fileName);
+		}
+		return contents;
+	}
+}
+```
+
+#### When Should Fakes Be Written?
+
+A fake also requires maintenance: whenever the behavior of the real implementation changes, the fake must also be updated to match this behavior. Because of this, the team that owns the real implementation should write and maintain a fake.
+
+Maintaining a fake can be burdensome if its implementation needs to be duplicated across programming languages, such as for a service that has client libraries that allow the service to be invoked from different languages. One solution for this case is to create a single fake service implementation and have tests configure the client libraries to send requests to this fake service. This approach is more heavyweight compared to having the fake written entirely in memory.  However, it can be a reasonable trade-off to make, as long as the tests can still execute quickly.
+
+#### The Fidelity of Fakes
+
+*fidelity*: To describe how closely the behavior of a fake matches the behavior of the real implementation. 
+
+#### Fakes Should Be Tested
+
+One approach to writing tests for fakes involves writing tests against the API’s public interface and running those tests against both the real implementation and the fake (these are known as contract tests).
+
+#### What to Do If a Fake Is Not Available
+
+If a fake is not available, first ask the owners of the API to create one. 
+
+### Stubbing
+
+Stubbing is a way for a test to hardcode behavior for a function that otherwise has no behavior on its own. For example:
+```c++
+@Test public void getTransactionCount() {
+	transactionCounter = new TransactionCounter(mockCreditCardServer);
+	// Use stubbing to return three transactions.
+	when(mockCreditCardServer.getTransactions()).thenReturn(
+	        newList(TRANSACTION_1, TRANSACTION_2, TRANSACTION_3));
+	assertThat(transactionCounter.getTransactionCount()).isEqualTo(3);
+}
+```
+
+#### The Dangers of Overusing Stubbing
+
+* Tests become unclear
+* Tests become brittle: a good test should need to change only if user-facing behavior of an API changes; 
+* Tests become less effective
+
+#### When Is Stubbing Appropriate?
+
+To ensure its purpose is clear, each stubbed function should have a direct relationship with the test’s assertions. As a result, a test typically should stub out a small number of functions because stubbing out many functions can lead to tests that are less clear. 
+
+### Interaction Testing
+
+Interaction testing is a way to validate how a function is called without actually calling the implementation of the function.
+
+#### Prefer State Testing Over Interaction Testing
+
+With state testing, you call the system under test and validate that either the correct value was returned. For example:
+
+```c++
+@Test public void sortNumbers() {
+	NumberSorter numberSorter = new NumberSorter(quicksort, bubbleSort);
+	// Call the system under test.
+	List sortedList = numberSorter.sortNumbers(newList(3, 1, 2));
+	// Validate that the returned list is sorted. It doesn’t matter which
+	// sorting algorithm is used, as long as the right result was returned.
+	assertThat(sortedList).isEqualTo(newList(1, 2, 3));
+}
+```
+
+The follow illustrates a similar test scenario but instead uses interaction testing.
+```c++
+@Test public void sortNumbers_quicksortIsUsed() {
+	// Pass in test doubles that were created by a mocking framework.
+	NumberSorter numberSorter =
+	        new NumberSorter(mockQuicksort, mockBubbleSort);
+	// Call the system under test.
+	numberSorter.sortNumbers(newList(3, 1, 2));
+	// Validate that numberSorter.sortNumbers() used quicksort. The test
+	// will fail if mockQuicksort.sort() is never called (e.g., if
+	// mockBubbleSort is used) or if it’s called with the wrong arguments.
+	verify(mockQuicksort).sort(newList(3, 1, 2));
+}
+```
+
+The primary issue with interaction testing is that it can’t tell you that the system under test is working properly; it can only validate that certain functions are called as expected.
+
+#### When Is Interaction Testing Appropriate?
+
+Differences in the number or order of calls to a function would cause undesired behavior.
+
+#### Best Practices for Interaction Testing
+
+**Prefer to perform interaction testing only for state-changing functions**
+
+*State-changing* like `POST` or  `PUT` method whick in HTTP and *Non-state-changing* like `GET`. In general, you should perform interaction testing only for functions that are state-changing. Performing interaction testing for non-state-changing functions makes your test brittle because you’ll need to update the test anytime the pattern of interactions changes. By contrast, state-changing interactions represent something useful that your code is doing to change state somewhere else. 
+
+```java
+@Test public void grantUserPermission() {
+	UserAuthorizer userAuthorizer =
+	 new UserAuthorizer(mockUserService, mockPermissionDatabase);
+	when(mockPermissionService.getPermission(FAKE_USER)).thenReturn(EMPTY);
+	// Call the system under test.
+	userAuthorizer.grantPermission(USER_ACCESS);
+	// addPermission() is state-changing, so it is reasonable to perform
+	// interaction testing to validate that it was called.
+	verify(mockPermissionDatabase).addPermission(FAKE_USER, USER_ACCESS);
+	// getPermission() is non-state-changing, so this line of code isn’t
+	// needed. One clue that interaction testing may not be needed:
+	// getPermission() was already stubbed earlier in this test.
+	verify(mockPermissionDatabase).getPermission(FAKE_USER);
+}
+```
+
+
+
+## Larger Testing
+
+### What Are Larger Tests?
+
+Unit tests can give you confidence about individual functions, objects, and modules, but large tests provide more confidence that the overall system works as intended.
+
+#### Fidelity
+
+ Fidelity is the property by which a test is reflective of the real behavior of the system under test (SUT).
+
+#### Why Not Have Larger Tests?
+
+Larger tests present two other challenges. First, there is a challenge of ownership. A larger test spans multiple units and thus can span multiple owners. Who is responsible for maintaining the test and who is responsible for diagnosing issues when the test breaks? 
+The second challenge for larger tests is one of standardization. Larger tests differ in implementation from team to team. The infrastructure does not have a standard way to run those tests.  
+
+### Larger Tests at Google
+
