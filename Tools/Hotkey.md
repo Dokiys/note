@@ -150,6 +150,8 @@
   + goStringLiteralThatMatches(" *UPDATE .*SET .*;[\n\t\r]?")
   + goStringLiteralThatMatches(".* = ? .*;[\n\t\r]?")
   ```
+  
+* 跳转到当前方法到测试方法：Commad + Shift + T
 
 
 

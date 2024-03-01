@@ -1464,3 +1464,77 @@ The second challenge for larger tests is one of standardization. Larger tests di
 
 ### Larger Tests at Google
 
+Unit tests are not capable of testing a complex system with true fidelity. For example, many functional testing scenarios interact with a given binary differently than with classes inside that binary, and these functional tests require separate SUTs and thus are canonical, larger tests.
+
+## Deprecation
+
+We refer to the process of orderly migration away from and eventual removal of obsolete systems as deprecation. The age of a system alone doesn’t justify its deprecation. Something is old, it does not follow that it is obsolete.
+
+### Why Deprecate?
+
+Our discussion of deprecation begins from the fundamental premise that code is a liability, not an asset. After all, if code were an asset, why should we even bother spending time trying to turn down and remove obsolete systems? Code itself doesn’t bring value: it is the functionality that it provides that brings value. That functionality is an asset if it meets a user need: the code that implements this functionality is simply a means to that end. Code itself carries a cost, instead of focusing on how much code we can produce, we should instead focus on how much functionality it can deliver per unit of code. One of the easiest ways to do so isn’t writing more code and hoping to get more functionality; it’s removing excess code and systems that are no longer needed. Deprecation policies and procedures make this possible.
+
+### Why Is Deprecation So Hard?
+
+One reason is it can be difficult to convince the relevant stakeholders that deprecation efforts are worthwhile, particularly if they negatively impact new feature development.
+
+#### Deprecation During Design
+
+The concept of designing systems so that they can eventually be deprecated might be radical in software engineering, but it is common in other engineering disciplines. Consider the example of a nuclear power plant, its eventual decommissioning after a lifetime of productive service must be taken into account. 
+
+So, what kinds of considerations should we think about when designing systems that we can more easily deprecate in the future? Here are a couple of the questions we encourage engeneering teams at Google to ask:
+
+* How easy will it be for my consumers to migrate from my product to a potential replacement?
+* How can I replace parts of my system incrementally?
+
+In short, don't start projects that your organization isn’t committed to support for the expected lifespan of the organization. Even if the organization chooses to deprecate and remove the project, there will still be costs, but they can be mitigated through planning and investments in tools and policy.
+
+### Types of Deprecation
+
+Deprecation isn’t a single kind of process, but a continuum of them. Broadly speaking, we divide this continuum into two separate areas: advisory and compulsory.
+
+#### Advisory Deprecation
+
+About advisory deprecations,  the team knows the system has been replaced, and although they hope clients will eventually migrate to the new system. This kind of deprecation often lacks enforcement: we hope that clients move, but can’t force them to. As our friends in SRE will readily tell you: “Hope is not a strategy.”
+
+Advisory deprecations are a good tool for advertising the existence of a new system and encouraging early adopting users to start trying it out. One scenario we’ve seen at Google in which advisory deprecations have strong benefits is when the new system offers compelling benefits to its users. However, the benefits must be transformative. Users will be hesitant to migrate on their own for marginal benefits, and even new systems with vast improvements will not gain full adoption using only advisory deprecation efforts. 
+
+Advisory deprecation allows system authors to nudge users in the desired direction, but they should not be counted on to do the majority of migration work. The experience at Google has been that this can lead to fewer new uses of an obsolete system, but it rarely leads to teams actively migrating away from it. The old system will continue to require maintenance and other resources unless its users are more actively encouraged to migrate.
+
+#### Compulsory Deprecation
+
+For compulsory deprecation to actually work, its schedule needs to have an enforcement mechanism. This empower the team running the deprecation process to break noncompliant users after they have been sufficiently warned through efforts to migrate them. Without this power, it becomes easy for customer teams to ignore deprecation work. 
+
+Google’s monolithic repository and dependency graph gives us tremendous insight into how systems are used across our ecosystem. Even so, some teams might not even know they have a dependency on an obsolete system. It’s also possible to find them dynamically through tests of increasing frequency and duration during which the old system is turned off temporarily. These intentional changes provide a mechanism for discovering unintended dependencies by seeing what breaks, thus alerting teams to a need to prepare for the upcoming deadline. Within Google, we occasionally change the name of implementation-only symbols to see which users are depending on them unaware.
+
+#### Deprecation Warnings 
+
+For both advisory and compulsory deprecations, it is often useful to have a programmatic way of marking systems as deprecated so that users are warned about their use and encouraged to move away. It’s often tempting to just mark something as deprecated and hope its uses eventually disappear, but remember: “hope is not a strategy.”
+
+What usually happens in practice is that these warnings accumulate over time.  If they are used in a transitive context, these warnings can soon overwhelm users of a system to the point where they ignore them altogether. In health care, this phenomenon is known as “alert fatigue.”
+
+Any deprecation warning issued to a user needs to have two properties: actionability and relevance. 
+A warning is actionable if the user can use the warning to actually perform some relevant action, not just in theory, but in practical terms, given the expertise in that problem area that we expect for an average engineer.
+A warning is relevant if it surfaces at a time when a user actually performs the indicated action. It’s important to resist the urge to put deprecation warnings on everything possible. As discussed in Chapter 20, we limit these warnings to newly changed lines as a way to warn people about new uses of the deprecated symbol.
+
+### Managing the Deprecation Process
+
+#### Process Owners
+
+We’ve learned at Google that without explicit owners, a deprecation process is unlikely to make meaningful progress. Having explicit project owners who are tasked with managing and running the deprecation process might seem like a poor use of resources, but the alternatives are even worse: delegate deprecation efforts to the users of the system. The case becomes simply an advisory deprecation, which will never organically finish. Centralizing deprecation efforts helps better assure that expertise actually reduces costs by making them more transparent.
+
+Abandoned projects often present a problem that projects are still actively used but nobody clearly owns or maintains. Projects sometimes enter this state because: they are deprecated: the original owners have moved on to a successor project, leaving the obsolete one chugging along in the basement, still a dependency of a critical project, and hoping it just fades away eventually. But such projects are unlikely to fade away on their own. 
+In the case of competing priorities, deprecation work will almost always be perceived as having a lower priority and rarely receive the attention it needs. These sorts of important-not-urgent cleanup tasks are a great use of 20% time and provide engineers exposure to other parts of the codebase.
+
+#### Milestones
+
+When building a new system, project milestones are generally pretty clear: “Launch the frobnazzer features by next quarter.” Incremental milestones help give the team a sense of progress. In contrast, it can often feel that the only milestone of a deprecation process is removing the obsolete system entirely. Similar to building a new system, managing a team working on deprecation should involve concrete incremental milestones, which are measurable and deliver value to users.
+
+#### Deprecation Tooling
+
+These tools can be categorized as discovery, migration, and backsliding prevention tooling.
+
+**Discovery**
+It is useful to know how and by whom an obsolete system is being used. Much of the initial work of deprecation is determining who is using the old system—and in which unanticipated ways. Depending on the kinds of use, this process may require revisiting the deprecation decision once new information is learned.
+
+**Migration**

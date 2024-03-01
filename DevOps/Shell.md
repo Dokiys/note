@@ -469,6 +469,15 @@ $ bash -c "echo -e \"123
 ;  => 多个命令单独执行
 ```
 
+### `<()`
+
+进程替换（Process Substitution）不同于将输出视为字符串的`$()`。进程替换将输出视为文件流，允许将其直接用作命令需要文件作为输入（`<()`为输入，`>()`为输出但很少用）。
+
+```bash
+# diff 的两个参数需要是文件，这里进程替换创建了一个临时的文件
+diff <(ls dir1) <(ls dir2)
+```
+
 ### awk
 
 ```bash
@@ -818,18 +827,69 @@ rename 's/coupon_/ticket_/' *.go
 
 ### openssl
 
-生成padding格式为pkcs1的私钥：
+生成padding格式为pkcs1的私钥（openssl3.x.x开始已经不再支持生成pkcs1的密钥了，需要添加选项`-traditional`选项）：
 
 ```bash
 key_size=2048
 
 openssl genpkey -algorithm RSA -outform PEM -out private_key.pem -pkeyopt rsa_keygen_bits:$key_size
-openssl rsa -in private_key.pem -outform PEM -out private_key_pkcs1.pem
+openssl pkey -in private_key.pem -out private_key_pkcs1.pem -traditional
 ```
 
-生成私钥：
+生成公钥：
 
 ```bash
-openssl rsa -in private_key_pkcs1.pem -pubout -outform PEM -out $public_key_file
+openssl rsa -in private_key_pkcs1.pem -pubout -out public_key.pem
 ```
+
+
+
+### jq
+
+jq 是一个强大的json处理工具，基础的用法是直接获取json字段中的某值：
+
+```bash
+# 将会输出{"key1":"value1"}
+echo '{
+  "field1": "{\"key1\":\"value1\"}",
+  "field2": "{\"key2\":\"value2\"}",
+  "response_body": {
+    "activate_status": 1,
+    "attach": "{\"from\":\"app_coupon\",\"tags\":\"特惠74折\"}"
+  }
+}' | jq -r .field1
+```
+
+还可以通过一些脚本来处理json中的指定字段，比如将上面这个json中的第一层级的嵌套转义json进行去转义：
+
+```bash
+echo '{
+  "field1": "{\"key1\":\"value1\"}",
+  "field2": "{\"key2\":\"value2\"}",
+  "response_body": {
+    "activate_status": 1,
+    "attach": "{\"from\":\"app_coupon\",\"tags\":\"特惠74折\"}"
+  }
+}' | jq '
+  # 将对象转换为键值对数组
+  to_entries |
+  
+  # 遍历数组中的每个元素
+  map(
+    # 检查值是否为字符串类型
+    if .value | type == "string" then
+      # 尝试将字符串解析为 JSON 对象
+      .value |= (fromjson? // .)
+    else
+      # 如果不是字符串，保持原样
+      .
+    end
+  ) |
+  
+  # 将处理后的键值对数组转换回对象
+  from_entries
+'
+```
+
+
 
