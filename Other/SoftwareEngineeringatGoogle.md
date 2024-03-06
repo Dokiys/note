@@ -1537,4 +1537,29 @@ These tools can be categorized as discovery, migration, and backsliding preventi
 **Discovery**
 It is useful to know how and by whom an obsolete system is being used. Much of the initial work of deprecation is determining who is using the old system—and in which unanticipated ways. Depending on the kinds of use, this process may require revisiting the deprecation decision once new information is learned.
 
-**Migration**
+
+
+# Part IV. Tools
+
+## Version Control and Branch Management
+
+### What Is Version Control?
+
+#### Why Is Version Control Important?
+
+A VCS removes the question of “which is more recent?” Use of modern version control automates error-prone operations like track‐ ing which set of changes have been applied.
+
+#### Distributed VCS
+
+Distributed Version Control System (DVCS, the dominant source control system today is Git) does not constraint of a central repository: if you have a copy (clone, fork) of the repository, you have a repository that you can commit to as well as all of the metadata necessary to query for information about things like revision history. A standard workflow is to clone some existing repository, make some edits, commit them locally, and then push some set of commits to another repository, which may or may not be the original source of the clone. 
+Any notion of centrality is purely conceptual, a matter of policy, not fundamental to the technology or the underlying protocols. Most DVCS ecosystems define a central repository for a project as a matter of policy.
+
+#### Source of Truth
+
+There is no inherent notion of which copy of the distributed repository is the single source of truth in DVCS systems. Well-managed projects using DVCS declare one specific branch in one specific repos‐ itory to be the source of truth and thus avoid the more chaotic possibilities. We see this in practice with the spread of hosted DVCS solutions like GitHub or GitLab—users can clone and fork the repository for a project, but there is still a single primary repository.
+Usually, we’re assigning special significance to the trunk branch. 
+
+### Branch Management
+
+
+
