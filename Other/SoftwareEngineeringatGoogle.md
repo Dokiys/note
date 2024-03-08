@@ -1561,5 +1561,76 @@ Usually, we’re assigning special significance to the trunk branch.
 
 ### Branch Management
 
+Being able to track different revisions in version control opens up a variety of different approaches for how to manage those different versions. Collectively, these different approaches fall under the term *branch management*, in contrast to a single "trunk".
+
+#### Work in Progress Is Akin to a Branch
+
+Every piece of work-in-progress in the organization is equivalent to a branch.
+
+#### Dev Branches
+
+We believe that a version control policy that makes extensive use of dev branches as a means toward product stability is inherently misguided. 
+
+#### Release Branches 发布分支
+
+When there are multiple branches being developed in isolation for long periods, coordinating merge operations becomes significantly more expensive (and possibly riskier) than they would be with trunk-based development.
+That same DORA research also suggests a strong positive correlation between “trunk- based development,” “no long-lived dev branches,” and good technical outcomes. In many cases we think complex branch and merge strategies are a perceived safety crutch—an attempt to keep trunk stable. As we see throughout this book, there are other ways to achieve that outcome.
+
+### Version Control at Google 谷歌的版本控制
+
+At Google, the vast majority of our source is managed in a single repository (monorepo) shared among roughly 50,000 engineers. We have a notion of granular ownership in the monorepo: at every level of the file hierarchy, we can find OWNERS files that list the usernames of engineers that are allowed to approve commits within that subtree of the repository. 
+
+#### One Version
+
+One key feature of Google’s version control policy is what we’ve come to refer to as “One Version.” This likes notion of "For every dependency in our repository, there must be only one version of that dependency to choose."
+Let's look at a counterexample:  some team discovers a bug in common infrastructure code. Rather than fix it in place, the team decides to fork that infrastructure and tweak it to work around the bug—without renaming the library or the symbols. It informs other teams near them. And a few other teams build libraries that themselves rely on this new fork. When this happens multiple times, there will be many different versions of dependency existing in the code base. That's a dangerous situation.
+
+#### The “One-Version” Rule 
+
+On top of the Single Source of Truth model, we can hopefully understand the depth of this seemingly simple rule for source control and branch management:
+
+> Developers must never have a choice of “What version of this component should I depend upon?”
+
+Consistency has a profound importance at all levels in an organization. 
+
+#### (Nearly) No Long-Lived Branches
+
+Development branches should be minimal, or at best be very short lived. Work should be done in small increments against trunk, committed regularly. New development must not have a choice when adding a dependency. That new should be committed to trunk, disabled from the runtime until it’s ready, and hidden from other developers by visibility if possible. 
+
+### Monorepos
+
+The monorepo is usually more difficult to violate One Version. And consistency helps scale up the impact of introducing new tools and optimizations. 
+What is important is not whether we focus on monorepo; it’s to adhere to the One- Version principle to the greatest extent possible: developers must not have a *choice* when adding a dependency onto some library that is already in use in the organization. 
+After all, your choice of filesystem format really doesn’t matter as much as what you write to it.
+
+### Future of Version Control
+
+The other major argument against monorepos is that it doesn’t match how development happens in the Open Source Software (OSS) world. Although true, many of the practices in the OSS world come (rightly) from prioritizing freedom, lack of coordination, and lack of computing resources. Separate projects in the OSS world are effectively separate organizations that happen to be able to see one another’s code. Within the boundaries of an organization, we can make more assumptions: we can assume the availability of compute resources, we can assume coordination, and we can assume that there is some amount of centralized authority.
+
+
+
+## Code Search
+
+Code Search is a tool for browsing and searching code at Google that consists of a frontend UI and various backend elements. 
+That integration changed its focus from searching to browsing code, and later development of Code Search was partly guided by a principle of "**answering the next question about code in a single click**." Now such questions as "Where is this symbol defined?", "Where is it used?", "How do I include it?", "When was it added to the codebase?", and even ones like "Fleet-wide, how many CPU cycles does it consume?" are all answerable with one or two clicks.
+In contrast to integrated development environments (IDEs) or code editors, Code Search is optimized for the use case of reading, understanding, and exploring code at scale.
+
+### How Do Googlers Use Code Search?
+
+About 16% of Code Searches try to answer the question of where a specific piece of information exists in the codebase; for example, a function definition or configuration, all usages of an API, or just where a specific file is in the repository. 
+About 25% of Code Searches are classic file browsing, to answer the question of what a specific part of the codebase is doing. This is using Code Search to read the source, to better understand code before making a change, or to be able to understand someone else’s change.
+The most frequent use case—about 33% of Code Searches—are about seeing examples of how others have done something. 
+About 16% of Code Searches try to answer the question of why a certain piece of code was added, or why it behaves in a certain way.
+About 8% of Code Searches try to answer questions around who or when someone introduced a certain piece of code, interacting with the version control system.
+
+### Why a Separate Web Tool?
+
+The first answer is that the Google codebase is so large. A centralized search index means doing this work once, upfront, and means investments in the process benefit everyone. 
+For IDEs that construct indices at startup, there is a pressure to have a small project or visible scope to reduce this time and avoid flooding tools like autocomplete with noise. 
+The user experience (UX) can be optimized for browsing and understanding code, rather than editing it. For example, because there isn’t an editor’s text cursor, every mouse click on a symbol can be made meaningful(e.g., show all usages or jump to definition).
+It allows to integrate with other developer tools and perform code analysis. And exposes its search, cross-reference, and syntax highlighting APIs to tools. 
+
+### Impact of Scale on Design
+
 
 
