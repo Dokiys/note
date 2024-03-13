@@ -630,6 +630,29 @@ git config --global alias.logline "log --pretty='%C(yellow)%h%C(cyan) %aN%C(rese
 https://git-scm.com/docs/git-log#_pretty_formats
 https://www.cnblogs.com/bellkosmos/p/5923439.html
 
+
+
+## git submodule
+
+`submodule`允许将一个`git`仓库作为另外一个`git`仓库的子目录，且两个仓库具有独立的提交。可以通过如下命令根据一个已有仓库在当前仓库中创建同名的子模块：
+
+```shell
+# 也可以通过submodule_name进行重命令
+git submodule add git@github.com:Dokiys/sub1.git [submodule_name]
+```
+
+主仓库和子模块的关联会体现在执行命令后新生成的`.gitsubmodule`文件、当前仓库的`.git/config`配置信息、`.git/modules/submodule_name`文件夹中。因此如果想移除一个已经存在的子模块，需要确保移除了上述信息：
+
+```shell
+git config -f .gitmodules --remove-section submodule.[submodule_name]
+git config --remove-section submodule.[submodule_name]
+rm .git/modules/[submodule_name]
+```
+
+由于子模块独立于主仓库，因此子模块中的提交、远程同步都是独立的。在子模块中提交更改后，才能在主仓库中体现出来有更改。并且在主仓库中是依照子模块提交的hash码进行关联的，所以如果子模块的提交没有推送到远程仓库，而主仓库已经推送到了远程仓库，则可能导致其他开发人员无法获取到对应的子模块提交。
+
+
+
 # Git规范
 
 ## Commit 规范

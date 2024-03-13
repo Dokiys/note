@@ -1607,8 +1607,6 @@ After all, your choice of filesystem format really doesn’t matter as much as w
 
 The other major argument against monorepos is that it doesn’t match how development happens in the Open Source Software (OSS) world. Although true, many of the practices in the OSS world come (rightly) from prioritizing freedom, lack of coordination, and lack of computing resources. Separate projects in the OSS world are effectively separate organizations that happen to be able to see one another’s code. Within the boundaries of an organization, we can make more assumptions: we can assume the availability of compute resources, we can assume coordination, and we can assume that there is some amount of centralized authority.
 
-
-
 ## Code Search
 
 Code Search is a tool for browsing and searching code at Google that consists of a frontend UI and various backend elements. 
@@ -1632,5 +1630,7 @@ It allows to integrate with other developer tools and perform code analysis. And
 
 ### Impact of Scale on Design
 
+#### Search Query Latency
 
+For one million queries, an increase of just one second per search request corresponds to about 35 idle full-time engineers every day. 
 
