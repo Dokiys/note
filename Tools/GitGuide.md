@@ -641,15 +641,44 @@ https://www.cnblogs.com/bellkosmos/p/5923439.html
 git submodule add git@github.com:Dokiys/sub1.git [submodule_name]
 ```
 
-主仓库和子模块的关联会体现在执行命令后新生成的`.gitsubmodule`文件、当前仓库的`.git/config`配置信息、`.git/modules/submodule_name`文件夹中。因此如果想移除一个已经存在的子模块，需要确保移除了上述信息：
-
-```shell
-git config -f .gitmodules --remove-section submodule.[submodule_name]
-git config --remove-section submodule.[submodule_name]
-rm .git/modules/[submodule_name]
-```
+主仓库和子模块的关联会体现在执行命令后新生成的`.gitsubmodule`文件、当前仓库的`.git/config`配置信息、`.git/modules/submodule_name`文件夹中。
 
 由于子模块独立于主仓库，因此子模块中的提交、远程同步都是独立的。在子模块中提交更改后，才能在主仓库中体现出来有更改。并且在主仓库中是依照子模块提交的hash码进行关联的，所以如果子模块的提交没有推送到远程仓库，而主仓库已经推送到了远程仓库，则可能导致其他开发人员无法获取到对应的子模块提交。
+
+彻底移除子模块
+
+```shell
+git config -f .gitmodules --remove-section submodule.[submodule_name] # 在.gitmodules文件中移除子模块
+git config --remove-section submodule.[submodule_name] # 移除仓库config中的子模块配置
+rm .git/modules/[submodule_name]	# 移除子模块关联文件
+git rm --cached [submodule_name] # 清除索引
+```
+
+本地取消子模块关联
+```bash
+rm -rf [submodule_name] # 删除子模块目录
+git submodule deinit [submodule_name] # 取消子模块的初始化
+git rm --cached [submodule_name] # 清除索引
+```
+
+重新初始化并更新子模块
+
+```bash
+git submodule update --init [submodule_name]
+# 等价于 
+git submodule init [submodule_name]
+git submodule update -- [submodule_name]
+```
+
+根据主仓库拉取子模块代码
+
+```bash
+git submodule update # 拉去所有已经初始化过的子模块
+git submodule update -- [submodule_name] # 拉取指定的子模块
+git pull --recurse-submodules # 在拉去主仓库时拉去所有已经初始化过的子模块
+```
+
+
 
 
 
