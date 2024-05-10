@@ -1633,4 +1633,18 @@ It allows to integrate with other developer tools and perform code analysis. And
 #### Search Query Latency
 
 For one million queries, an increase of just one second per search request corresponds to about 35 idle full-time engineers every day. 
+In reality, the productivity loss doesn’t simply increase linearly with latency. A UI is considered responsive if latencies are below 200 ms. But after just one second, the developer’s attention often begins to drift. If another 10 seconds pass, the developer is likely to switch context completely, which is generally recognized to have high productivity costs. The best way to keep a developer in the productive “flow” state is by targeting sub–200 ms end-to-end latency for all frequent operations and investing in the corresponding backends.
 
+
+
+## Build Systems and Build Philosophy
+
+### Purpose of a Build System
+
+Build systems aren’t just for humans; they also allow machines to create builds automatically, whether for testing or for releases to production. In fact, the large majority of builds at Google are triggered automatically rather than directly by engineers. 
+
+### What Happens Without a Build System
+
+#### But All I Need Is a Compiler! 
+
+The need for a build system might not be immediately obvious. After all, most of us probably didn’t use a build system when we were first learning to code—we probably started by invoking tools like gcc or javac directly from the command line, or the equivalent in an integrated development environment (IDE).

@@ -557,11 +557,28 @@ $ envsubst 'ADD' <temp.yml> add.yml
 
 ### find
 
-find可以在指定文件夹中按照文件名查找文件：
+`find`可以在指定文件夹中按照文件名查找文件：
 
 ```bash
 find ./api -name '*filename' -or -name '*filename2'
 ```
+
+利用`find`还可以对找到的文件进行遍历操作，下面是利用`ffmpeg`将`flac`文件转换成`wav`文件的例子：
+
+```bash
+# -exec command {} \; 会在每次匹配到文件后执行对应的操作
+find . -name "*.flac" -exec ffmpeg -i {} -vn -sn -dn {}.wav \;
+
+# -exec command {} + 会将所找到的文件名以参数的形式一次性传入到脚本中
+find . -name "*.flac" -exec zsh -c 'for file; do ffmpeg -i "$file" -vn -sn -dn "${file%.flac}.wav"; done' zsh {} +
+
+# 在zsh环境下，我们可以利用参数展开（parameter expansion）将转换后到文件统一生成到某文件夹
+# ${1:t} 从 $1（第二个参数，即完整的文件路径。第一个参数是zsh）中提取文件名部分，去除路径信息。
+# ${1:t:r} 进一步从上一步的结果中去除文件扩展名。
+find . -name "*.flac" -exec zsh -c 'ffmpeg -i "$1" -vn -sn -dn "/your_path/${1:t:r}.wav"' zsh {} \;
+```
+
+
 
 ### grep
 

@@ -153,6 +153,8 @@
   
 * 跳转到当前方法到测试方法：Commad + Shift + T
 
+* 可以将一下文本内容以[`YML.js`](../asset/Tools/Hotkey/YML.js)文件名创建在【Scratcher and Consoles => Extensions => Database Tools and SQL => data => extractors】中，然后便可以在复制数据时选择改脚本复制yml格式的文件。
+
 
 
 ## Postman
