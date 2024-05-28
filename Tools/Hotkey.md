@@ -155,6 +155,8 @@
 
 * 可以将一下文本内容以[`YML.js`](../asset/Tools/Hotkey/YML.js)文件名创建在【Scratcher and Consoles => Extensions => Database Tools and SQL => data => extractors】中，然后便可以在复制数据时选择改脚本复制yml格式的文件。
 
+* 在Zen模式下临时打开侧边栏：Command + Command(长按)
+
 
 
 ## Postman

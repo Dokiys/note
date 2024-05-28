@@ -666,6 +666,8 @@ $ ./client
 
 ### Load Balancer
 
+[参考：0x00 再看 RR-Picker 实现](https://pandaychen.github.io/2020/01/03/GRPC-PICKER-DEEP-ANALYSIS/)
+
 gRPC负载均衡相关的代码在`google.golang.org/grpc/balancer`包下，其中最关键的两个接口：
 
 ```go
