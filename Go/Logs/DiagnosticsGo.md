@@ -16,6 +16,72 @@ go test -run="TestCallCommon" main_test.go common.go call_common.go call_common_
 
 果然，程序依然有问题，并且通过错误信息，难以判断出原因。我希望能够对这个测试方法进行逐行调试，以便找出问题所在。
 
+### ab压测
+
+Apache Bench (ab) 是一个常用的HTTP负载测试工具。在Mac系统上默认带有该工具，ab 本身不支持在请求中直接设置可变参数，因此只可以用来处理一些简单的测试。如下是一个简单的ab使用示例：
+
+```zsh
+ab -n 300 -c 100 -r -p "postdata.json" -T 'application/json' http://localhost:8080/user/list
+```
+
+> 从`postdata.json`文件中获取请求参数，并按照`application/json`格式，以100的并发数总共请求`http://localhost:8080/user/list`接口300次
+
+```zsh
+This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking localhost (be patient)
+Completed 100 requests
+Completed 200 requests
+Completed 300 requests
+Finished 300 requests
+
+
+Server Software:
+Server Hostname:        localhost
+Server Port:            8080
+
+Document Path:          /user/list
+Document Length:        91 bytes
+
+Concurrency Level:      100
+Time taken for tests:   0.078 seconds
+Complete requests:      300
+Failed requests:        0
+Total transferred:      79800 bytes
+Total body sent:        111000
+HTML transferred:       27300 bytes
+Requests per second:    3829.66 [#/sec] (mean)		# RPS,每秒请求数
+Time per request:       26.112 [ms] (mean)			  # 用户平均请求等待时间（平均响应时间*并发数）
+Time per request:       0.261 [ms] (mean, across all concurrent requests)		# 平均响应时间
+Transfer rate:          994.81 [Kbytes/sec] received
+                        1383.76 kb/s sent
+                        2378.58 kb/s total
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    1   1.1      1       3
+Processing:     3   20  11.0     18      64
+Waiting:        3   20  11.0     18      64
+Total:          4   21  11.7     19      67
+
+Percentage of the requests served within a certain time (ms)
+  50%     19		# 50%的请求在19ms内返回
+  66%     28
+  75%     30
+  80%     33
+  90%     35
+  95%     41
+  98%     46
+  99%     49
+ 100%     67 (longest request)
+```
+
+
+
+
+
 ## Debug
 
 ### dlv 
