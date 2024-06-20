@@ -172,3 +172,25 @@
   ```
 
 * 在A OR B的条件查询中，如果有建立索引，A条件和B条件都是会走到索引的。
+
+* 可以利用`case when`来实现对某列数据值范围的分组，比如：
+
+  ```sql
+  SELECT  COUNT(*) as '请求数量', CASE
+  	WHEN request_duration > 0 THEN '0-0.01'
+  	WHEN request_duration > 0.01 THEN '0.01-0.1'
+  	ELSE '其他' END as '请求时间段'
+  FROM log
+  GROUP BY CASE
+  	WHEN request_duration > 0 THEN '0-0.01'
+  	WHEN request_duration > 0.01 THEN '0.01-0.1'
+  	ELSE '其他' END
+  ```
+
+* 可以通过如下语句来查询某个表的列信息：
+
+  ```sql
+  show full columns from `table_name`
+  ```
+
+  
