@@ -193,4 +193,38 @@
   show full columns from `table_name`
   ```
 
-  
+* 在一些数据量较大的分页查询中，在查询偏后的数据时（比如`limit 1000000,10`）往往会因为需要对前面1000000条数据进行筛选排序等操作而较慢。所以可以采用有序列做游标的方式来进行查询（通常是pk），比如：
+  ```sql
+  SELECT *
+  FROM test_page t
+  WHERE id > 0
+    AND updated_at BETWEEN '2024-07-17' AND '2024-07-18'
+  ORDER BY created_at ASC, id ASC
+  LIMIT 10
+  ```
+
+  在这个sql通常会由于id是主键，MySQL的解释器会走到主键索引。但如果数据量较大的情况下，会导致不必要的行扫描从而降低效率。一般情况下我们都需要对数据表中的`created_at`和`updated_at`两个字段添加索引，因此在这种情况下我们可以强制走`updated_at`的索引：
+
+  ```sql
+  SELECT *
+  FROM test_page t
+  FORCE INDEX(idex_updated_at)
+  WHERE id > 0
+    AND updated_at BETWEEN '2024-07-17' AND '2024-07-18'
+  ORDER BY created_at ASC, id ASC
+  LIMIT 10
+  ```
+
+* `show processlist`可以查看当前执行的SQL进程，并且可以使用`kill [ProcessId]`来停止正在执行的进程。
+
+* 驱动表（Driving Table）指在多表连接（JOIN）操作中，优化器选择作为扫描基础的那张表。例如，如果一个表的数据量非常大，而另一个表的数据量较小且有高效的索引，优化器通常会选择较小的表作为驱动表。可以通过`STRAIGHT_JOIN`强制选择驱动表，比如：
+
+  ```sql
+  SELECT * FROM customers
+  STRAIGHT_JOIN orders ON customers.id = orders.customer_id
+  WHERE customers.region = 'North America';
+  ```
+
+  并且通常`LEFT JOIN`查询左表将会作为驱动表，但在某些特殊情况或特定的查询优化策略下，可能会有不同的执行计划。例如，如果右表非常小且完全可以加载到内存中，而左表非常大，则优化器可能会考虑先扫描右表。然而，这种情况比较少见，大多数情况下 `LEFT JOIN` 的执行都是以左表为驱动表开始的。并且目前没有办法直接判断SQL执行使用那一个表作为驱动表，只能通过`EXPLAIN`来大致推测为是查询中第一个被处理的表，这在 `EXPLAIN` 的输出中通常是 `type` 列显示最优访问方法（非 "ALL"）的表，或者是 `id` 值最小的一行。
+
+  **在实践中，对于任何复杂的或性能敏感的查询，定期运行 `EXPLAIN` 并分析其输出应成为常规维护任务的一部分。**
