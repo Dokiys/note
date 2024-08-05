@@ -228,3 +228,27 @@
   并且通常`LEFT JOIN`查询左表将会作为驱动表，但在某些特殊情况或特定的查询优化策略下，可能会有不同的执行计划。例如，如果右表非常小且完全可以加载到内存中，而左表非常大，则优化器可能会考虑先扫描右表。然而，这种情况比较少见，大多数情况下 `LEFT JOIN` 的执行都是以左表为驱动表开始的。并且目前没有办法直接判断SQL执行使用那一个表作为驱动表，只能通过`EXPLAIN`来大致推测为是查询中第一个被处理的表，这在 `EXPLAIN` 的输出中通常是 `type` 列显示最优访问方法（非 "ALL"）的表，或者是 `id` 值最小的一行。
 
   **在实践中，对于任何复杂的或性能敏感的查询，定期运行 `EXPLAIN` 并分析其输出应成为常规维护任务的一部分。**
+  
+* MySQL从8.0.12.版本开始支持online DDL，以减少一些DDL语句的锁表操作，通常情况下online DDL 是默认的，我们不需要关心MySQL具体做了什么。在我们有明确的需求的情况下可以通过子语句设置不同的更新表策略。
+  比如下面这条语句通过设置`ALGORITHM=INPLACE`让MySQL在原表上进行添加索引，并且通过`LOCK=NONE`设置在更新过程中允许对数据表进行读写操作：
+
+  ```sql
+  ALTER TABLE tbl_name RENAME INDEX old_index_name TO new_index_name, ALGORITHM=INPLACE, LOCK=NONE;
+  ```
+
+  `ALGORITHM`对应有三个不同的算法选项分别是： 
+
+  `ALGORITHM=COPY`：MySQL 会创建原表的一个完整拷贝，并在这个拷贝上应用结构变更。在变更完成后，MySQL 将新表替换旧表（这将产生大量的IO和磁盘使用）。
+  `ALGORITHM=INPLACE`：允许 MySQL 尽可能在原表上直接进行更改，而不是复制整个表，但在修改过程中仍可能需要对表加锁。
+  `ALGORITHM=INSTANT`：允许对表结构进行即时更改，没有锁表，几乎不影响表的使用。
+  在需要锁表的情况下，可以添加子语句`LOCK`。`LOCK`也有三个选项：`NONE`, `SHARED`（只读）, `EXCLUSIVE`。
+
+  对于不同的DDL语句（比如修改列，修改索引等），可设置的`ALGORITHM`和`LOCK`都有一定的限制，非法的参数可能会返回错误。比如：
+  ```sql
+  ALTER TABLE tbl_name ALGORITHM=INPLACE, CHANGE COLUMN c1 c1 VARCHAR(256);
+  ERROR 0A000: ALGORITHM=INPLACE is not supported. Reason: Cannot change
+  column type INPLACE. Try ALGORITHM=COPY.
+  ```
+
+  具体的DDL所执行的默认策略可以通过[MySQL文档查看](https://dev.mysql.com/doc/refman/8.4/en/innodb-online-ddl-operations.html)。
+
