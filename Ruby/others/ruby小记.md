@@ -160,6 +160,8 @@ result.class
 csv << ["\xEF\xBB\xBF ID","Name","AGE"] 
 ```
 
+没有添加BOM的csv文件，可以通过`vim` 进入命令模式进行设置`:set bomb`
+
 
 
 ## 字符换行

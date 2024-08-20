@@ -136,7 +136,12 @@
 
 * 对于设置了自增主键的表，如果频繁使用`INSERT INTO ... ON DUPLICATE KEY UPDATE`刷新数据，可能会带来的主键增长过快的问题。假如在应用中使用`int`类型的字段来接收主键，其能允许的最大值为`2147483647`，有可能会溢出。同时由于设置数据库表的`AUTO_INCREMENT` 的起始值只能是大于或等于当前表中已有数据的最大值。因此没有办法在原表内重置`AUTO_INCREMENT`，可以将现存数据通过`INSERT INTO`的方式，带上主键值，迁移到新表，以达到重置`AUTO_INCREMENT`的目的。
 
-* MYSQL使用`JSON_EXTRACT()`和`->`的方式取JSON字段里的字符串值都会带有引号，如果希望取出的值不带引号，可以使用`->>`来取。
+* MYSQL使用`JSON_EXTRACT()`和`->`的方式取JSON字段里的字符串值都会带有引号，如果希望取出的值不带引号，可以使用`->>`来取。在对某JSON字段中的字符串变量进行替换时尤其需要注意使用`->>`来避免`JSON_REPLACE`时的转义：
+  ```sql
+  SET @json = '{"name": "John", "age": 30}';
+  SELECT @json->'$.name';  -- 结果: "John"（注意字符串值包含双引号）
+  SELECT @json->>'$.name';  -- 结果: John（字符串值，不包含双引号）
+  ```
 
 * `DELETE`语句也可以通过连表查询来筛选条件：
 
@@ -251,4 +256,45 @@
   ```
 
   具体的DDL所执行的默认策略可以通过[MySQL文档查看](https://dev.mysql.com/doc/refman/8.4/en/innodb-online-ddl-operations.html)。
+  
+* 一种库内搜索任意表列名的方法：
+  
+  ```sql
+  SELECT c.TABLE_SCHEMA, c.TABLE_NAME, c.COLUMN_NAME
+  FROM information_schema.COLUMNS c
+  JOIN information_schema.TABLES t ON c.TABLE_NAME = t.TABLE_NAME AND c.TABLE_SCHEMA = t.TABLE_SCHEMA
+  WHERE c.TABLE_SCHEMA = 'DATABASE_NAME' 
+  AND t.TABLE_ROWS > 1000000 and COLUMN_NAME LIKE '%COLUMN_NAME%'
+  ```
+  
+* 对于MySQL，像`\n`，`\t`，`"`，`\`等特殊字符在插入或者查询的的时候需要进行转义：
+  ```sql
+  mysql> INSERT INTO `demo` (`id`, `text`) VALUES (1, '1:\ 2:\\ 3:\\\ 4:\\\\ ');
+  mysql> INSERT INTO `demo` (`id`, `text`) VALUES (2, '\\\\');
+  mysql> SELECT * FROM demo WHERE text = '\\\\'; /* 注意这里是用的'='进行比较 */
+  +----+-----------------------+
+  | id | text                  |
+  +----+-----------------------+
+  |  2 | \\                    |
+  +----+-----------------------+
+  ```
 
+  以上的转义来自于MySQL的语法解析器解析的时候进行的转义，当使用`LIKE`进行条件查询时，`LIKE`语句还会进行一次转义。比如：
+  ```sql
+  mysql> SELECT * FROM demo WHERE text LIKE '%\\\\\\\\\\\\\\\\%'; /* 16个\ */
+  +----+-----------------------+
+  | id | text                  |
+  +----+-----------------------+
+  |  1 | 1: 2:\ 3:\ 4:\\       |
+  +----+-----------------------+
+  ```
+
+  如下是一个刷新转义的例子：
+  
+  ```sql
+  UPDATE demo
+  SET text = REPLACE(REPLACE(REPLACE(text, '\\"', ''), '\\\\n', '\\n'), '\\\\t', '\\t')
+  WHERE text LIKE '%\\\\"%'
+  ```
+  
+  
