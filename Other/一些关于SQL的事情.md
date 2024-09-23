@@ -264,7 +264,7 @@
   FROM information_schema.COLUMNS c
   JOIN information_schema.TABLES t ON c.TABLE_NAME = t.TABLE_NAME AND c.TABLE_SCHEMA = t.TABLE_SCHEMA
   WHERE c.TABLE_SCHEMA = 'DATABASE_NAME' 
-  AND t.TABLE_ROWS > 1000000 and COLUMN_NAME LIKE '%COLUMN_NAME%'
+  AND t.TABLE_ROWS > 1000000 AND COLUMN_NAME LIKE '%COLUMN_NAME%' AND t.TABLE_COMMENT LIKE '%XX%'
   ```
   
 * 对于MySQL，像`\n`，`\t`，`"`，`\`等特殊字符在插入或者查询的的时候需要进行转义：
@@ -297,4 +297,4 @@
   WHERE text LIKE '%\\\\"%'
   ```
   
-  
+* MySQL中`DELETE`语句可以加别名，但是如果添加别名则必须在`DELETE`之后指定别名：`DELETE u FROM user u`
