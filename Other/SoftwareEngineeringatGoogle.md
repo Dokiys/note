@@ -1645,6 +1645,97 @@ Build systems aren’t just for humans; they also allow machines to create build
 
 ### What Happens Without a Build System
 
-#### But All I Need Is a Compiler! 
+#### But All I Need Is a Compiler!
 
-The need for a build system might not be immediately obvious. After all, most of us probably didn’t use a build system when we were first learning to code—we probably started by invoking tools like gcc or javac directly from the command line, or the equivalent in an integrated development environment (IDE).
+The need for a build system might not be immediately obvious. After all, most of us probably didn’t use a build system when we were first learning to code—we probably started by invoking tools like gcc or javac directly from the command line, or the equivalent in an integrated development environment (IDE). 
+
+As soon as we end up having to deal with code from multiple languages or multiple compilation units, building code is no longer a one-step process. We need to think about what our code depends on and build those pieces in the proper order, possibly using a different set of tools for each piece.
+The compiler also doesn’t know anything about how to handle external dependencies.
+
+#### Shell Scripts to the Rescue?
+
+Maybe you still don’t think you need a real build system and can automate away the tedious parts using some simple shell scripts that take care of building things in the correct order. This helps out for a while, but pretty soon you start run‐ ning into even more problems:
+
+* As your system grows more complex, you begin spending almost as much time working on your build scripts as on real code.
+* You need to go through the same painful bootstrapping process every time a new developer joins your team. And despite your best efforts, there are still small differences in each person’s system.
+
+You’ve run into a classic problem of scale. For a single developer working on at most a couple hundred lines of code for at most a week or two, a compiler is all you need. Scripts can maybe take you a little bit farther. But as soon as you need to coordinate across multiple developers and their machines. 
+At this point, this simple approach breaks down and it’s time to invest in a real build system.
+
+### Modern Build Systems
+
+#### It’s All About Dependencies
+
+The idea of “I need that before I can have this” (e.g., “push the documentation before I mark a release as complete”) is something that recurs repeatedly in the design of build systems, and managing dependencies is per‐ haps the most fundamental job of a build system. 
+
+#### Task-Based Build Systems
+
+In a task-based build system, the fundamental unit of work is the task. Each task is a script of some sort that can execute any sort of logic, and tasks specify other tasks as dependencies that must run before them.
+
+Instead of shell scripts, most modern build systems require engineers to create build‐ les that describe how to perform the build. Take this example from the Ant manual: 
+
+```xml
+<project name="MyProject" default="dist" basedir=".">
+ <description>
+ simple example build file
+ </description>
+ <!-- set global properties for this build -->
+ <property name="src" location="src"/>
+ <property name="build" location="build"/>
+ <property name="dist" location="dist"/>
+  
+ <target name="init">
+   <!-- Create the time stamp -->
+   <tstamp/>
+   <!-- Create the build directory structure used by compile -->
+   <mkdir dir="${build}"/>
+ </target>
+  
+ <target name="compile" depends="init"
+   	description="compile the source">
+   <!-- Compile the Java code from ${src} into ${build} -->
+   <javac srcdir="${src}" destdir="${build}"/>
+ </target>
+  
+ <target name="dist" depends="compile"
+   	description="generate the distribution">
+   <!-- Create the distribution directory -->
+   <mkdir dir="${dist}/lib"/>
+   <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+   <jar jarfile="${dist}/lib/MyProject-${DSTAMP}.jar" basedir="${build}"/>
+ </target>
+  
+ <target name="clean"
+   	description="clean up">
+   <!-- Delete the ${build} and ${dist} directory trees -->
+   <delete dir="${build}"/>
+   <delete dir="${dist}"/>
+ </target>
+</project>
+```
+
+The buildfile is written in XML and each task executes a list of possible commands defined by Ant. Users perform builds by providing tasks to Ant’s command-line tool, Ant takes the following steps:
+
+1. Loads a file named `build.xml` in the current directory and parses it.
+2. Looks for the task named `dist` that was provided on the command line and discovers that it has a dependency on the task named compile. 
+3. Looks for the task named `compile` and discovers that it has a dependency on the task named `init`. 
+4. Looks for the task named `init` and discovers that it has no dependencies. 
+5. Executes the commands defined in the `init` task. 
+6. Executes the commands defined in the `compile` task given that all of that task’s dependencies have been run.
+7. Executes the commands defined in the `dist` task given that all of that task’s dependencies have been run.
+
+In the end, the code executed by Ant when running the dist task is equivalent to the following shell script:
+
+```shell
+./createTimestamp.sh
+mkdir build/
+javac src/* -d build/
+mkdir -p dist/lib/
+jar cf dist/lib/MyProject-$(date --iso-8601).jar build/*
+```
+
+When the syntax is stripped away, the buildfile and the build script actually aren’t too different. But we’ve already gained a lot by doing this. We can create new buildfiles in other directories and link them together. We can easily add new tasks that depend on existing tasks in arbitrary and complex ways. 
+
+**The dark side of task-based build systems**. Because these tools essentially let engineers define any script as a task, they are extremely powerful. But that power comes with drawbacks. The problem with such systems is that they actually end up giving `too much power to engineers and not enough power to the system`.
+**Difficulty of parallelizing build steps.**
+**Difficulty performing incremental builds.** 

@@ -918,3 +918,15 @@ echo '{
 
 
 
+### ffmpeg
+
+```bash
+# 将mov文件转换成gif
+ffmpeg -i file.mov -r 15 file.gif
+
+# 将flac文件转wav
+find . -name "*.flac" -exec zsh -c 'ffmpeg -i "$1" -vn -sn -dn "../wav/${1:t:r}.wav"' zsh {} \;
+```
+
+
+
