@@ -801,26 +801,26 @@ expect -c '
 
 
 
-### terminalizer
+### asciinema
 
-`terminalizer`可以记录我们的命令行信息，并生成gif图片：
+`asciinema`可以记录我们的命令行信息，并生成gif图片：
 
 ```bash
-npm install -g terminalizer
+brew install asciinema
 ```
 
 开始记录：
 
 ```bash
-$ terminalizer record demo -d 'zsh'
+$ asciinema rec demo.cast
 ...
 $ exit
 ```
 
-完成后将会自动在当前目录生成demo.yml文件，保存相关信息。然后根据再根据该文件生成图片：
+完成后将会自动在当前目录生成`demo.cast`文件，保存相关信息。然后根据再根据该文件生成图片：
 
 ```bash
-$ terminalizer render demo -o=./demo.gif
+$ agg --speed 2 demo.cast demo.gif
 ```
 
 

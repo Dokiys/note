@@ -1738,4 +1738,94 @@ When the syntax is stripped away, the buildfile and the build script actually ar
 
 **The dark side of task-based build systems**. Because these tools essentially let engineers define any script as a task, they are extremely powerful. But that power comes with drawbacks. The problem with such systems is that they actually end up giving `too much power to engineers and not enough power to the system`.
 **Difficulty of parallelizing build steps.**
-**Difficulty performing incremental builds.** 
+**Difficulty performing incremental builds.** A good build system will allow engineers to perform reliable incremental builds such that a small change doesn’t require the entire codebase to be rebuilt from scratch. But task-based build systems struggle here. Because tasks can do anything, there’s no way in general to check whether they’ve already been done. 
+**Difficulty maintaining and debugging scripts** 
+
+We need to take some power in the hands of the system and reconceptualize the role of the system not as running tasks, but as producing artifacts. 
+
+#### Artifact-Based Build Systems
+
+Maybe instead of letting engineers define tasks, we can have a small number of tasks defined by the system that engineers can configure in a limited way. Engineers would still need to tell the system what to build, but the how of doing the build would be left to the system.
+
+Buildfiles in artifact-based build systems(such as Blaze) are a declarative manifest describing a set of artifacts to build, their dependencies, and a limited set of options that affect how they’re built.
+
+**Getting concrete with Bazel**
+Bazel is the open source version of Google’s internal build tool, Blaze, and is a good example of an artifact-based build system. Here’s what a buildfile (normally named BUILD) looks like in Bazel:
+
+```bazel
+java_binary(
+   name = "MyBinary",
+   srcs = ["MyBinary.java"],
+   deps = [
+     ":mylib",
+   ],
+)
+java_library(
+   name = "mylib",
+   srcs = ["MyLibrary.java", "MyHelper.java"],
+   visibility = ["//java/com/example/myproduct:__subpackages__"],
+   deps = [
+     "//java/com/example/common",
+     "//java/com/example/myproduct/otherlib",
+     "@com_google_common_guava_guava//jar", 
+   ],
+)
+```
+
+In Bazel, BUILD files define targets—the two types of targets here are java_binary and java_library. Every target corresponds to an artifact that can be created by the system: binary targets produce binaries that can be executed directly, and library targets produce libraries that can be used by binaries or other libraries. 
+Every target has a `deps`, which define other targets that must be built before this target and linked into it. 
+Each source hierarchy is called a workspace and is identified by the presence of a special WORKSPACE file at the root.
+
+To build the MyBinary target, a user would run bazel build `:MyBinary`. Bazel would do the following:
+
+1. Parse every `BUILD` file in the workspace to create a graph of dependencies among artifacts.
+2. Use the graph to determine the transitive dependencies of MyBinary; 
+3. Build each of those dependencies, in order. Bazel starts by building each target that has no other dependencies and keeps track of which dependencies still need to be built for each target. As soon as all of a target’s dependencies are built, Bazel starts building that target.
+4. Build MyBinary to produce a final executable binary that links in all of the depen‐ dencies that were built in step 3.
+
+It might not seem like what’s happening here is that much different than what happened when using a task-based build system. But there are critical differences. In step 3: because Bazel knows that each target will only produce a Java library(rather than user-defined script), so it knows that it’s safe to run these steps in parallel. 
+
+The next thing that when the developer types bazel build `:MyBinary` a second time without making any changes: Bazel will exit in less than a second with a message saying that the target is up to date —Bazel knows that each target is the result only of running a Java compiler, and it knows that the output from the Java compiler depends only on its inputs, so as long as the inputs haven’t changed, the output can be reused. 
+
+**Tools as dependencies** 
+One problem we ran into earlier was that builds depended on the tools installed on our machine, and reproducing builds across systems could be difficult due to different tool versions or locations. The problem becomes even more difficult when your project uses languages that require different tools based on which platform they’re being built on or compiled for (e.g., Windows versus Linux),
+Bazel solves the first part of this problem by treating tools as dependencies to each target.
+Bazel solves the second part of the problem, platform independence, by using toolchains. Rather than having targets depend directly on their tools, they actually depend on types of toolchains. A toolchain contains a set of tools and other proper‐ ties defining how a type of target is built on a particular platform. 
+
+**Extending the build system**
+Bazel allows its supported target types to be extended by adding custom rules.  The rule author declares the inputs that the rule requires and the fixed set of outputs that the rule produces. The author also defines the actions that will be generated by that rule. This means that actions are the lowest-level composable unit in the build system —an action can do whatever it wants so long as it uses only its declared inputs and outputs, and Bazel will take care of scheduling actions and caching their results as appropriate.
+
+**Isolating the environment**
+Every action in Bazel is isolated from every other action via a filesystem sandbox. This is enforced by systems such as LXC on Linux, the same technology behind Docker.
+
+**Making external dependencies deterministic**
+Depending on files outside of the current workspace is risky. The fundamental problem is that we want the build system to be aware of these files without having to check them into source control. Bazel and some other build systems address this problem by requiring a workspacewide manifest file that lists a cryptographic hash for every external dependency in the workspace(Such as `go.sum`). 
+Of course, it can still be a problem if a remote server becomes unavailable or starts serving corrupt data—this can cause all of your builds to begin failing if you don’t have another copy of that dependency available. To avoid this problem, we recom‐ mend that, for any nontrivial project, you mirror all of its dependencies onto servers or services that you trust and control.
+
+#### Distributed Builds
+
+For enormous codebase e, it’s simply impossible to complete a build in a reasonable amount of time on a single machine. The only way to make this work is with a build system that supports distributed builds wherein the units of work being done by the system are spread across an arbitrary and scalable number of machines. 
+
+**Remote caching**
+At Google, many artifacts are served from a cache rather than built from scratch, vastly reducing the cost of running our build system. Of course, for there to be any benefit from a remote cache, downloading an artifact needs to be faster than building it.
+
+**Remote execution**
+
+```mermaid
+graph TD
+BuildMaster --> Worker1
+BuildMaster --> Worker2
+BuildMaster --> Worker3
+DeveloperWorkstation --> BuildMaster
+CIServer --> BuildMaster
+```
+
+
+
+The build master breaks the requests into their component actions and schedules the execution of those actions over a scalable pool of workers. Each worker performs the actions asked of it with the inputs specified by the user and writes out the resulting artifacts.
+
+For this to work, all of the parts of the artifact-based build systems described earlier need to come together. Build environments must be completely self-describing so that we can spin up workers without human intervention. Build processes themselves must be completely self-contained because each step might be executed on a different machine. Outputs must be completely deterministic so that each worker can trust the results it receives from other workers.
+
+
+
+### Time, Scale, Trade-Offs
