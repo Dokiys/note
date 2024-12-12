@@ -1466,6 +1466,8 @@ The second challenge for larger tests is one of standardization. Larger tests di
 
 Unit tests are not capable of testing a complex system with true fidelity. For example, many functional testing scenarios interact with a given binary differently than with classes inside that binary, and these functional tests require separate SUTs and thus are canonical, larger tests.
 
+
+
 ## Deprecation
 
 We refer to the process of orderly migration away from and eventual removal of obsolete systems as deprecation. The age of a system alone doesn’t justify its deprecation. Something is old, it does not follow that it is obsolete.
@@ -1606,6 +1608,8 @@ After all, your choice of filesystem format really doesn’t matter as much as w
 ### Future of Version Control
 
 The other major argument against monorepos is that it doesn’t match how development happens in the Open Source Software (OSS) world. Although true, many of the practices in the OSS world come (rightly) from prioritizing freedom, lack of coordination, and lack of computing resources. Separate projects in the OSS world are effectively separate organizations that happen to be able to see one another’s code. Within the boundaries of an organization, we can make more assumptions: we can assume the availability of compute resources, we can assume coordination, and we can assume that there is some amount of centralized authority.
+
+
 
 ## Code Search
 
@@ -1828,4 +1832,280 @@ For this to work, all of the parts of the artifact-based build systems described
 
 
 
-### Time, Scale, Trade-Offs
+#### Time, Scale, Trade-Offs
+
+
+
+### Dealing with Modules and Dependencies
+
+Projects that use artifact-based build systems like Bazel are broken into a set of mod‐ ules, with modules expressing dependencies on one another via BUILD files. Proper organization of these modules and dependencies can have a huge effect on both the performance of the build system and how much work it takes to maintain.
+
+#### Using Fine-Grained Modules and the 1:1:1 Rule
+
+The first question that comes up when structuring an artifact-based build is deciding how much functionality an individual module should encompass. At one extreme, the entire project could be contained in a single module. At the other extreme, nearly every source file could be made into its own module, effectively requiring each file to list in a BUILD file every other file it depends on. 
+Google tends to favor significantly smaller modules. For languages like Java that have a strong builtin notion of packaging, each directory usually contains a single package, target, and BUILD file (Pants, another build system based on Blaze, calls this the 1:1:1 rule). Languages with weaker packaging conventions will frequently define multiple targets per BUILD file.
+The benefits of smaller build targets really begin to show at as finer-grained targets mean that the build system can be much smarter about running only a limited subset of tests that could be affected by any given change. Google believes in the systemic benefits of using smaller targets, we’ve made some strides in mitigating the downside by investing in tooling to automatically manage BUILD files to avoid burdening developers. 
+
+#### Minimizing Module Visibility
+
+Bazel and other build systems allow each target to specify a visibility: a property that specifies which other targets may depend on it. It is usually best to minimize visibility as much as possible.
+
+#### Managing Dependencies
+
+**Internal dependencies**
+Internal dependencies are built from source. This also means that there’s no notion of “version” for internal dependencies—a target and all of its internal dependencies are always built at the same commit/revision in the repository. 
+One issue that should be handled carefully with regard to internal dependencies is how to treat `transitive dependencies`. Suppose target A depends on target B, which depends on a common library target C. If allow A use C via B, and if B’s dependency on C was then removed, A and any other target that used C via a dependency on B would break. Effectively, a target’s dependencies became part of its public contract and could never be safely changed.
+Google eventually solved this issue by introducing a “strict transitive dependency mode” in Blaze. In this mode, Blaze detects whether a target tries to reference a symbol without depending on it directly and, if so, fails with an error and a shell command that can be used to automatically insert the dependency. 
+
+**External dependencies**
+External dependencies are those on artifacts that are built and stored outside of the build system. External dependencies have versions, and those versions exist independently of the project’s source code.
+
+**Automatic versus manual dependency management**
+The problem with automatically managed dependencies(such as declared version as "1.+") is that you have no control over when the version is updated. There’s no way to guarantee that external parties won’t make breaking updates. 
+Manually managed dependencies require a change in source con‐ trol, they can be easily discovered and rolled back, and it’s possible to check out an older version of the repository to build with older dependencies.
+
+**The One-Version Rule**
+Google enforce a strict One-Version Rule for all third-party dependencies in their internal codebase
+
+**Transitive external dependencies**
+Build tools like Maven or Gradle will often recursively download each transitive dependency by default.  This is very convenient: when adding a dependency on a new library, it would be a big pain to have to track down each of that library’s transitive dependencies and add them all manually. 
+But if your target depends on two external libraries that use different versions of the same dependency, there’s no telling which one you’ll get([diamond dependency problem](https://jlbp.dev/what-is-a-diamond-dependency-conflict)). For this reason, Bazel’s alternative is to require a global file that lists every single one of the repository’s external dependencies and an explicit version used for that dependency throughout the repository. 
+Yet again, the choice here is one between convenience and scalability. It depends on whether your project is large enough to frequently have conflicts with external dependencies.
+
+**Caching build results using external dependencies**
+As described earlier, A better way to solve the problem of artifacts taking a long time to build is to use a build system that supports remote caching. Such a build system will save the resulting artifacts from every build to a location that is shared across engineers, so if a developer depends on an artifact that was recently built by someone else, the build system will automatically download it instead of building it.
+
+**Security and reliability of external dependencies**
+Both problems can be mitigated by mirroring any artifacts you depend on onto servers you control and blocking your build system from accessing third-party arti‐ fact repositories like Maven Central.
+Another alternative that completely sidesteps the issue is to vendor your project’s dependencies. When a project vendors its dependencies, it checks them into source control alongside the project’s source code, either as source or as binaries. This effectively means that all of the project’s external dependencies are converted to internal dependencies.
+
+
+
+## Critique: Google’s Code Review Tool
+
+In this chapter, we’ll look at what makes successful code review tooling via Google’s well-loved in-house system, *Critique*. 
+
+### Code Review Tooling Principles
+
+Critique was designed to emphasize: 
+*Simplicity*： Critique’s user interface (UI) is based around making it easy to do code review without a lot of unnecessary choices, and with a smooth interface.
+*Foundation of trust*: Code review is not for slowing others down. Trusting colleagues as much as possible makes it work.
+*Generic communication*: Critique prioritizes generic ways for users to comment on the code changes, instead of complicated protocols. 
+*Workflow integration*
+
+### Code Review Flow
+
+Code reviews can be executed at many stages of software development. Typical review steps go as follows:
+
+1. Create a change
+2. Reqeust review
+3. Comment
+4. Modify change and reply to comments
+5. Change approval
+6. Commit a change
+
+#### Notifications
+
+As a change moves through the stages outlined earlier, Critique publishes event noti‐ fications that might be used by other supporting tools. This notification model allows Critique to focus on being a primary code review tool instead of a general purpose tool, while still being integrated into the developer workflow. 
+
+### Stage 1: Create a Change
+
+#### Tight Tool Integration
+
+In Critique, the author needs to click only once to start editing the change further in Cider. There is support to navigate between cross-references using Kythe or view the mainline state of the code in Code Search (see Chapter 17). Critique links out to the release tool so that users can see whether a submitted change is in a specific release. For these tools, Critique favors links rather than embedding so as not to distract from the core review experience. 
+
+Note that tight integration between Critique and a developer’s workspace is possible because of the fact that workspaces are stored in a FUSE-based filesystem, accessible beyond a particular developer’s computer. The Source of Truth is hosted in the cloud and accessible to all of these tools.
+
+### Stage 2: Request Review
+
+### Stages 3 and 4: Understanding and Commenting on a Change
+
+Comments in Critique are drafted as-you-go, but then “published” atomically. This allows authors and reviewers to ensure that they are happy with their comments before sending them out.
+
+##### Understanding the State of a Change
+
+Critique provides a number of mechanisms to make it clear where in the comment-and-iterate phase a change is currently located. These include a feature for determining who needs to take action next, and a dashboard view of review/author status for all of the changes with which a particular developer is involved.
+
+#### "Whose turn" feature
+
+This feature also emphasizes the turn-based nature of code review; it is always at least one person’s turn to take action.
+
+#### Dashboard and search system
+
+Critique’s landing page is the user’s dashboard page. 
+To optimize the user experience (UX), Critique’s default dashboard setting is to have the first section display the changes that need a user’s attention, although this is customizable.
+
+### Stage 5: Change Approvals (Scoring a Change)
+
+At Google, the scoring for a change is divided into three parts:
+
+* LGTM ("looks good to me")
+* Approval
+* The number of unresolved comments
+
+Every change requires an LGTM regardless of approval status, ensuring that at least two pairs of eyes viewed the change.
+
+Reviewers cannot just thumbs-down a change with no useful feedback;
+
+### Stage 6: Commiting a Change
+
+
+
+## Static Analysis
+
+Static analysis refers to programs analyzing source code to find potential issues such as bugs, antipatterns, and other issues that can be diagnosed *without executing the program*.
+
+### Key Lessons in Making Static Analysis Work
+
+An issue is an “effective false positive” if developers did not take some positive action after seeing the issue. 
+
+### Tricorder: Google’s Static Analysis Platform
+
+#### Integrated Feedback Channels
+
+With Tricorder, we display the option to click a “Not useful” button on an analysis result; Code reviewers can also ask change authors to address analysis results by clicking a “Please fix” button. Before established clear feedback channels, many developers would just ignore analysis results they did not understand. 
+
+#### Per-Project Customization
+
+Focus on project-level customization, not user-level customization. Project-level customization ensures that all team members have a consistent view of analysis results for their project and prevents situations in which one developer is trying to fix an issue while another developer introduces it.
+
+
+
+## Dependency Management
+
+Dependency management—the management of networks of libraries, packages, and dependencies that we don’t control—is one of the least understood and most challenging problems in software engineering. 
+
+Dependency management focuses on the problems that arise when changes are being made outside of your organization, without full access or visibility. Because your upstream dependencies can’t coordinate with your private code, they are more likely to break your build and cause your tests to fail.
+
+Scale makes questions more complex. It is easy to construct scenarios in which your organization’s use of two dependencies becomes unsatisfiable at some point in time. Generally, this happens because one dependency stops working without some requirement, the other is incompatible with the same requirement.
+
+#### Why Is Dependency Management So Difficult?
+
+##### Conflicting Requirements and Diamond Dependencies
+
+Much of the difficulty stems from one problem: what happens when two nodes in the dependency network have conflicting requirements, and your organization depends on them both? The diamond dependency problem, as demonstrated in the follows:
+
+```mermaid
+graph TD
+libuser --> liba
+libuser --> libb
+liba --> libbase
+libb --> libbase
+```
+
+In this simplified model, `libbase` is used by both `liba` and `libb`, and `liba` and `libb` are both used by `libuser`. If `libbase` ever introduces an incompatible change, there is a chance that `liba` and `libb`, don’t update simultaneously. If `liba` depends on the new `libbase` version and `libb` depends on the old version, there’s no general way for `libuser` (aka your code) to put everything together. 
+(Keep in mind that `libbase` might actually be absolutely any piece of software involved in the construction of two or more nodes in your dependency network.)
+Different programming languages tolerate the diamond dependency problem to different degrees. For some languages, it is possible to embed multiple (isolated) versions of a dependency within a build (For example Java).  Meanwhile, C++ has nearly zero tolerance for diamond dependencies in a normal build, and they are very likely to trigger arbitrary bugs and undefined behavior (UB) as a result of a clear violation of C++’s [One Definition Rule](https://oreil.ly/VTZe5). 
+As Java’s shading to hide some symbols in a dynamic-link library can provide some cushion for diamond dependency problems, but are not a solution in the general case. If there are *types* that are passed around between dependencies, all bets are off.
+
+If you encounter a conflicting requirement problem, when find compatible versions isn't possible, we must resort to locally patching the dependencies in question, which is particularly challenging because the cause of the incompatibility in both provider and consumer is probably not known to the engineer that first discovers the incompatibility. This is inherent: `liba` developers are still working in a compatible fashion with `libbase` v1, and `libb` devs have already upgraded to v2. Only a dev who is pulling in both of those projects has the chance to discover the issue, and it’s certainly not guaranteed that they are familiar enough with `libbase` and `liba` to work through the upgrade. The easier answer is to downgrade `libbase` and `libb`, although that is not an option if the upgrade was originally forced because of security issues.
+
+Systems of policy and technology for dependency management largely boil down to the question, “How do we avoid conflicting requirements while still allowing change among noncoordinating groups?”
+
+#### Importing Dependencies
+
+In programming terms, it’s clearly better to reuse some existing infrastructure rather than build it yourself.
+
+##### Compatibility Promises
+
+When we start considering time, the situation gains some complicated trade-offs. Just because you get to avoid a *development* cost doesn’t mean importing a dependency is the correct choice. In a software engineering organization that is aware of time and change, we need to also be mindful of its ongoing maintenance costs. Even if we import a dependency with no intent of upgrading it, discovered security vulnerabilities, changing platforms, and evolving dependency networks can conspire to force that upgrade, regardless of our intent. When that day comes, how expensive is it going to be?
+
+We suggest that a dependency provider should be clearer about the answers to these questions. 
+
+##### Considerations When Importing
+
+When engineers at Google try to import dependencies, we encourage them to ask this (incomplete) list of questions first:
+
+* Does the project have tests that you can run?
+* Do those tests pass?
+* Who is providing that dependency?
+* What sort of compatibility is the project aspiring to?
+* Does the project detail what sort of usage is expected to be supported?
+* How popular is the project?
+* How long will we be depending on this project?
+* How often does the project make breaking changes?
+* How complicated would it be to implement that functionality within Google?
+* How difficult do we expect it to be to perform an upgrade?
+
+#### Dependency Management, In Theory
+
+If a solution to dependency management prevents conflicting requirement problems among your dependencies, it’s a good solution. If it does so without assuming stability in dependency version or dependency fan-out, coordination or visibility between organizations, or significant compute resources, it’s a great solution.
+
+##### Semantic Versioning
+
+SemVer is the nearly ubiquitous practice of representing a version number for some dependency (especially libraries) using three decimal-separated integers, such as 2.4.72 or 1.1.4.  In the most common convention, the three component numbers represent major, minor, and patch versions, with the implication that a changed major number indicates a change to an existing API that can break existing usage, a changed minor number indicates purely added functionality that should not break existing usage, and a changed patch version is reserved for non-API-impacting implementation details and bug fixes that are viewed as particularly low risk. 
+Commonly, we’ll see “Requires `libbase` ≥ 1.5,” that requirement would be compatible with any `libbase` in 1.5, including 1.5.1, and anything in 1.6 onward, but not `libbase` 1.4.9 (missing the API introduced in 1.5) or 2.x (some APIs in `libbase` were changed incompatibly).
+
+We can conceptualize a dependency network as a collection of software components (nodes) and the requirements between them (edges). The requirements labels in this network change as a function of the version of the source node, either as dependencies are added (or removed) or as the SemVer requirement is updated because of a change in the source node (requiring a newly added feature in a dependency, for instance). Now finding a mutually compatible set of dependencies that satisfy all the transitive requirements of your application can be challenging. 
+Version-satisfiability solvers for SemVer are very much akin to SAT-solvers in logic and algorithms research: given a set of constraints (version requirements on dependency edges), can we find a set of versions for the nodes in question that satisfies all constraints?
+
+Version selection is a matter of running some algorithm to find an assignment of versions for dependencies in the network that satisfies all of the version-requirement constraints. SemVer and its SAT-solvers aren’t in any way promising that there *exists* a solution to a given set of dependency constraints. When no such satisfying assignment of versions exists, we colloquially call it “dependency hell.” 
+
+##### Bundled Distribution Models
+
+As an industry, we’ve seen the application of a powerful model of managing dependencies for decades now: an organization gathers up a collection of dependencies, finds a mutually compatible set of those, and releases the collection as a single unit. This is what happens, for instance, with Linux distributions. 
+
+Although the maintainers of all of the individual dependencies may have little or no knowledge of the other dependencies, these higher-level *distributors* are involved in the process of finding, patching, and testing a mutually compatible set of versions to include. 
+
+For an outside user, rather than saying, "I depend on these 72 libraries at these versions," this is, "I depend on Red Hat version N".
+
+##### Live at Head
+
+Live at Head rely on dependency providers to test changes against the entire ecosystem before committing. It always depend on the current version of everything, and never change anything in a way. A change that (unintentionally) alters API or behavior will in general be caught by CI on downstream dependencies, and thus should not be committed. For cases in which such a change *must* happen (i.e., for security reasons), such a break should be made only after either the downstream dependencies are updated or an automated tool is provided to perform the update in place. (This tooling is essential for closed-source downstream consumers: the goal is to allow any user the ability to update use of a changing API without expert knowledge of the use or the API.) This philosophical shift in responsibility in the open source ecosystem is difficult to motivate initially: putting the burden on an API provider to test against and change all of its downstream customers is a significant revision to the responsibilities of an API provider.
+
+#### The Limitations of SemVer
+
+Means of dotted-triple version number is not a promise. 
+If we acknowledge that SemVer is a lossy estimate and represents only a subset of the possible scope of changes, we can begin to see it as a blunt instrument. 
+
+##### SemVer Might Overconstrain
+
+If SemVer overconstrains, either because of an unnecessarily severe version bump or insufficiently fine-grained application of SemVer numbers, automated package managers and SAT-solvers will report that your dependencies cannot be updated or installed, even if everything would work together flawlessly by ignoring the SemVer checks. For instance, imagine that `libbase` is indeed composed of only two functions, Foo and Bar. Our mid-level dependencies `liba` and `libb` use only Foo. If the maintainer of `libbase` makes a breaking change to Bar, it is incumbent on them to bump the major version of `libbase` in a SemVer world. `liba` and `libb` are known to depend on `libbase` 1.x—SemVer dependency solvers won’t accept a 2.x version of that dependency. However, in reality these libraries would work together perfectly: only Bar changed, and that was unused.
+
+##### SemVer Might Overpromise
+
+On the flip side, SemVer makes the explicit assumption that an API provider’s estimate of compatibility can be fully predictive and that changes fall into three buckets: breaking (by modification or removal), strictly additive, or non-API-impacting. But how do we characterize a change that adds a one-millisecond delay to a time-sensitive API? What if the documentation said “This may change in the future”? 
+There are changes that are theoretically safe but break client code in practice (any of our earlier Hyrum’s Law examples). 
+There is no absolute truth in the notion of “This is a breaking change” *A change in isolation isn’t breaking or nonbreaking—*that statement can be evaluated only in the context of how it is being used. The reality of how we evaluate a change inherently relies upon information that isn’t present in the SemVer formulation of dependency management: how are downstream users consuming this dependency?
+
+##### Motivations
+
+In Go standard package management ecosystems, the equivalent of a major-version bump is expected to be a fully new package. This has a certain sense of justice to it: if you’re willing to break backward compatibility for your package, why do we pretend this is the same set of APIs?
+
+##### Minimum Version Selection
+
+MVS makes the opposite choice: when `liba`’s specification requires `libbase` ≥1.7, we’ll try `libbase` 1.7 directly, even if a 1.8 is available. This “produces high-fidelity builds in which the dependencies a user builds are as close as possible to the ones the author developed against.” There is a critically important truth revealed in this point: when `liba` says it requires `libbase` ≥1.7, that almost certainly means that the developer of `liba` had `libbase` 1.7 installed. Assuming that the `libbase` maintainer performed even basic testing before publishing, we have at least evidence of interoperability testing for that version of `liba` and version 1.7 of `libbase`.
+MVS just walks forward each affected dependency only as far as is required and says, "OK, I’ve walked forward far enough to get what you asked for (and not farther).
+Inherent in the idea of MVS is the admission that a newer version might introduce an incompatibility in practice. 
+
+#### So, Does SemVer Work?
+
+It’s deeply important, however, to recognize what it is actually saying and what it cannot. SemVer will work fine provided that:
+
+* Your dependency providers are accurate and responsible (to avoid human error in SemVer bumps)
+* Your dependencies are fine grained (to avoid falsely overconstraining when unused/unrelated APIs in your dependencies are updated, and the associated risk of unsatisfiable SemVer requirements)
+* All usage of all APIs is within the expected usage (to avoid being broken in surprising fashion by an assumed-compatible change, either directly or in code you depend upon transitively)
+
+#### Dependency Management with Infinite Resources
+
+If most (or at least a representative sample) of our dependencies are publicly visible, we run the tests for those dependencies with every proposed change. With a sufficiently large number of such tests, we have at least a statistical argument that the change is safe in the practical Hyrum’s-Law sense. The tests still pass, the change is good—it doesn’t matter whether this is API impacting, bug fixing, or anything in between; there’s no need to classify or estimate.
+We might also be able to use information from the change authors to help estimate risk and select an appropriate testing strategy.
+
+##### Exporting Dependencies
+
+It’s also worth thinking about how we build software that can be *used* as a dependency. 
+First, it can eventually become a drag on the reputation of your organization if implemented poorly or not maintained properly. As the Apache community saying goes, we ought to prioritize “community over code.”
+Second, a well-intentioned release can become a tax on engineering efficiency if you can’t keep things in sync. Given time, all forks will become expensive.
+
+Sharing code with the outside world, either as an open source release or as a closed-source library release, is not a simple matter of charity (in the OSS case) or business opportunity (in the closed-source case). Dependent users that you cannot monitor, in different organizations, with different priorities, will eventually exert some form of Hyrum’s Law inertia on that code. When evaluating whether to release something, be aware of the long-term risks: externally shared dependencies are often much more expensive to modify over time and external users of an API cost a lot more to maintain than internal ones.
+
+
+
+## Large-Scale Changes
+
+
+
+
+
+
+
