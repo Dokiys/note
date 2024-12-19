@@ -2103,9 +2103,15 @@ Sharing code with the outside world, either as an open source release or as a cl
 
 ## Large-Scale Changes
 
+#### Who Deals with LSCs?
 
+As just indicated, the infrastructure teams that build and manage our systems are responsible for much of the work of performing LSCs, but the tools and resources are available across the company. It for several follows reasons.
+First, the infrastructure teams that build and manage the underlying systems are also the ones with the domain knowledge required to fix the hundreds of thousands of references to them.
+Second, if the new system is important enough to migrate to, the costs of migration will be borne somewhere in the organization. But in our experience, organic migrations are unlikely to fully succeed, in part because engineers tend to use existing code as examples when writing new code.
 
+#### Barriers to Atomic Changes
 
+In an ideal world, all logical changes could be packaged into a single atomic commit that could be tested, reviewed, and committed independent of other changes. Unfortunately, as a repository grows, that ideal becomes less feasible. It can be completely infeasible even at small scale when using a set of distributed or federated repositories.
 
-
+#### LSC Infrastructure
 
