@@ -2113,5 +2113,47 @@ Second, if the new system is important enough to migrate to, the costs of migrat
 
 In an ideal world, all logical changes could be packaged into a single atomic commit that could be tested, reviewed, and committed independent of other changes. Unfortunately, as a repository grows, that ideal becomes less feasible. It can be completely infeasible even at small scale when using a set of distributed or federated repositories.
 
-#### LSC Infrastructure
+#### The LSC Process
+
+##### Authorization
+
+Many first-time LSC authors tend to assume that local project owners should review everything, but for most mechanical LSCs, it’s cheaper to have a single expert understand the nature of the change and build automation around reviewing it properly.
+
+
+
+## Continuous Integration
+
+> Continuous Integration: the continuous assembling and testing of our entire complex and rapidly evolving ecosystem.
+
+### CI Concepts
+
+#### Fast Feedback Loops
+
+To minimize the cost of bugs, CI encourages us to use *fast feedback loops.* Feedback can take many forms; following are some common ones (in order of fastest to slowest):
+
+* The edit-compile-debug loop of local development
+* Automated test results to a code change author on presubmit
+* An integration error between changes to two projects, detected after both are submitted and tested together (i.e., on post-submit)
+* An incompatibility between our project and an upstream microservice dependency, detected by a QA tester in our staging environment, when the upstream service deploys its latest changes
+* Bug reports by internal users who are opted in to a feature before external users
+* Bug or outage reports by external users or the press
+
+Any feedback from CI tests should not just be accessible but actionable—easy to use to find and fix problems. 
+
+#### Automation
+
+CI, specifically, automates the *build* and *release* processes, with a Continuous Build and Continuous Delivery. 
+The *Continuous Build* (CB) integrates the latest code changes at head and runs an automated build and test.
+
+The first step in Continuous Delivery (CD) is *release automation*, which continuously assembles the latest code and configuration from head into release candidates.
+
+> Release candidate (RC): A cohesive, deployable unit created by an automated process, assembled of code, configuration, and other dependencies that have passed the continuous build.
+
+Note that we include configuration in release candidates, even though it can slightly vary between environments as the candidate is promoted, so that it can undergo testing along with its corresponding code. We’re not necessarily advocating you compile configuration into your binaries—actually, we would recommend dynamic configuration. At Google, static configuration is in version control along with the code, and hence goes through the same code review process.
+
+We then define CD as follows:
+
+> Continuous Delivery (CD): a continuous assembling of release candidates, followed by the promotion and testing of those candidates throughout a series of environments—sometimes reaching production and sometimes not.
+
+Again, one of our key objectives in CI is determining *what* to test *when* in this progression.
 
